@@ -329,7 +329,7 @@
             font-size: 18px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            width: calc(100% - 20px);
+            width: 100%;
             max-width: 500px;
             box-sizing: border-box;
         }
@@ -436,6 +436,33 @@
         #speak-task-text.task-text {
            font-size: 28px;
         }
+
+                .input-container {
+            position: relative;
+            width: calc(100% - 20px);
+            max-width: 500px;
+        }
+
+        #speak-user-input {
+            padding-right: 30px; /* Отступ для кнопки */
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 35px;
+            color: #aaa;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            color: #333;
+        }
+
     </style>
 </head>
 
@@ -480,7 +507,10 @@
 
     <div id="speak-task-module" class="hidden">
         <div id="speak-task-text" class="task-text"></div>
-        <input type="text" id="speak-user-input" class="styled-input" placeholder="Використовуйте голосовий набір">
+        <div class="input-container">
+            <input type="text" id="speak-user-input" class="styled-input" placeholder="Використовуйте голосовий набір">
+            <span id="clear-btn" class="clear-btn">&times;</span>
+        </div>
         <button id="speak-check-btn" class="styled-button">Перевірити</button>
     </div>
 
@@ -1151,31 +1181,51 @@
             notification.style.display = 'none';
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            taskModule = new TaskModule(
-                'task-module-container',
-                'russian-sentence',
-                'english-words-container',
-                'user-answer',
-                'check-btn',
-                'reset-btn',
-                'hint-btn'
-            );
+                    document.addEventListener('DOMContentLoaded', () => {
+                const inputField = document.getElementById('speak-user-input');
+                const clearBtn = document.getElementById('clear-btn');
 
-            listenTaskModule = new ListenTaskModule(
-                'listen-task-module',
-                'play-audio-btn',
-                'listen-task-text',
-                'listen-user-input',
-                'listen-check-btn'
-            );
+                // Показать крестик, если поле заполнено
+                inputField.addEventListener('input', () => {
+                    if (inputField.value.length > 0) {
+                        clearBtn.style.display = 'block';
+                    } else {
+                        clearBtn.style.display = 'none';
+                    }
+                });
 
-            speakTaskModule = new SpeakTaskModule(
-                'speak-task-module',
-                'speak-task-text',
-                'speak-user-input',
-                'speak-check-btn'
-            );
+                // Очистка поля при нажатии на крестик
+                clearBtn.addEventListener('click', () => {
+                    inputField.value = '';
+                    clearBtn.style.display = 'none';
+                    inputField.focus();
+                });
+
+                // Инициализация других модулей
+                taskModule = new TaskModule(
+                    'task-module-container',
+                    'russian-sentence',
+                    'english-words-container',
+                    'user-answer',
+                    'check-btn',
+                    'reset-btn',
+                    'hint-btn'
+                );
+
+                listenTaskModule = new ListenTaskModule(
+                    'listen-task-module',
+                    'play-audio-btn',
+                    'listen-task-text',
+                    'listen-user-input',
+                    'listen-check-btn'
+                );
+
+                speakTaskModule = new SpeakTaskModule(
+                    'speak-task-module',
+                    'speak-task-text',
+                    'speak-user-input',
+                    'speak-check-btn'
+                );
 
             document.getElementById('check-btn').onclick = async () => {
                 if (taskModule.checkAnswer()) {
