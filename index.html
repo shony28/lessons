@@ -1200,36 +1200,40 @@
             'speak-check-btn'
         );
 
-        document.getElementById('check-btn').onclick = async () => {
-            if (taskModule.checkAnswer()) {
-                if (previousIncorrect) {
-                    correctAfterIncorrect++;
-                    previousIncorrect = false;
-                } else {
-                    correctAnswers++;
-                }
-                displayFeedback('Правильно!', taskModule.correctAnswer, true);
-                playCorrectAnswer(taskModule.correctAnswer);
-                document.getElementById('task-module-container').classList.add('hidden');
-                setTimeout(async () => {
-                    currentIndex++;
-                    if (currentIndex < values.length) {
-                        document.getElementById('feedback').classList.add('hidden');
-                        document.getElementById('correct-answer').classList.add('hidden');
-                        await loadQuestion(currentIndex, sheetName);
-                    } else {
-                        completeModule();
-                    }
-                }, 3000);
+document.getElementById('check-btn').onclick = async () => {
+    if (taskModule.checkAnswer()) {
+        if (previousIncorrect) {
+            correctAfterIncorrect++;
+            previousIncorrect = false;
+        } else {
+            correctAnswers++;
+        }
+        displayFeedback('Правильно!', taskModule.correctAnswer, true);
+        playCorrectAnswer(taskModule.correctAnswer);
+        document.getElementById('task-module-container').classList.add('hidden');
+        setTimeout(async () => {
+            currentIndex++;
+            if (currentIndex < values.length) {
+                document.getElementById('feedback').classList.add('hidden');
+                document.getElementById('correct-answer').classList.add('hidden');
+                await loadQuestion(currentIndex, sheetName);
             } else {
-                incorrectAnswers++;
-                previousIncorrect = true;
-                displayFeedback('Відповідь неправильна, спробуйте ще раз.', '', false);
+                completeModule();
             }
-            updateProgressBar();
-            updateStats();
-            saveProgress();
-        };
+        }, 3000);
+    } else {
+        incorrectAnswers++;
+        previousIncorrect = true;
+        displayFeedback('Відповідь неправильна 😕, спробуйте ще раз.', '', false);
+
+        // Автоматический сброс после неправильного ответа
+        taskModule.resetQuestion();
+    }
+    updateProgressBar();
+    updateStats();
+    saveProgress();
+};
+
 
         document.getElementById('listen-check-btn').onclick = async () => {
             if (listenTaskModule.checkAnswer()) {
@@ -1256,7 +1260,7 @@
             } else {
                 incorrectAnswers++;
                 previousIncorrect = true;
-                displayFeedback('Відповідь неправильна, спробуйте ще раз.', '', false);
+                displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
             }
             updateProgressBar();
             updateStats();
