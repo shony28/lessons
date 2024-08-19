@@ -936,47 +936,47 @@
         }
     };
 
-    const fetchUserSheet = async () => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const users = data.values.slice(1);
-            const user = users.find(row => row[0] === userName);
-            if (user) {
-                const userSheet = user[1];
-                sheetName = userSheet;
-                points = user[12];
-                document.getElementById('points').innerText = `${points}`;
-                fetchData(userSheet);
-                if (user[2]) {
-                    showNotification(user[2]);
-                }
-                const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
-                try {
-                    const presentsResponse = await fetch(presentsUrl);
-                    const presentsData = await presentsResponse.json();
-                    if (presentsData.error) {
-                        document.getElementById('points-container').style.display = 'none';
-                    } else {
-                        document.getElementById('points-container').style.display = 'flex';
-                    }
-                } catch (err) {
-                    document.getElementById('points-container').style.display = 'none';
-                    console.error('Помилка отримання даних present:', err);
-                }
-            } else {
-                document.getElementById('task-module-container').classList.add('hidden');
-                document.getElementById('listen-task-module').classList.add('hidden');
-                document.getElementById('speak-task-module').classList.add('hidden');
-                const feedbackElement = document.getElementById('feedback');
-                feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
-                feedbackElement.classList.remove('hidden');
+const fetchUserSheet = async () => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const users = data.values.slice(1);
+        const user = users.find(row => row[0] === userName);
+        if (user) {
+            sheetName = user[1] ? user[1] : "day_off"; // Если ячейка пустая, используем "day_off"
+            points = user[12];
+            document.getElementById('points').innerText = `${points}`;
+            fetchData(sheetName);
+            if (user[2]) {
+                showNotification(user[2]);
             }
-        } catch (err) {
-            console.error('Помилка отримання даних користувача:', err);
+            const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
+            try {
+                const presentsResponse = await fetch(presentsUrl);
+                const presentsData = await presentsResponse.json();
+                if (presentsData.error) {
+                    document.getElementById('points-container').style.display = 'none';
+                } else {
+                    document.getElementById('points-container').style.display = 'flex';
+                }
+            } catch (err) {
+                document.getElementById('points-container').style.display = 'none';
+                console.error('Помилка отримання даних present:', err);
+            }
+        } else {
+            document.getElementById('task-module-container').classList.add('hidden');
+            document.getElementById('listen-task-module').classList.add('hidden');
+            document.getElementById('speak-task-module').classList.add('hidden');
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
+            feedbackElement.classList.remove('hidden');
         }
-    };
+    } catch (err) {
+        console.error('Помилка отримання даних користувача:', err);
+    }
+};
+
 
     const loadProgressOrQuestion = (sheetName) => {
         const savedProgress = localStorage.getItem('progress');
