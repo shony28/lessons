@@ -585,10 +585,11 @@
     };
 
     const playCorrectAnswer = (correctAnswer) => {
-        const msg = new SpeechSynthesisUtterance(correctAnswer);
-        msg.lang = 'en-GB';
-        msg.rate = AUDIO_RATE;
-        window.speechSynthesis.speak(msg);
+                const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
+                const msg = new SpeechSynthesisUtterance(normalizedAnswer);
+                msg.lang = 'en-GB';
+                msg.rate = AUDIO_RATE;
+                window.speechSynthesis.speak(msg);
     };
 
     const updateProgressBar = () => {
@@ -687,7 +688,8 @@
         loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl) {
             console.log('Loading question:', russianSentence, correctAnswer, distractors);
             this.russianSentenceElem.innerText = russianSentence.replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
-            this.correctAnswer = correctAnswer;
+            this.correctAnswer = correctAnswer.replace(/_/g, ' ');
+
             this.userAnswer = [];
             this.userAnswerElem.innerText = '';
             this.clearWordsContainer();
