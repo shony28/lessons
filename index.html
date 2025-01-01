@@ -7,6 +7,8 @@
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,7 +20,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 1px;
         }
 
         .user-info {
@@ -95,7 +97,8 @@
             font-weight: bold;
         }
 
-        #user-answer {
+        #user-answer,
+        #user-answer-select {
             margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
@@ -464,6 +467,50 @@
             color: #333;
         }
 
+
+
+        .weekly-progress {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        /* Стили для текущего дня */
+        .today-cell {
+            background-color: #fff7e0;  /* Светло-желтый фон */
+            border-radius: 8px;
+            padding: 3px;
+            transform: scale(1.1);  /* Немного увеличиваем размер */
+            transition: all 0.3s ease;
+        }
+
+        .today-text {
+            color: #d4a017;  /* Золотистый цвет текста */
+            font-weight: bold;
+        }
+
+
     </style>
 </head>
 
@@ -504,6 +551,16 @@
         <div id="listen-task-text" class="task-text"></div>
         <input type="text" id="listen-user-input" class="styled-input" placeholder="Введіть те, що почули">
         <button id="listen-check-btn" class="styled-button">Перевірити</button>
+    </div>
+
+    <div id="listen-select-module" class="hidden">
+        <button id="play-audio-btn-select" class="styled-button">
+            <i class="fas fa-play"></i> Прослухати
+        </button>
+        <div id="listen-task-text-select" class="task-text"></div>
+        <div id="words-container-select" class="sentence-container"></div>
+        <div id="user-answer-select" class="hidden"></div>
+        <button id="listen-check-btn-select" class="styled-button">Перевірити</button>
     </div>
 
     <div id="speak-task-module" class="hidden">
@@ -623,21 +680,33 @@
         localStorage.removeItem('progress');
     };
 
-    const completeModule = async () => {
-        clearProgress();
-        document.getElementById('task-module-container').classList.add('hidden');
-        document.getElementById('listen-task-module').classList.add('hidden');
-        document.getElementById('speak-task-module').classList.add('hidden');
-        document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('correct-answer').classList.add('hidden');
 
-        const feedbackElement = document.getElementById('feedback');
-        feedbackElement.innerText = '🎉Ви завершили всі питання.';
-        feedbackElement.classList.remove('hidden');
-        document.getElementById('stats-container').classList.remove('hidden');
-        updateStats();
-        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
-    };
+    const completeModule = async () => {
+    clearProgress();
+    document.getElementById('task-module-container').classList.add('hidden');
+    document.getElementById('listen-task-module').classList.add('hidden');
+    document.getElementById('speak-task-module').classList.add('hidden');
+    document.getElementById('feedback').classList.add('hidden');
+    document.getElementById('correct-answer').classList.add('hidden');
+
+    const feedbackElement = document.getElementById('feedback');
+    feedbackElement.innerText = '🎉Ви завершили всі питання.';
+    feedbackElement.classList.remove('hidden');
+    document.getElementById('stats-container').classList.remove('hidden');
+
+    // Создаем контейнер для WeeklyProgress
+    const weeklyProgressContainer = document.createElement('div');
+    weeklyProgressContainer.id = 'weekly-progress-container';
+    document.getElementById('stats-container').after(weeklyProgressContainer);
+
+    // Рендерим WeeklyProgress компонент
+    const root = ReactDOM.createRoot(weeklyProgressContainer);
+    root.render(React.createElement(WeeklyProgress));
+
+    updateStats();
+    await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+};
+
 
     const sendResultsToGoogleSheets = async (userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName) => {
         const data = {
@@ -801,6 +870,152 @@
         }
     }
 
+
+    class ListenSelectTaskModule {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.playAudioBtn = document.getElementById('play-audio-btn-select');
+        this.taskTextElem = document.getElementById('listen-task-text-select');
+        this.wordsContainer = document.getElementById('words-container-select');
+        this.userAnswerElem = document.getElementById('user-answer-select');
+        this.checkBtn = document.getElementById('listen-check-btn-select');
+        this.resetBtn = document.createElement('button');
+
+        // Настройка кнопки сброса
+        this.resetBtn.id = 'reset-btn-select';
+        this.resetBtn.className = 'styled-button';
+        this.resetBtn.innerHTML = '<i class="fas fa-redo"></i> Ще раз';
+        this.container.appendChild(this.resetBtn);
+
+        this.correctAnswer = '';
+        this.userAnswer = [];
+
+        this.playAudioBtn.onclick = () => {
+            this.playAudio();
+        };
+
+        this.resetBtn.onclick = () => {
+            this.resetQuestion();
+        };
+
+        this.checkBtn.onclick = async () => {
+            if (this.checkAnswer()) {
+                if (previousIncorrect) {
+                    correctAfterIncorrect++;
+                    previousIncorrect = false;
+                } else {
+                    correctAnswers++;
+                }
+                displayFeedback('Правильно!', this.correctAnswer, true);
+                this.playCorrectSound();
+                document.getElementById('listen-select-module').classList.add('hidden');
+                setTimeout(async () => {
+                    currentIndex++;
+                    if (currentIndex < values.length) {
+                        document.getElementById('feedback').classList.add('hidden');
+                        document.getElementById('correct-answer').classList.add('hidden');
+                        document.getElementById('listen-select-module').classList.remove('hidden');
+                        await loadQuestion(currentIndex, sheetName);
+                    } else {
+                        completeModule();
+                    }
+                }, 3000);
+            } else {
+                incorrectAnswers++;
+                previousIncorrect = true;
+                displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
+                this.resetQuestion(); // Автоматический сброс после неправильного ответа
+            }
+            updateProgressBar();
+            updateStats();
+            saveProgress();
+        };
+    }
+
+    loadQuestion(taskText, correctAnswer, distractors) {
+        this.correctAnswer = correctAnswer;
+        this.userAnswer = [];
+        this.taskTextElem.innerText = taskText;
+        this.clearWordsContainer();
+
+        // Разбиваем correctAnswer на слова
+        const correctWords = correctAnswer.split(' ');
+
+        // Используем distractors напрямую, так как они уже являются массивом
+        const distractorWords = Array.isArray(distractors) ? distractors : [];
+
+        // Объединяем правильные слова и дистракторы
+        this.populateWords(correctWords, distractorWords);
+
+        this.container.classList.remove('hidden');
+        this.userAnswerElem.classList.remove('hidden');
+        this.playAudio();
+    }
+
+    clearWordsContainer() {
+        this.wordsContainer.innerHTML = '';
+        this.userAnswerElem.innerText = '';
+    }
+
+    populateWords(correctWords, distractorWords) {
+        // Объединяем все слова в один массив
+        const allWords = [...correctWords, ...distractorWords];
+
+        // Перемешиваем слова
+        const shuffledWords = allWords.sort(() => 0.5 - Math.random());
+
+        // Создаем элементы для каждого слова
+        shuffledWords.forEach(word => {
+            const span = document.createElement('span');
+            span.innerText = word.replace(/_/g, ' ');
+            span.className = 'word';
+            span.onclick = () => {
+                if (!span.classList.contains('clicked')) {
+                    this.userAnswer.push(word);
+                    span.classList.add('clicked');
+                    this.updateUserAnswerDisplay();
+                }
+            };
+            this.wordsContainer.appendChild(span);
+        });
+    }
+
+    updateUserAnswerDisplay() {
+        this.userAnswerElem.innerText = this.userAnswer.join(' ').replace(/_/g, ' ');
+    }
+
+    resetQuestion() {
+        this.userAnswer = [];
+        this.updateUserAnswerDisplay();
+        const words = this.wordsContainer.querySelectorAll('.word');
+        words.forEach(word => word.classList.remove('clicked'));
+    }
+
+    playAudio() {
+        const msg = new SpeechSynthesisUtterance(this.correctAnswer.replace(/_/g, ' '));
+        msg.lang = 'en-GB';
+        msg.rate = AUDIO_RATE;
+        window.speechSynthesis.speak(msg);
+    }
+
+    playCorrectSound() {
+        const msg = new SpeechSynthesisUtterance("You're right!");
+        msg.lang = 'en-GB';
+        msg.rate = AUDIO_RATE;
+        window.speechSynthesis.speak(msg);
+    }
+
+    checkAnswer() {
+        const normalizeText = (text) => text.trim().toLowerCase()
+            .replace(/_/g, ' ')
+            .replace(/[.,?]/g, '')
+            .replace(/\s+/g, ' ');
+        const userAnswerStr = normalizeText(this.userAnswer.join(' '));
+        const normalizedCorrectAnswer = normalizeText(this.correctAnswer);
+        return userAnswerStr === normalizedCorrectAnswer;
+    }
+}
+
     class SpeakTaskModule {
         constructor(containerId, taskTextId, userInputId, checkBtnId) {
             this.container = document.getElementById(containerId);
@@ -864,20 +1079,24 @@
 
         await fetchHintImageUrl(sheetName);
 
-        if (sheetName.startsWith("listen_")) {
+        // Скрываем все модули
+        document.getElementById('task-module-container').classList.add('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('speak-task-module').classList.add('hidden');
+        document.getElementById('listen-select-module').classList.add('hidden');
+
+        if (sheetName.startsWith("listen-select_")) {
+            listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
+            document.getElementById('listen-select-module').classList.remove('hidden');
+        } else if (sheetName.startsWith("listen_")) {
             listenTaskModule.loadQuestion(russianSentence, correctAnswer);
-            document.getElementById('task-module-container').classList.add('hidden');
             document.getElementById('listen-task-module').classList.remove('hidden');
         } else if (sheetName.startsWith("speak_")) {
             speakTaskModule.loadQuestion(russianSentence, correctAnswer);
-            document.getElementById('task-module-container').classList.add('hidden');
-            document.getElementById('listen-task-module').classList.add('hidden');
             document.getElementById('speak-task-module').classList.remove('hidden');
         } else {
             taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
             document.getElementById('task-module-container').classList.remove('hidden');
-            document.getElementById('listen-task-module').classList.add('hidden');
-            document.getElementById('speak-task-module').classList.add('hidden');
         }
         updateProgressBar();
         taskModule.updateUserAnswerDisplay();
@@ -1156,6 +1375,83 @@ const fetchUserSheet = async () => {
         notification.style.display = 'none';
     };
 
+    // Добавляем компонент WeeklyProgress
+
+    const WeeklyProgress = () => {
+    const [progress, setProgress] = React.useState([]);
+    const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
+
+    // Get current day index (0 - Monday, 6 - Sunday)
+    const today = new Date().getDay();
+    const currentDayIndex = today === 0 ? 6 : today - 1;
+
+    React.useEffect(() => {
+        const fetchProgress = async () => {
+            const userName = localStorage.getItem('userName');
+            if (!userName) return;
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/users!A:K?key=${API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const userRow = data.values.find(row => row[0] === userName);
+
+                if (userRow) {
+                    // Get the current task type (sheet name)
+                    const currentSheetName = userRow[1];
+
+                    // Check if current sheet is one of the task types
+                    const isTaskSheet = currentSheetName && (
+                        currentSheetName.startsWith('listen-select_') ||
+                        currentSheetName.startsWith('listen_') ||
+                        currentSheetName.startsWith('speak_') ||
+                        !currentSheetName.includes('_off')  // standard task
+                    );
+
+                    // Map the progress and override today's status as completed if it's a task sheet
+                    const weekProgress = userRow.slice(4, 11).map((cell, index) =>
+                        index === currentDayIndex && isTaskSheet ? true : !!cell
+                    );
+                    setProgress(weekProgress);
+                }
+            } catch (error) {
+                console.error('Error fetching progress:', error);
+                // Initialize with default progress
+                const defaultProgress = Array(7).fill(false);
+                defaultProgress[currentDayIndex] = false;  // Don't auto-complete without knowing sheet type
+                setProgress(defaultProgress);
+            }
+        };
+
+        fetchProgress();
+    }, [currentDayIndex]);
+
+    return React.createElement('div', { className: 'weekly-progress mt-4' },
+        React.createElement('h3', { className: 'text-center mb-4' }, 'Ваш тижневий прогрес'),
+        React.createElement('div', { className: 'grid grid-cols-7 gap-2 text-center' },
+            days.map((day, index) =>
+                React.createElement('div', {
+                    key: day,
+                    className: `flex flex-col items-center ${index === currentDayIndex ? 'today-cell' : ''}`
+                },
+                    React.createElement('div', {
+                        className: `font-medium mb-2 ${index === currentDayIndex ? 'today-text' : ''}`
+                    }, day),
+                    React.createElement('div', { className: 'text-2xl' },
+                        progress[index] ? '✅' : '❌'
+                    )
+                )
+            )
+        )
+    );
+};
+
+
+
+
+
+
     document.addEventListener('DOMContentLoaded', () => {
         const inputField = document.getElementById('speak-user-input');
         const clearBtn = document.getElementById('clear-btn');
@@ -1193,6 +1489,10 @@ const fetchUserSheet = async () => {
             'listen-task-text',
             'listen-user-input',
             'listen-check-btn'
+        );
+
+        listenSelectTaskModule = new ListenSelectTaskModule(
+            'listen-select-module'
         );
 
         speakTaskModule = new SpeakTaskModule(
