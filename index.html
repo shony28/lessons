@@ -29,8 +29,9 @@
         }
 
         .user-info span {
-            font-size: 18px;
+            font-size: 20px;
             color: #000000ba;
+            text-align: center;
         }
 
         .logout-btn {
@@ -649,6 +650,13 @@
                 window.speechSynthesis.speak(msg);
     };
 
+    const playWrongSound = () => {
+            const msg = new SpeechSynthesisUtterance("wrong");
+            msg.lang = 'en-GB';
+            msg.rate = AUDIO_RATE;
+            window.speechSynthesis.speak(msg);
+    };
+
     const updateProgressBar = () => {
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = ((currentIndex + 1) / values.length) * 100;
@@ -924,6 +932,7 @@
                 incorrectAnswers++;
                 previousIncorrect = true;
                 displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
+                playWrongSound();
                 this.resetQuestion(); // Автоматический сброс после неправильного ответа
             }
             updateProgressBar();
@@ -1050,6 +1059,7 @@
                     incorrectAnswers++;
                     previousIncorrect = true;
                     displayFeedback('Відповідь неправильна, спробуйте ще раз.', '', false);
+                    playWrongSound();
                 }
                 updateProgressBar();
                 updateStats();
@@ -1167,6 +1177,11 @@ const fetchUserSheet = async () => {
         if (user) {
             sheetName = user[1] ? user[1] : "day_off"; // Если ячейка пустая, используем "day_off"
             points = user[12];
+
+            // Get custom greeting from column D (index 3) or use empty string if not present
+            const customGreeting = user[3] ? user[3] + " " : "";
+            document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
+
             document.getElementById('points').innerText = `${points}`;
             fetchData(sheetName);
             if (user[2]) {
@@ -1315,7 +1330,7 @@ const fetchUserSheet = async () => {
         userName = document.getElementById('name-input').value;
         if (userName.trim()) {
             localStorage.setItem('userName', userName);
-            document.getElementById('user-name').innerText = `Вітаю, ${userName}!`;
+            document.getElementById('user-name').innerText = `${userName}`;
             document.querySelector('.user-info').classList.remove('hidden');
             document.getElementById('name-input-container').style.display = 'none';
             document.querySelector('.separator').classList.remove('hidden');
@@ -1527,7 +1542,7 @@ document.getElementById('check-btn').onclick = async () => {
         incorrectAnswers++;
         previousIncorrect = true;
         displayFeedback('Відповідь неправильна 😕, спробуйте ще раз.', '', false);
-
+        playWrongSound();
         // Автоматический сброс после неправильного ответа
         taskModule.resetQuestion();
     }
@@ -1563,6 +1578,7 @@ document.getElementById('check-btn').onclick = async () => {
                 incorrectAnswers++;
                 previousIncorrect = true;
                 displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
+                playWrongSound();
             }
             updateProgressBar();
             updateStats();
@@ -1570,17 +1586,16 @@ document.getElementById('check-btn').onclick = async () => {
         };
 
         window.onload = () => {
-            fetchAdminData();
-            const savedUserName = localStorage.getItem('userName');
-            if (savedUserName) {
-                userName = savedUserName;
-                document.getElementById('user-name').innerText = `Вітаю, ${userName}!`;
-                document.querySelector('.user-info').classList.remove('hidden');
-                document.getElementById('name-input-container').style.display = 'none';
-                document.querySelector('.separator').classList.remove('hidden');
-                fetchUserSheet();
-            }
-        };
+    fetchAdminData();
+    const savedUserName = localStorage.getItem('userName');
+    if (savedUserName) {
+        userName = savedUserName;
+        document.querySelector('.user-info').classList.remove('hidden');
+        document.getElementById('name-input-container').style.display = 'none';
+        document.querySelector('.separator').classList.remove('hidden');
+        fetchUserSheet(); // This will set the correct greeting from the sheet
+    }
+};
 
         document.querySelector('.overlay').onclick = hideNotification;
     });
