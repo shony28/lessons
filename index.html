@@ -697,22 +697,33 @@
     document.getElementById('feedback').classList.add('hidden');
     document.getElementById('correct-answer').classList.add('hidden');
 
+
+    await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+
+
     const feedbackElement = document.getElementById('feedback');
     feedbackElement.innerText = '🎉Ви завершили всі питання.';
     feedbackElement.classList.remove('hidden');
     document.getElementById('stats-container').classList.remove('hidden');
+
+
 
     // Создаем контейнер для WeeklyProgress
     const weeklyProgressContainer = document.createElement('div');
     weeklyProgressContainer.id = 'weekly-progress-container';
     document.getElementById('stats-container').after(weeklyProgressContainer);
 
+
+
+
     // Рендерим WeeklyProgress компонент
     const root = ReactDOM.createRoot(weeklyProgressContainer);
     root.render(React.createElement(WeeklyProgress));
 
+
+
     updateStats();
-    await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+
 };
 
 
@@ -1392,7 +1403,9 @@ const fetchUserSheet = async () => {
 
     // Добавляем компонент WeeklyProgress
 
-    const WeeklyProgress = () => {
+
+
+   const WeeklyProgress = () => {
     const [progress, setProgress] = React.useState([]);
     const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
 
@@ -1461,7 +1474,6 @@ const fetchUserSheet = async () => {
         )
     );
 };
-
 
 
 
