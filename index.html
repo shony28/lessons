@@ -697,33 +697,27 @@
     document.getElementById('feedback').classList.add('hidden');
     document.getElementById('correct-answer').classList.add('hidden');
 
+    // Show loading message before saving progress
+    const feedbackElement = document.getElementById('feedback');
+    feedbackElement.innerText = 'Завантаження прогресу...';
+    feedbackElement.classList.remove('hidden');
 
     await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
 
-
-    const feedbackElement = document.getElementById('feedback');
+    // Update message after saving is complete
     feedbackElement.innerText = '🎉Ви завершили всі питання.';
-    feedbackElement.classList.remove('hidden');
     document.getElementById('stats-container').classList.remove('hidden');
 
-
-
-    // Создаем контейнер для WeeklyProgress
+    // Create container for WeeklyProgress
     const weeklyProgressContainer = document.createElement('div');
     weeklyProgressContainer.id = 'weekly-progress-container';
     document.getElementById('stats-container').after(weeklyProgressContainer);
 
-
-
-
-    // Рендерим WeeklyProgress компонент
+    // Render WeeklyProgress component
     const root = ReactDOM.createRoot(weeklyProgressContainer);
     root.render(React.createElement(WeeklyProgress));
 
-
-
     updateStats();
-
 };
 
 
