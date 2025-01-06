@@ -511,6 +511,99 @@
             font-weight: bold;
         }
 
+        /* Стили для контейнера рейтинга */
+        .mt-8 {
+            margin-top: 2rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        /* Стили для таблицы */
+        .w-full {
+            width: 100%;
+        }
+
+        .border-collapse {
+            border-collapse: collapse;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        /* Стили для заголовков таблицы */
+        .rating-table th {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Стили для ячеек таблицы */
+        .rating-table td {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Стили для строк таблицы */
+        .rating-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Стили для первого места */
+        .rating-table tr:nth-child(1) {
+            background-color: #fef3c7;
+        }
+
+        .rating-table tr:nth-child(1) td {
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        /* Стили для второго места */
+        .rating-table tr:nth-child(2) {
+            background-color: #f1f5f9;
+        }
+
+        /* Стили для третьего места */
+        .rating-table tr:nth-child(3) {
+            background-color: #faf5ff;
+        }
+
+        /* Медали для первых трех мест */
+        .rating-table tr:nth-child(1) td:first-child::after {
+            content: " 🏆";
+        }
+
+        .rating-table tr:nth-child(2) td:first-child::after {
+            content: " 🥈";
+        }
+
+        .rating-table tr:nth-child(3) td:first-child::after {
+            content: " 🥉";
+        }
+
+        .rating-table td, .rating-table th {
+            text-align: center;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 640px) {
+            .rating-table td,
+            .rating-table th {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+
 
     </style>
 </head>
@@ -677,6 +770,72 @@
         }
     };
 
+
+
+const RatingTable = () => {
+  const [ratings, setRatings] = React.useState([]);
+  const [displayCount, setDisplayCount] = React.useState(10);
+
+  React.useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        // Fetch display count from admin sheet
+        const adminUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/admin!B5?key=${API_KEY}`;
+        const adminResponse = await fetch(adminUrl);
+        const adminData = await adminResponse.json();
+        const count = adminData.values?.[0]?.[0] || 10;
+        setDisplayCount(parseInt(count));
+
+        // Fetch rating data
+        const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/rating!A:C?key=${API_KEY}`;
+        const response = await fetch(ratingUrl);
+        const data = await response.json();
+
+        if (data.values && data.values.length > 1) {
+          setRatings(data.values.slice(1, parseInt(count) + 1));
+        }
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
+      }
+    };
+
+    fetchRatings();
+  }, []);
+
+  if (!ratings.length) return null;
+
+  return React.createElement('div', { className: 'mt-8' },
+    React.createElement('h3', { className: 'text-center mb-4 text-xl font-semibold' }, 'Рейтинг'),
+    React.createElement('div', { className: 'overflow-x-auto' },
+      React.createElement('table', { className: 'w-full border-collapse rating-table' },
+        React.createElement('thead', null,
+          React.createElement('tr', null,
+            React.createElement('th', { className: 'text-left' }, 'Місце'),
+            React.createElement('th', { className: 'text-left' }, 'Ім\'я'),
+            React.createElement('th', { className: 'text-right' }, 'Бали')
+          )
+        ),
+        React.createElement('tbody', null,
+          ratings.map((row, index) =>
+            React.createElement('tr', { key: index },
+              React.createElement('td', null, index + 1),
+              React.createElement('td', null, row[0]),
+              React.createElement('td', { className: 'text-right font-medium' }, row[2])
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+
+
+
+
+
+
+
     const displayFeedback = (message, correctAnswer, isCorrect) => {
         const feedbackElement = document.getElementById('feedback');
         const correctAnswerElement = document.getElementById('correct-answer');
@@ -752,7 +911,7 @@ const completeModule = async () => {
 
     await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
 
-    feedbackElement.innerText = '🎉Ви завершили всі питання.';
+    feedbackElement.innerText = '🎉Ви виконали всі завдання.';
 
     if (isTaskList) {
         // Проверяем, есть ли следующий лист с заданиями
@@ -1479,13 +1638,10 @@ const fetchUserSheet = async () => {
 
     // Добавляем компонент WeeklyProgress
 
-
-
-   const WeeklyProgress = () => {
+    const WeeklyProgress = () => {
     const [progress, setProgress] = React.useState([]);
     const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
 
-    // Get current day index (0 - Monday, 6 - Sunday)
     const today = new Date().getDay();
     const currentDayIndex = today === 0 ? 6 : today - 1;
 
@@ -1502,18 +1658,14 @@ const fetchUserSheet = async () => {
                 const userRow = data.values.find(row => row[0] === userName);
 
                 if (userRow) {
-                    // Get the current task type (sheet name)
                     const currentSheetName = userRow[1];
-
-                    // Check if current sheet is one of the task types
                     const isTaskSheet = currentSheetName && (
                         currentSheetName.startsWith('listen-select_') ||
                         currentSheetName.startsWith('listen_') ||
                         currentSheetName.startsWith('speak_') ||
-                        !currentSheetName.includes('_off')  // standard task
+                        !currentSheetName.includes('_off')
                     );
 
-                    // Map the progress and override today's status as completed if it's a task sheet
                     const weekProgress = userRow.slice(4, 11).map((cell, index) =>
                         index === currentDayIndex && isTaskSheet ? true : !!cell
                     );
@@ -1521,9 +1673,8 @@ const fetchUserSheet = async () => {
                 }
             } catch (error) {
                 console.error('Error fetching progress:', error);
-                // Initialize with default progress
                 const defaultProgress = Array(7).fill(false);
-                defaultProgress[currentDayIndex] = false;  // Don't auto-complete without knowing sheet type
+                defaultProgress[currentDayIndex] = false;
                 setProgress(defaultProgress);
             }
         };
@@ -1531,23 +1682,26 @@ const fetchUserSheet = async () => {
         fetchProgress();
     }, [currentDayIndex]);
 
-    return React.createElement('div', { className: 'weekly-progress mt-4' },
-        React.createElement('h3', { className: 'text-center mb-4' }, 'Ваш тижневий прогрес'),
-        React.createElement('div', { className: 'grid grid-cols-7 gap-2 text-center' },
-            days.map((day, index) =>
-                React.createElement('div', {
-                    key: day,
-                    className: `flex flex-col items-center ${index === currentDayIndex ? 'today-cell' : ''}`
-                },
+    return React.createElement('div', null,
+        React.createElement('div', { className: 'weekly-progress mt-4' },
+            React.createElement('h3', { className: 'text-center mb-4' }, 'Ваш тижневий прогрес'),
+            React.createElement('div', { className: 'grid grid-cols-7 gap-2 text-center' },
+                days.map((day, index) =>
                     React.createElement('div', {
-                        className: `font-medium mb-2 ${index === currentDayIndex ? 'today-text' : ''}`
-                    }, day),
-                    React.createElement('div', { className: 'text-2xl' },
-                        progress[index] ? '✅' : '❌'
+                        key: day,
+                        className: `flex flex-col items-center ${index === currentDayIndex ? 'today-cell' : ''}`
+                    },
+                        React.createElement('div', {
+                            className: `font-medium mb-2 ${index === currentDayIndex ? 'today-text' : ''}`
+                        }, day),
+                        React.createElement('div', { className: 'text-2xl' },
+                            progress[index] ? '✅' : '❌'
+                        )
                     )
                 )
             )
-        )
+        ),
+        React.createElement(RatingTable)
     );
 };
 
