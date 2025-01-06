@@ -624,6 +624,59 @@
 
     let taskModule, listenTaskModule, speakTaskModule;
 
+    // Добавим глобальные переменные для работы с tasklist
+    let currentTaskListIndex = 0;
+    let taskListSheets = [];
+    let isTaskList = false;
+
+
+    // Функция для проверки и загрузки tasklist
+                  const handleTaskList = async (taskListName) => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${taskListName}!A:B?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.values && data.values.length > 0) {
+            // Find first row where column B is empty
+            const rowIndex = data.values.findIndex(row => !row[1]);
+
+            // Save all sheets and current index for progress tracking
+            taskListSheets = data.values.map(row => row[0]).filter(Boolean);
+            isTaskList = true;
+
+            if (rowIndex !== -1) {
+                // Found empty cell - use corresponding sheet name
+                currentTaskListIndex = rowIndex;
+                return data.values[rowIndex][0];
+            } else {
+                // No empty cells found - return "day_off"
+                return "day_off";
+            }
+        }
+        return "day_off";
+    } catch (err) {
+        console.error('Помилка отримання даних tasklist:', err);
+        return "day_off";
+    }
+};
+
+        // Функция для очистки UI
+    const cleanupUI = () => {
+    document.getElementById('task-module-container').classList.add('hidden');
+    document.getElementById('listen-task-module').classList.add('hidden');
+    document.getElementById('speak-task-module').classList.add('hidden');
+    document.getElementById('feedback').classList.add('hidden');
+    document.getElementById('correct-answer').classList.add('hidden');
+    document.getElementById('stats-container').classList.add('hidden');
+
+    // Удаляем контейнер с weekly progress
+    const weeklyProgressContainer = document.getElementById('weekly-progress-container');
+    if (weeklyProgressContainer) {
+        weeklyProgressContainer.remove();
+        }
+    };
+
     const displayFeedback = (message, correctAnswer, isCorrect) => {
         const feedbackElement = document.getElementById('feedback');
         const correctAnswerElement = document.getElementById('correct-answer');
@@ -689,31 +742,48 @@
     };
 
 
-    const completeModule = async () => {
+const completeModule = async () => {
     clearProgress();
-    document.getElementById('task-module-container').classList.add('hidden');
-    document.getElementById('listen-task-module').classList.add('hidden');
-    document.getElementById('speak-task-module').classList.add('hidden');
-    document.getElementById('feedback').classList.add('hidden');
-    document.getElementById('correct-answer').classList.add('hidden');
+    cleanupUI();
 
-    // Show loading message before saving progress
     const feedbackElement = document.getElementById('feedback');
     feedbackElement.innerText = 'Завантаження прогресу...';
     feedbackElement.classList.remove('hidden');
 
     await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
 
-    // Update message after saving is complete
     feedbackElement.innerText = '🎉Ви завершили всі питання.';
+
+    if (isTaskList) {
+        // Проверяем, есть ли следующий лист с заданиями
+        if (currentTaskListIndex + 1 < taskListSheets.length) {
+            const nextButton = document.createElement('button');
+            nextButton.innerText = 'Завантажити наступні завдання';
+            nextButton.className = 'styled-button';
+            nextButton.onclick = async () => {
+                cleanupUI(); // Очищаем UI перед загрузкой новых заданий
+                currentTaskListIndex++;
+                sheetName = taskListSheets[currentTaskListIndex];
+                currentIndex = 0;
+                correctAnswers = 0;
+                incorrectAnswers = 0;
+                correctAfterIncorrect = 0;
+                previousIncorrect = false;
+                feedbackElement.classList.add('hidden');
+                nextButton.remove();
+                await fetchData(sheetName);
+            };
+            feedbackElement.appendChild(document.createElement('br'));
+            feedbackElement.appendChild(nextButton);
+        }
+    }
+
     document.getElementById('stats-container').classList.remove('hidden');
 
-    // Create container for WeeklyProgress
     const weeklyProgressContainer = document.createElement('div');
     weeklyProgressContainer.id = 'weekly-progress-container';
     document.getElementById('stats-container').after(weeklyProgressContainer);
 
-    // Render WeeklyProgress component
     const root = ReactDOM.createRoot(weeklyProgressContainer);
     root.render(React.createElement(WeeklyProgress));
 
@@ -1180,18 +1250,32 @@ const fetchUserSheet = async () => {
         const users = data.values.slice(1);
         const user = users.find(row => row[0] === userName);
         if (user) {
-            sheetName = user[1] ? user[1] : "day_off"; // Если ячейка пустая, используем "day_off"
+            let userSheet = user[1] ? user[1] : "day_off";
             points = user[12];
 
-            // Get custom greeting from column D (index 3) or use empty string if not present
             const customGreeting = user[3] ? user[3] + " " : "";
             document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
-
             document.getElementById('points').innerText = `${points}`;
+
+            // Проверяем, является ли лист tasklist-ом
+            if (userSheet.startsWith('tasklist_')) {
+                const firstSheet = await handleTaskList(userSheet);
+                if (firstSheet) {
+                    sheetName = firstSheet;
+                } else {
+                    sheetName = "day_off";
+                }
+            } else {
+                isTaskList = false;
+                sheetName = userSheet;
+            }
+
             fetchData(sheetName);
+
             if (user[2]) {
                 showNotification(user[2]);
             }
+
             const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
             try {
                 const presentsResponse = await fetch(presentsUrl);
@@ -1206,9 +1290,7 @@ const fetchUserSheet = async () => {
                 console.error('Помилка отримання даних present:', err);
             }
         } else {
-            document.getElementById('task-module-container').classList.add('hidden');
-            document.getElementById('listen-task-module').classList.add('hidden');
-            document.getElementById('speak-task-module').classList.add('hidden');
+            cleanupUI();
             const feedbackElement = document.getElementById('feedback');
             feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
             feedbackElement.classList.remove('hidden');
