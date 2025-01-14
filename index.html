@@ -1347,7 +1347,7 @@ const completeModule = async () => {
     };
 
     const fetchHintImageUrl = async (sheetName) => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!D1?key=${API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!E1?key=${API_KEY}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
