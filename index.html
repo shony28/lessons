@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -327,7 +328,8 @@
         }
 
         #listen-user-input,
-        #speak-user-input {
+        #speak-user-input,
+        #translate-user-input {
             padding: 10px;
             margin-top: 20px;
             font-size: 18px;
@@ -463,6 +465,8 @@
             display: none;
             margin-top: 10px;
         }
+
+
 
         .clear-btn:hover {
             color: #333;
@@ -657,6 +661,10 @@
         <button id="listen-check-btn-select" class="styled-button">Перевірити</button>
     </div>
 
+    <div id="translate-task-module" class="hidden">
+        <!-- Контент будет добавлен динамически через JavaScript -->
+    </div>
+
     <div id="speak-task-module" class="hidden">
         <div id="speak-task-text" class="task-text"></div>
         <div class="input-container">
@@ -696,6 +704,7 @@
 
     <script>
     const AUDIO_RATE = 0.8;
+    const TRANSLATION_SIMILARITY_THRESHOLD = 70;
     const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
     const RANGE = 'Граматика!A:D';
     const USERS_RANGE = 'users!A:M';
@@ -703,6 +712,7 @@
     const PRESENTS_RANGE = 'present!A:C';
     const API_KEY = 'AIzaSyD-VNZ85_c09OXV9rPkBhHXbtDwXqsNZnM';
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5rnFstVmmRh__J41HxE0qS0savLkmO5U4PHFbsvJ0D6qqh98KYhhKz9hLoJ-s9OeQQA/exec';
+
 
     let previousIncorrect = false;
     let correctAnswers = 0;
@@ -721,6 +731,47 @@
     let currentTaskListIndex = 0;
     let taskListSheets = [];
     let isTaskList = false;
+    // Добавляем инициализацию модуля перевода
+    let translateTaskModule;
+
+    const calculateLevenshteinDistance = (str1, str2) => {
+        if (window.Levenshtein) {
+            return window.Levenshtein.get(str1, str2);
+        }
+        // Fallback simple implementation if library fails to load
+        if (str1.length === 0) return str2.length;
+        if (str2.length === 0) return str1.length;
+
+        const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+
+        for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+        for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+        for (let j = 1; j <= str2.length; j++) {
+            for (let i = 1; i <= str1.length; i++) {
+                const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                matrix[j][i] = Math.min(
+                    matrix[j][i - 1] + 1,
+                    matrix[j - 1][i] + 1,
+                    matrix[j - 1][i - 1] + indicator
+                );
+            }
+        }
+        return matrix[str2.length][str1.length];
+    };
+
+
+    const SimpleTokenizer = {
+        tokenize: (text) => {
+            return text.toLowerCase()
+                .replace(/[.,!?]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 0);
+        }
+    };
+
+
+
 
 
     // Функция для проверки и загрузки tasklist
@@ -1113,6 +1164,285 @@ const completeModule = async () => {
     }
 
 
+
+    class TranslateTaskModule {
+     constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.playAudioBtn = document.createElement('button');
+        this.userInput = document.createElement('textarea');
+        this.checkBtn = document.createElement('button');
+        this.taskText = document.createElement('div');
+        this.clearBtn = document.createElement('button');
+        this.correctAnswer = '';
+        this.synonyms = [];
+        this.sourceText = '';
+        this.setupUI();
+        this.setupEventListeners();
+    }
+
+    setupUI() {
+        // Existing button setup code remains the same
+        this.playAudioBtn.id = 'translate-audio-btn';
+        this.playAudioBtn.className = 'styled-button';
+        this.playAudioBtn.innerHTML = '<i class="fas fa-play"></i> Прослухати';
+        this.taskText.id = 'translate-task-text';
+        this.taskText.className = 'task-text';
+
+        // Create a wrapper div for textarea and clear button
+        const inputWrapper = document.createElement('div');
+        inputWrapper.style.position = 'relative';
+        inputWrapper.style.width = '100%';
+        inputWrapper.style.display = 'flex'; // Add flex display
+        inputWrapper.style.alignItems = 'flex-start'; // Align items to top
+
+        // Setup textarea
+        this.userInput.id = 'translate-user-input';
+        this.userInput.className = 'styled-input';
+        this.userInput.placeholder = '🗣️🎤 або введіть переклад';
+        this.userInput.rows = 2;
+        this.userInput.style.resize = 'none';
+        this.userInput.style.height = 'auto';
+        this.userInput.style.minHeight = '3.5em';
+        this.userInput.style.paddingRight = '35px'; // Increased padding for button
+        this.userInput.style.width = '100%'; // Ensure textarea takes full width
+        this.userInput.style.boxSizing = 'border-box'; // Include padding in width calculation
+
+        // Setup clear button with improved positioning
+        this.clearBtn.id = 'translate-clear-btn';
+        this.clearBtn.innerHTML = '×';
+        this.clearBtn.style.position = 'absolute';
+        this.clearBtn.style.right = '5px'; // Adjusted position
+        this.clearBtn.style.top = '21px'; // Adjusted position
+        this.clearBtn.style.background = 'transparent';
+        this.clearBtn.style.border = 'none';
+        this.clearBtn.style.fontSize = '27px';
+        this.clearBtn.style.cursor = 'pointer';
+        this.clearBtn.style.color = '#666';
+        this.clearBtn.style.display = 'none';
+        this.clearBtn.style.padding = '0 5px';
+        this.clearBtn.style.zIndex = '1'; // Ensure button stays above textarea
+        this.clearBtn.style.height = '30px'; // Fixed height
+        this.clearBtn.style.lineHeight = '30px'; // Center the × vertically
+
+        // Add textarea and clear button to wrapper
+        inputWrapper.appendChild(this.userInput);
+        inputWrapper.appendChild(this.clearBtn);
+
+        // Button container setup
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.textAlign = 'left';
+        buttonContainer.style.marginTop = '10px';
+
+        // Check button setup
+        this.checkBtn.id = 'translate-check-btn';
+        this.checkBtn.className = 'styled-button';
+        this.checkBtn.textContent = 'Перевірити';
+        buttonContainer.appendChild(this.checkBtn);
+
+        // Container setup
+        this.container.style.display = 'block';
+        this.container.style.margin = '0 auto';
+        this.container.style.padding = '10px';
+        this.container.style.width = '100%';
+
+        // Append all elements
+        this.container.appendChild(this.playAudioBtn);
+        this.container.appendChild(this.taskText);
+        this.container.appendChild(inputWrapper);
+        this.container.appendChild(buttonContainer);
+    }
+
+    setupEventListeners() {
+        this.playAudioBtn.onclick = () => this.playAudio();
+        this.checkBtn.onclick = async () => this.checkAnswer();
+
+        // Add event listeners for clear button functionality
+        this.userInput.addEventListener('input', () => {
+            this.clearBtn.style.display = this.userInput.value.length > 0 ? 'block' : 'none';
+        });
+
+        this.clearBtn.addEventListener('click', () => {
+            this.userInput.value = '';
+            this.clearBtn.style.display = 'none';
+            this.userInput.focus();
+        });
+    }
+
+
+    loadQuestion(sourceText, correctAnswer, synonymsStr = '') {
+        this.sourceText = sourceText;
+        this.correctAnswer = correctAnswer;
+        // Разделяем строку синонимов на массив и фильтруем пустые строки
+        this.synonyms = synonymsStr.split(' ').filter(Boolean);
+        this.userInput.value = '';
+        this.container.classList.remove('hidden');
+        // Automatically play audio after a short delay
+        setTimeout(() => this.playAudio(), 500);
+    }
+
+    playAudio() {
+        const msg = new SpeechSynthesisUtterance(this.sourceText);
+        msg.lang = 'en-GB';
+        msg.rate = AUDIO_RATE;
+        window.speechSynthesis.speak(msg);
+    }
+
+
+    calculateSimilarity(userText, targetText) {
+    // Функция нормализации текста (убираем знаки препинания и приводим к нижнему регистру)
+    const normalize = (text) => text.toLowerCase().trim()
+        .replace(/[.,!?«»'"\-]/g, '')
+        .replace(/\s+/g, ' ');
+
+    // Нормализация входных данных
+    const normalizedUser = normalize(userText);
+    const normalizedTarget = normalize(targetText);
+    const normalizedSynonyms = this.synonyms.map(s => normalize(s));
+
+    // Разбиваем на слова
+    const userWords = normalizedUser.split(' ');
+    const targetWords = normalizedTarget.split(' ');
+
+    // Функция для вычисления расстояния Левенштейна между словами
+    const levenshteinDistance = (a, b) => {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+
+        const matrix = Array(b.length + 1).fill().map(() => Array(a.length + 1).fill(0));
+
+        for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
+        for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
+
+        for (let j = 1; j <= b.length; j++) {
+            for (let i = 1; i <= a.length; i++) {
+                const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                matrix[j][i] = Math.min(
+                    matrix[j - 1][i] + 1,
+                    matrix[j][i - 1] + 1,
+                    matrix[j - 1][i - 1] + cost
+                );
+            }
+        }
+        return matrix[b.length][a.length];
+    };
+
+    // Функция для проверки схожести слов с учетом небольших различий
+    const areSimilarWords = (word1, word2) => {
+        const distance = levenshteinDistance(word1, word2);
+        // Допускаем 1 различие для коротких слов (до 5 букв) и 2 различия для длинных слов
+        const maxAllowedDistance = word1.length <= 5 ? 1 : 2;
+        return distance <= maxAllowedDistance;
+    };
+
+    // Функция для проверки наличия синонимов с учетом морфологических форм
+    const isSynonymMatch = (word, targetWord) => {
+        // Проверяем точное совпадение
+        if (word === targetWord) return true;
+
+        // Проверяем синонимы
+        for (const synonym of normalizedSynonyms) {
+            const synonymWords = synonym.split(' ');
+            for (const synonymWord of synonymWords) {
+                if (areSimilarWords(word, synonymWord)) return true;
+            }
+        }
+
+        // Проверяем похожие слова (учитываем падежи и другие морфологические формы)
+        return areSimilarWords(word, targetWord);
+    };
+
+    // Вычисление схожести с учетом синонимов и морфологических форм
+    let matchedWords = 0;
+    let totalWords = Math.max(userWords.length, targetWords.length);
+
+    // Создаем копии массивов для отслеживания использованных слов
+    let remainingUserWords = [...userWords];
+    let remainingTargetWords = [...targetWords];
+
+    // Проходим по словам и ищем совпадения
+    for (let i = 0; i < userWords.length; i++) {
+        const userWord = userWords[i];
+        for (let j = 0; j < targetWords.length; j++) {
+            if (isSynonymMatch(userWord, targetWords[j])) {
+                matchedWords++;
+                break;
+            }
+        }
+    }
+
+    // Базовый процент схожести
+    let similarity = (matchedWords / totalWords) * 100;
+
+    // Бонусные баллы за использование синонимов
+    const usedSynonyms = normalizedSynonyms.some(synonym =>
+        userWords.some(word => isSynonymMatch(word, synonym))
+    );
+    if (usedSynonyms) {
+        similarity += 10; // Добавляем 10% за правильное использование синонимов
+    }
+
+    // Бонус за сохранение смысла при небольших грамматических различиях
+    if (similarity >= 70) {
+        const mainWordsMatch = targetWords
+            .filter(word => word.length > 3)
+            .every(word => userWords.some(userWord => isSynonymMatch(userWord, word)));
+        if (mainWordsMatch) {
+            similarity += 10; // Добавляем еще 10% за сохранение основного смысла
+        }
+    }
+
+    // Ограничиваем максимальное значение до 100%
+    return Math.min(Math.round(similarity), 100);
+}
+
+    playCorrectSound() {
+        const msg = new SpeechSynthesisUtterance("You're right!");
+        msg.lang = 'en-GB';
+        msg.rate = AUDIO_RATE;
+        window.speechSynthesis.speak(msg);
+    }
+
+    async checkAnswer() {
+        const userAnswer = this.userInput.value;
+        const similarity = this.calculateSimilarity(userAnswer, this.correctAnswer);
+
+        if (similarity >= TRANSLATION_SIMILARITY_THRESHOLD) {
+            if (previousIncorrect) {
+                correctAfterIncorrect++;
+                previousIncorrect = false;
+            } else {
+                correctAnswers++;
+            }
+
+            displayFeedback(`Правильно! Схожість: ${similarity.toFixed(1)}%`, this.correctAnswer, true);
+            this.playCorrectSound(); // Added playCorrectSound here
+            this.container.classList.add('hidden');
+            setTimeout(async () => {
+                currentIndex++;
+                if (currentIndex < values.length) {
+                    document.getElementById('feedback').classList.add('hidden');
+                    document.getElementById('correct-answer').classList.add('hidden');
+                    await loadQuestion(currentIndex, sheetName);
+                } else {
+                    completeModule();
+                }
+            }, 3000);
+        } else {
+            incorrectAnswers++;
+            previousIncorrect = true;
+            displayFeedback(`Відповідь неправильна 😕 (${similarity.toFixed(1)}%), спробуйте ще раз.`, '', false);
+            playWrongSound();
+        }
+        updateProgressBar();
+        updateStats();
+        saveProgress();
+    }
+}
+
+
+
+
+
     class ListenSelectTaskModule {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
@@ -1316,35 +1646,39 @@ const completeModule = async () => {
         }
     }
 
-    const loadQuestion = async (index, sheetName) => {
-        const russianSentence = values[index][0];
-        const correctAnswer = values[index][1];
-        const distractors = values[index][2] ? values[index][2].split(' ') : [];
+            const loadQuestion = async (index, sheetName) => {
+            const russianSentence = values[index][0];
+            const correctAnswer = values[index][1];
+            const distractors = values[index][2] ? values[index][2].split(' ') : [];
 
-        await fetchHintImageUrl(sheetName);
+            await fetchHintImageUrl(sheetName);
 
-        // Скрываем все модули
-        document.getElementById('task-module-container').classList.add('hidden');
-        document.getElementById('listen-task-module').classList.add('hidden');
-        document.getElementById('speak-task-module').classList.add('hidden');
-        document.getElementById('listen-select-module').classList.add('hidden');
+            // Скрываем все модули
+            document.getElementById('task-module-container').classList.add('hidden');
+            document.getElementById('listen-task-module').classList.add('hidden');
+            document.getElementById('speak-task-module').classList.add('hidden');
+            document.getElementById('listen-select-module').classList.add('hidden');
+            document.getElementById('translate-task-module').classList.add('hidden');
 
-        if (sheetName.startsWith("listen-select_")) {
-            listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
-            document.getElementById('listen-select-module').classList.remove('hidden');
-        } else if (sheetName.startsWith("listen_")) {
-            listenTaskModule.loadQuestion(russianSentence, correctAnswer);
-            document.getElementById('listen-task-module').classList.remove('hidden');
-        } else if (sheetName.startsWith("speak_")) {
-            speakTaskModule.loadQuestion(russianSentence, correctAnswer);
-            document.getElementById('speak-task-module').classList.remove('hidden');
-        } else {
-            taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
-            document.getElementById('task-module-container').classList.remove('hidden');
-        }
-        updateProgressBar();
-        taskModule.updateUserAnswerDisplay();
-    };
+            if (sheetName.startsWith("translate_")) {
+                translateTaskModule.loadQuestion(russianSentence, correctAnswer, distractors.join(' '));
+                document.getElementById('translate-task-module').classList.remove('hidden');
+            } else if (sheetName.startsWith("listen-select_")) {
+                listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
+                document.getElementById('listen-select-module').classList.remove('hidden');
+            } else if (sheetName.startsWith("listen_")) {
+                listenTaskModule.loadQuestion(russianSentence, correctAnswer);
+                document.getElementById('listen-task-module').classList.remove('hidden');
+            } else if (sheetName.startsWith("speak_")) {
+                speakTaskModule.loadQuestion(russianSentence, correctAnswer);
+                document.getElementById('speak-task-module').classList.remove('hidden');
+            } else {
+                taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
+                document.getElementById('task-module-container').classList.remove('hidden');
+            }
+            updateProgressBar();
+            taskModule.updateUserAnswerDisplay();
+        };
 
     const fetchHintImageUrl = async (sheetName) => {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!E1?key=${API_KEY}`;
@@ -1750,6 +2084,10 @@ const fetchUserSheet = async () => {
 
         listenSelectTaskModule = new ListenSelectTaskModule(
             'listen-select-module'
+        );
+
+        translateTaskModule = new TranslateTaskModule(
+            'translate-task-module'
         );
 
         speakTaskModule = new SpeakTaskModule(
