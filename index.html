@@ -466,8 +466,6 @@
             margin-top: 10px;
         }
 
-
-
         .clear-btn:hover {
             color: #333;
         }
@@ -1166,108 +1164,52 @@ const completeModule = async () => {
 
 
     class TranslateTaskModule {
-     constructor(containerId) {
+    constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.playAudioBtn = document.createElement('button');
         this.userInput = document.createElement('textarea');
         this.checkBtn = document.createElement('button');
         this.taskText = document.createElement('div');
-        this.clearBtn = document.createElement('button');
+
         this.correctAnswer = '';
         this.synonyms = [];
         this.sourceText = '';
+
         this.setupUI();
         this.setupEventListeners();
     }
 
     setupUI() {
-        // Existing button setup code remains the same
         this.playAudioBtn.id = 'translate-audio-btn';
         this.playAudioBtn.className = 'styled-button';
         this.playAudioBtn.innerHTML = '<i class="fas fa-play"></i> Прослухати';
-        this.taskText.id = 'translate-task-text';
-        this.taskText.className = 'task-text';
 
-        // Create a wrapper div for textarea and clear button
-        const inputWrapper = document.createElement('div');
-        inputWrapper.style.position = 'relative';
-        inputWrapper.style.width = '100%';
-        inputWrapper.style.display = 'flex'; // Add flex display
-        inputWrapper.style.alignItems = 'flex-start'; // Align items to top
 
-        // Setup textarea
         this.userInput.id = 'translate-user-input';
         this.userInput.className = 'styled-input';
-        this.userInput.placeholder = '🗣️🎤 або введіть переклад';
-        this.userInput.rows = 2;
-        this.userInput.style.resize = 'none';
-        this.userInput.style.height = 'auto';
-        this.userInput.style.minHeight = '3.5em';
-        this.userInput.style.paddingRight = '35px'; // Increased padding for button
-        this.userInput.style.width = '100%'; // Ensure textarea takes full width
-        this.userInput.style.boxSizing = 'border-box'; // Include padding in width calculation
+        this.userInput.placeholder = 'Введіть переклад або 🗣️🎤';
+        this.userInput.rows = 2; // Set number of visible rows
+        this.userInput.style.resize = 'none'; // Prevent manual resizing
+        this.userInput.style.height = 'auto'; // Allow content to determine height
+        this.userInput.style.minHeight = '3.5em'; // Minimum height for 2 rows
 
-        // Setup clear button with improved positioning
-        this.clearBtn.id = 'translate-clear-btn';
-        this.clearBtn.innerHTML = '×';
-        this.clearBtn.style.position = 'absolute';
-        this.clearBtn.style.right = '5px'; // Adjusted position
-        this.clearBtn.style.top = '21px'; // Adjusted position
-        this.clearBtn.style.background = 'transparent';
-        this.clearBtn.style.border = 'none';
-        this.clearBtn.style.fontSize = '27px';
-        this.clearBtn.style.cursor = 'pointer';
-        this.clearBtn.style.color = '#666';
-        this.clearBtn.style.display = 'none';
-        this.clearBtn.style.padding = '0 5px';
-        this.clearBtn.style.zIndex = '1'; // Ensure button stays above textarea
-        this.clearBtn.style.height = '30px'; // Fixed height
-        this.clearBtn.style.lineHeight = '30px'; // Center the × vertically
-
-        // Add textarea and clear button to wrapper
-        inputWrapper.appendChild(this.userInput);
-        inputWrapper.appendChild(this.clearBtn);
-
-        // Button container setup
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.textAlign = 'left';
-        buttonContainer.style.marginTop = '10px';
-
-        // Check button setup
         this.checkBtn.id = 'translate-check-btn';
         this.checkBtn.className = 'styled-button';
         this.checkBtn.textContent = 'Перевірити';
-        buttonContainer.appendChild(this.checkBtn);
 
-        // Container setup
-        this.container.style.display = 'block';
-        this.container.style.margin = '0 auto';
-        this.container.style.padding = '10px';
-        this.container.style.width = '100%';
+        this.taskText.id = 'translate-task-text';
+        this.taskText.className = 'task-text';
 
-        // Append all elements
         this.container.appendChild(this.playAudioBtn);
         this.container.appendChild(this.taskText);
-        this.container.appendChild(inputWrapper);
-        this.container.appendChild(buttonContainer);
+        this.container.appendChild(this.userInput);
+        this.container.appendChild(this.checkBtn);
     }
 
     setupEventListeners() {
         this.playAudioBtn.onclick = () => this.playAudio();
         this.checkBtn.onclick = async () => this.checkAnswer();
-
-        // Add event listeners for clear button functionality
-        this.userInput.addEventListener('input', () => {
-            this.clearBtn.style.display = this.userInput.value.length > 0 ? 'block' : 'none';
-        });
-
-        this.clearBtn.addEventListener('click', () => {
-            this.userInput.value = '';
-            this.clearBtn.style.display = 'none';
-            this.userInput.focus();
-        });
     }
-
 
     loadQuestion(sourceText, correctAnswer, synonymsStr = '') {
         this.sourceText = sourceText;
