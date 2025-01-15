@@ -444,7 +444,7 @@
            font-size: 28px;
         }
 
-                .input-container {
+        .input-container {
             position: relative;
             width: calc(100% - 20px);
             max-width: 500px;
@@ -470,7 +470,9 @@
             color: #333;
         }
 
-
+        #translate-clear-btn {
+            top: 30%;
+        }
 
         .weekly-progress {
             margin: 20px auto;
@@ -1180,31 +1182,56 @@ const completeModule = async () => {
     }
 
     setupUI() {
-        this.playAudioBtn.id = 'translate-audio-btn';
-        this.playAudioBtn.className = 'styled-button';
-        this.playAudioBtn.innerHTML = '<i class="fas fa-play"></i> Прослухати';
+    this.playAudioBtn.id = 'translate-audio-btn';
+    this.playAudioBtn.className = 'styled-button';
+    this.playAudioBtn.innerHTML = '<i class="fas fa-play"></i> Прослухати';
 
+    // Создаём контейнер для поля ввода
+    const inputContainer = document.createElement('div');
+    inputContainer.className = 'input-container';
 
-        this.userInput.id = 'translate-user-input';
-        this.userInput.className = 'styled-input';
-        this.userInput.placeholder = 'Введіть переклад або 🗣️🎤';
-        this.userInput.rows = 2; // Set number of visible rows
-        this.userInput.style.resize = 'none'; // Prevent manual resizing
-        this.userInput.style.height = 'auto'; // Allow content to determine height
-        this.userInput.style.minHeight = '3.5em'; // Minimum height for 2 rows
+    this.userInput.id = 'translate-user-input';
+    this.userInput.className = 'styled-input';
+    this.userInput.placeholder = 'Введіть переклад або 🗣️🎤';
+    this.userInput.rows = 2; // Set number of visible rows
+    this.userInput.style.resize = 'none'; // Prevent manual resizing
+    this.userInput.style.height = 'auto'; // Allow content to determine height
+    this.userInput.style.minHeight = '3.5em'; // Minimum height for 2 rows
 
-        this.checkBtn.id = 'translate-check-btn';
-        this.checkBtn.className = 'styled-button';
-        this.checkBtn.textContent = 'Перевірити';
+    // Создаём кнопку очистки
+    const clearBtn = document.createElement('span');
+    clearBtn.id = 'translate-clear-btn';
+    clearBtn.className = 'clear-btn';
+    clearBtn.innerHTML = '&times;';
+    clearBtn.style.display = 'none'; // Скрыта по умолчанию
 
-        this.taskText.id = 'translate-task-text';
-        this.taskText.className = 'task-text';
+    // Добавляем поле и кнопку в контейнер
+    inputContainer.appendChild(this.userInput);
+    inputContainer.appendChild(clearBtn);
 
-        this.container.appendChild(this.playAudioBtn);
-        this.container.appendChild(this.taskText);
-        this.container.appendChild(this.userInput);
-        this.container.appendChild(this.checkBtn);
-    }
+    this.checkBtn.id = 'translate-check-btn';
+    this.checkBtn.className = 'styled-button';
+    this.checkBtn.textContent = 'Перевірити';
+
+    this.taskText.id = 'translate-task-text';
+    this.taskText.className = 'task-text';
+
+    this.container.appendChild(this.playAudioBtn);
+    this.container.appendChild(this.taskText);
+    this.container.appendChild(inputContainer); // Добавляем контейнер вместо userInput
+    this.container.appendChild(this.checkBtn);
+
+    // Логика кнопки очистки
+    this.userInput.addEventListener('input', () => {
+        clearBtn.style.display = this.userInput.value.length > 0 ? 'block' : 'none';
+    });
+    clearBtn.addEventListener('click', () => {
+        this.userInput.value = '';
+        clearBtn.style.display = 'none';
+        this.userInput.focus();
+    });
+}
+
 
     setupEventListeners() {
         this.playAudioBtn.onclick = () => this.playAudio();
