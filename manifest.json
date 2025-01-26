@@ -1,7 +1,7 @@
 {
   "name": "Вивчення англійської граматики",
   "short_name": "Англійська Граматика",
-  "start_url": "/",
+  "start_url": "/lessons/",
   "display": "standalone",
   "background_color": "#f7fcff",
   "theme_color": "#4CAF50",
