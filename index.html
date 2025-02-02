@@ -1635,62 +1635,63 @@
     };
 
     const fetchUserSheet = async () => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const users = data.values.slice(1);
-            const user = users.find(row => row[0] === userName);
-            if (user) {
-                let userSheet = user[1] ? user[1] : "day_off";
-                points = user[12];
+    // Сначала скрываем points-container
+    document.getElementById('points-container').style.display = 'none';
 
-                const customGreeting = user[3] ? user[3] + " " : "";
-                document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
-                document.getElementById('points').innerText = `${points}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const users = data.values.slice(1);
+        const user = users.find(row => row[0] === userName);
+        if (user) {
+            let userSheet = user[1] ? user[1] : "day_off";
+            points = user[12];
+            const customGreeting = user[3] ? user[3] + " " : "";
+            document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
 
-                // Проверяем, является ли лист tasklist-ом
-                if (userSheet.startsWith('tasklist_')) {
-                    const firstSheet = await handleTaskList(userSheet);
-                    if (firstSheet) {
-                        sheetName = firstSheet;
-                    } else {
-                        sheetName = "day_off";
-                    }
+            // Перемещаем установку points в блок проверки листа подарков
+
+            // Проверяем, является ли лист tasklist-ом
+            if (userSheet.startsWith('tasklist_')) {
+                const firstSheet = await handleTaskList(userSheet);
+                if (firstSheet) {
+                    sheetName = firstSheet;
                 } else {
-                    isTaskList = false;
-                    sheetName = userSheet;
-                }
-
-                fetchData(sheetName);
-
-                if (user[2]) {
-                    showNotification(user[2]);
-                }
-
-                const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
-                try {
-                    const presentsResponse = await fetch(presentsUrl);
-                    const presentsData = await presentsResponse.json();
-                    if (presentsData.error) {
-                        document.getElementById('points-container').style.display = 'none';
-                    } else {
-                        document.getElementById('points-container').style.display = 'flex';
-                    }
-                } catch (err) {
-                    document.getElementById('points-container').style.display = 'none';
-                    console.error('Помилка отримання даних present:', err);
+                    sheetName = "day_off";
                 }
             } else {
-                cleanupUI();
-                const feedbackElement = document.getElementById('feedback');
-                feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
-                feedbackElement.classList.remove('hidden');
+                isTaskList = false;
+                sheetName = userSheet;
             }
-        } catch (err) {
-            console.error('Помилка отримання даних користувача:', err);
+            fetchData(sheetName);
+            if (user[2]) {
+                showNotification(user[2]);
+            }
+
+            // Проверяем наличие листа подарков
+            const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
+            try {
+                const presentsResponse = await fetch(presentsUrl);
+                const presentsData = await presentsResponse.json();
+                if (!presentsData.error) {
+                    // Только если лист подарков существует, показываем points
+                    document.getElementById('points-container').style.display = 'flex';
+                    document.getElementById('points').innerText = `${points}`;
+                }
+            } catch (err) {
+                console.error('Помилка отримання даних present:', err);
+            }
+        } else {
+            cleanupUI();
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
+            feedbackElement.classList.remove('hidden');
         }
-    };
+    } catch (err) {
+        console.error('Помилка отримання даних користувача:', err);
+    }
+};
 
     const loadProgressOrQuestion = (sheetName) => {
         const savedProgress = localStorage.getItem('progress');
