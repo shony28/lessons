@@ -594,6 +594,7 @@
         .rating-table tr:nth-child(3) td:first-child::after {
             content: " 🥉";
         }
+
         .rating-table tr:nth-child(4) td:first-child::after {
             content: " 💛";
         }
@@ -604,7 +605,6 @@
         .rating-table tr:nth-child(6) td:first-child::after {
             content: " 🤎";
         }
-
 
         .rating-table td, .rating-table th {
             text-align: center;
@@ -813,7 +813,8 @@
     };
 
 
-const RatingTable = () => {
+
+    const RatingTable = () => {
     const [ratingsData, setRatingsData] = React.useState([]);
     const [displayCount, setDisplayCount] = React.useState(10);
 
@@ -899,7 +900,6 @@ const RatingTable = () => {
         )
     );
 };
-    
 
 
 
@@ -924,14 +924,14 @@ const RatingTable = () => {
     const playCorrectAnswer = (correctAnswer) => {
         const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
         const msg = new SpeechSynthesisUtterance(normalizedAnswer);
-        msg.lang = 'en-GB';
+        msg.lang = 'en-US';
         msg.rate = AUDIO_RATE;
         window.speechSynthesis.speak(msg);
     };
 
     const playWrongSound = () => {
         const msg = new SpeechSynthesisUtterance("wrong");
-        msg.lang = 'en-GB';
+        msg.lang = 'en-US';
         msg.rate = AUDIO_RATE;
         window.speechSynthesis.speak(msg);
     };
@@ -1159,7 +1159,7 @@ const RatingTable = () => {
 
         playAudio() {
             const msg = new SpeechSynthesisUtterance(this.correctAnswer);
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
@@ -1171,7 +1171,7 @@ const RatingTable = () => {
 
         playCorrectSound() {
             const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
@@ -1262,7 +1262,7 @@ const RatingTable = () => {
 
         playAudio() {
             const msg = new SpeechSynthesisUtterance(this.sourceText);
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
@@ -1376,7 +1376,7 @@ const RatingTable = () => {
 
         playCorrectSound() {
             const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
@@ -1541,14 +1541,14 @@ const RatingTable = () => {
 
         playAudio() {
             const msg = new SpeechSynthesisUtterance(this.correctAnswer.replace(/_/g, ' '));
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
 
         playCorrectSound() {
             const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
+            msg.lang = 'en-US';
             msg.rate = AUDIO_RATE;
             window.speechSynthesis.speak(msg);
         }
