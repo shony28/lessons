@@ -922,12 +922,20 @@
     };
 
     const playCorrectAnswer = (correctAnswer) => {
-        const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
-        const msg = new SpeechSynthesisUtterance(normalizedAnswer);
-        msg.lang = 'en-GB';
-        msg.rate = AUDIO_RATE;
-        window.speechSynthesis.speak(msg);
-    };
+    const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
+    const msg = new SpeechSynthesisUtterance(normalizedAnswer);
+    msg.lang = 'en-GB';
+    msg.rate = AUDIO_RATE;
+    
+    // Выбираем конкретный голос для en-GB
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(voice => voice.lang === 'en-GB');
+    if (englishVoice) {
+        msg.voice = englishVoice;
+    }
+    
+    window.speechSynthesis.speak(msg);
+};
 
 
     const playWrongSound = () => {
