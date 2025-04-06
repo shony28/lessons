@@ -49,7 +49,7 @@
     <button id="speakBtn" style="margin-top: 1em;">Speak</button>
 
     <script>
-        const voiceSelect = document.getElementById('voiceSelect');
+       const voiceSelect = document.getElementById('voiceSelect');
 const speakBtn = document.getElementById('speakBtn');
 const rate = document.getElementById('rate');
 const pitch = document.getElementById('pitch');
@@ -70,10 +70,14 @@ function populateVoices() {
         return;
     }
     
-    // Оставляем только en-GB и en-US, если они есть
-    const filteredVoices = voices.filter(voice =>
-        voice.lang === 'en-GB' || voice.lang === 'en-US'
-    );
+    // Оставляем только en-GB и en-US
+    const filteredVoices = voices.filter(voice => {
+        console.log(`Voice: ${voice.name}, Lang: ${voice.lang}`);
+        return voice.lang.includes('en-GB') || voice.lang.includes('en-US');
+    });
+    
+    // Выводим информацию для отладки
+    console.log(`Total voices: ${voices.length}, Filtered voices: ${filteredVoices.length}`);
     
     // Если нет голосов с нужными языками, покажем все доступные
     const voicesToShow = filteredVoices.length > 0 ? filteredVoices : voices;
@@ -81,7 +85,7 @@ function populateVoices() {
     voiceSelect.innerHTML = '';
     voicesToShow.forEach((voice, index) => {
         const option = document.createElement('option');
-        option.value = voices.indexOf(voice); // сохраняем индекс из общего массива
+        option.value = voice.name; // Используем имя голоса вместо индекса
         option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [default]' : ''}`;
         voiceSelect.appendChild(option);
     });
@@ -99,18 +103,35 @@ speakBtn.disabled = true;
 speechSynthesis.onvoiceschanged = populateVoices;
 
 // Дополнительный запуск через таймаут для Android
-setTimeout(populateVoices, 500);
+setTimeout(populateVoices, 1000);
 
 speakBtn.addEventListener('click', () => {
     const utterance = new SpeechSynthesisUtterance(textInput.value);
-    const selectedVoice = voices[voiceSelect.value];
+    
+    // Поиск голоса по имени вместо индекса
+    const selectedVoiceName = voiceSelect.value;
+    const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+    
+    console.log(`Trying to use voice: ${selectedVoiceName}`);
+    
     if (selectedVoice) {
         utterance.voice = selectedVoice;
+        console.log(`Selected voice: ${selectedVoice.name}`);
+    } else {
+        console.log('No matching voice found');
     }
+    
     utterance.rate = parseFloat(rate.value);
     utterance.pitch = parseFloat(pitch.value);
     utterance.volume = parseFloat(volume.value);
+    
     speechSynthesis.cancel(); // Остановить предыдущие произношения
+    
+    // Добавляем обработчик для отслеживания начала речи
+    utterance.onstart = function() {
+        console.log(`Speech started with voice: ${utterance.voice ? utterance.voice.name : 'default'}`);
+    };
+    
     speechSynthesis.speak(utterance);
 });
 
@@ -120,6 +141,8 @@ volume.addEventListener('input', () => volumeVal.textContent = volume.value);
 
 // Принудительно запускаем загрузку голосов
 populateVoices();
+// Повторная попытка загрузки через 2 секунды для надежности
+setTimeout(populateVoices, 2000);
     </script>
 </body>
 </html>
