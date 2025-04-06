@@ -63,86 +63,79 @@ let voices = [];
 function populateVoices() {
     voices = speechSynthesis.getVoices();
     
-    // Проверка, загрузились ли голоса
     if (voices.length === 0) {
-        // На Android может потребоваться дополнительная проверка
         setTimeout(populateVoices, 1000);
         return;
     }
     
-    // Оставляем только en-GB и en-US
-    const filteredVoices = voices.filter(voice => {
-        console.log(`Voice: ${voice.name}, Lang: ${voice.lang}`);
-        return voice.lang.includes('en-GB') || voice.lang.includes('en-US');
-    });
-    
-    // Выводим информацию для отладки
-    console.log(`Total voices: ${voices.length}, Filtered voices: ${filteredVoices.length}`);
-    
-    // Если нет голосов с нужными языками, покажем все доступные
-    const voicesToShow = filteredVoices.length > 0 ? filteredVoices : voices;
-    
     voiceSelect.innerHTML = '';
-    voicesToShow.forEach((voice, index) => {
+    voices.forEach((voice) => {
         const option = document.createElement('option');
-        option.value = voice.name; // Используем имя голоса вместо индекса
+        // Используем индекс URI голоса как уникальный идентификатор
+        option.value = voice.voiceURI;
         option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [default]' : ''}`;
         voiceSelect.appendChild(option);
     });
     
-    // Если есть хотя бы один голос, разблокируем кнопку
-    if (voicesToShow.length > 0) {
+    if (voices.length > 0) {
         speakBtn.disabled = false;
     }
 }
 
-// Настраиваем первоначальное состояние кнопки
 speakBtn.disabled = true;
 
-// Основные обработчики событий
-speechSynthesis.onvoiceschanged = populateVoices;
+// Используем как стандартный обработчик, так и ручной вызов
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoices;
+}
 
-// Дополнительный запуск через таймаут для Android
-setTimeout(populateVoices, 1000);
+// Принудительно запускаем на всякий случай
+setTimeout(populateVoices, 500);
+setTimeout(populateVoices, 1500);
 
 speakBtn.addEventListener('click', () => {
+    // Принудительно обновляем список голосов перед каждым использованием
+    // (это может помочь на Android)
+    voices = speechSynthesis.getVoices();
+    
+    const selectedVoiceURI = voiceSelect.value;
     const utterance = new SpeechSynthesisUtterance(textInput.value);
     
-    // Поиск голоса по имени вместо индекса
-    const selectedVoiceName = voiceSelect.value;
-    const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
-    
-    console.log(`Trying to use voice: ${selectedVoiceName}`);
-    
-    if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        console.log(`Selected voice: ${selectedVoice.name}`);
-    } else {
-        console.log('No matching voice found');
-    }
-    
+    // Принудительно устанавливаем все параметры перед выбором голоса
     utterance.rate = parseFloat(rate.value);
     utterance.pitch = parseFloat(pitch.value);
     utterance.volume = parseFloat(volume.value);
     
-    speechSynthesis.cancel(); // Остановить предыдущие произношения
+    // Ищем голос по URI
+    for (let i = 0; i < voices.length; i++) {
+        if (voices[i].voiceURI === selectedVoiceURI) {
+            utterance.voice = voices[i];
+            break;
+        }
+    }
     
-    // Добавляем обработчик для отслеживания начала речи
-    utterance.onstart = function() {
-        console.log(`Speech started with voice: ${utterance.voice ? utterance.voice.name : 'default'}`);
-    };
+    // Специальный хак для Android
+    if (navigator.userAgent.match(/Android/i)) {
+        // На Android иногда работает установка языка голоса вместо самого голоса
+        const selectedVoice = voices.find(v => v.voiceURI === selectedVoiceURI);
+        if (selectedVoice) {
+            utterance.lang = selectedVoice.lang;
+        }
+    }
     
-    speechSynthesis.speak(utterance);
+    speechSynthesis.cancel();
+    
+    // Добавляем небольшую задержку перед началом речи (помогает на некоторых устройствах)
+    setTimeout(() => {
+        speechSynthesis.speak(utterance);
+    }, 100);
 });
 
 rate.addEventListener('input', () => rateVal.textContent = rate.value);
 pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
 volume.addEventListener('input', () => volumeVal.textContent = volume.value);
 
-// Принудительно запускаем загрузку голосов
 populateVoices();
-// Повторная попытка загрузки через 2 секунды для надежности
-setTimeout(populateVoices, 2000);
     </script>
 </body>
 </html>
