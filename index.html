@@ -924,18 +924,39 @@
     const playCorrectAnswer = (correctAnswer) => {
     const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
     const msg = new SpeechSynthesisUtterance(normalizedAnswer);
-    msg.lang = 'en-GB';
     msg.rate = AUDIO_RATE;
-    
-    // Выбираем конкретный голос для en-GB
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(voice => voice.lang === 'en-GB');
-    if (englishVoice) {
-        msg.voice = englishVoice;
+
+    const voices = speechSynthesis.getVoices();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+        const preferredVoiceNames = ['Daniel', 'Даніель', 'Samantha'];
+
+        let selectedVoice = null;
+
+        for (let name of preferredVoiceNames) {
+            selectedVoice = voices.find(v => v.name === name);
+            if (selectedVoice) break;
+        }
+
+        // Если ничего не найдено — fallback: первый en-US
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang === 'en-US');
+        }
+
+        // Если нашли голос — используем
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedVoice.lang;
+        }
+    } else {
+        // Не iOS — просто используем стандартный en-GB
+        msg.lang = 'en-GB';
     }
-    
+
     window.speechSynthesis.speak(msg);
 };
+
 
 
     const playWrongSound = () => {
