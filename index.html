@@ -947,13 +947,9 @@
                 msg.lang = selectedVoice.lang;
             }
         } else {
-            // Не iOS — просто используем стандартный en-GB
-            const enGbVoice = voices.find(v => v.lang === 'en-GB');
-            if (enGbVoice) {
-                msg.voice = enGbVoice;
+                // Не iOS — просто используем стандартный en-GB
                 msg.lang = 'en-GB';
             }
-        }
 
         window.speechSynthesis.speak(msg);
     };
