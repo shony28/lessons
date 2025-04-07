@@ -959,11 +959,11 @@
     };
 
     // === ЗАГРУЖАЕМ ГОЛОСА ===
-    //if (speechSynthesis.onvoiceschanged !== undefined) {
-    //speechSynthesis.onvoiceschanged = () => {
-    //  speechSynthesis.getVoices(); // триггерим загрузку голосов
-    //};
-    //}
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {
+      speechSynthesis.getVoices(); // триггерим загрузку голосов
+    };
+    }
 
         const playCorrectAnswer = (correctAnswer) => {
             const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
