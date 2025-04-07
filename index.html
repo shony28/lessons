@@ -937,16 +937,17 @@
                 selectedVoice = voices.find(v => v.name === name);
                 if (selectedVoice) break;
             }
-
+            // Если ничего не найдено — fallback: первый en-US
             if (!selectedVoice) {
                 selectedVoice = voices.find(v => v.lang === 'en-US');
             }
-
+            // Если нашли голос — используем
             if (selectedVoice) {
                 msg.voice = selectedVoice;
                 msg.lang = selectedVoice.lang;
             }
         } else {
+            // Не iOS — просто используем стандартный en-GB
             const enGbVoice = voices.find(v => v.lang === 'en-GB');
             if (enGbVoice) {
                 msg.voice = enGbVoice;
@@ -956,6 +957,13 @@
 
         window.speechSynthesis.speak(msg);
     };
+
+    // === ЗАГРУЖАЕМ ГОЛОСА ===
+    //if (speechSynthesis.onvoiceschanged !== undefined) {
+    //speechSynthesis.onvoiceschanged = () => {
+    //  speechSynthesis.getVoices(); // триггерим загрузку голосов
+    //};
+    //}
 
         const playCorrectAnswer = (correctAnswer) => {
             const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
@@ -1189,10 +1197,7 @@
         }
 
         playAudio() {
-            const msg = new SpeechSynthesisUtterance(this.correctAnswer);
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText(this.correctAnswer);
         }
 
         checkAnswer() {
@@ -1201,10 +1206,7 @@
         }
 
         playCorrectSound() {
-            const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText("You're right!");
         }
     }
 
@@ -1292,10 +1294,7 @@
         }
 
         playAudio() {
-            const msg = new SpeechSynthesisUtterance(this.sourceText);
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText(this.correctAnswer);
         }
 
         calculateSimilarity(userText, targetText) {
@@ -1406,10 +1405,7 @@
         }
 
         playCorrectSound() {
-            const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText("You're right!");
         }
 
         async checkAnswer() {
@@ -1571,17 +1567,11 @@
         }
 
         playAudio() {
-            const msg = new SpeechSynthesisUtterance(this.correctAnswer.replace(/_/g, ' '));
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText(this.correctAnswer);
         }
 
         playCorrectSound() {
-            const msg = new SpeechSynthesisUtterance("You're right!");
-            msg.lang = 'en-GB';
-            msg.rate = AUDIO_RATE;
-            window.speechSynthesis.speak(msg);
+            speakText("You're right!");
         }
 
         checkAnswer() {
