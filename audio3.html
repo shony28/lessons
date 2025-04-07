@@ -16,6 +16,22 @@
         input[type="range"] {
             width: 100%;
         }
+        #voiceUriDisplay {
+            margin-top: 0.5em;
+            padding: 0.5em;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            position: relative;
+        }
+        #copyButton {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            padding: 2px 6px;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 <body>
@@ -30,6 +46,14 @@
         Voice:
         <select id="voiceSelect"></select>
     </label>
+    
+    <div id="voiceUriContainer">
+        <label>Voice URI:</label>
+        <div id="voiceUriDisplay">
+            <span id="voiceUriText"></span>
+            <button id="copyButton">Copy</button>
+        </div>
+    </div>
 
     <label>
         Rate: <span id="rateVal">1</span>
@@ -49,93 +73,118 @@
     <button id="speakBtn" style="margin-top: 1em;">Speak</button>
 
     <script>
-       const voiceSelect = document.getElementById('voiceSelect');
-const speakBtn = document.getElementById('speakBtn');
-const rate = document.getElementById('rate');
-const pitch = document.getElementById('pitch');
-const volume = document.getElementById('volume');
-const rateVal = document.getElementById('rateVal');
-const pitchVal = document.getElementById('pitchVal');
-const volumeVal = document.getElementById('volumeVal');
-const textInput = document.getElementById('text');
-let voices = [];
+        const voiceSelect = document.getElementById('voiceSelect');
+        const speakBtn = document.getElementById('speakBtn');
+        const rate = document.getElementById('rate');
+        const pitch = document.getElementById('pitch');
+        const volume = document.getElementById('volume');
+        const rateVal = document.getElementById('rateVal');
+        const pitchVal = document.getElementById('pitchVal');
+        const volumeVal = document.getElementById('volumeVal');
+        const textInput = document.getElementById('text');
+        const voiceUriText = document.getElementById('voiceUriText');
+        const copyButton = document.getElementById('copyButton');
+        let voices = [];
 
-function populateVoices() {
-    voices = speechSynthesis.getVoices();
-    
-    if (voices.length === 0) {
-        setTimeout(populateVoices, 1000);
-        return;
-    }
-    
-    voiceSelect.innerHTML = '';
-    voices.forEach((voice) => {
-        const option = document.createElement('option');
-        // Используем индекс URI голоса как уникальный идентификатор
-        option.value = voice.voiceURI;
-        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [default]' : ''}`;
-        voiceSelect.appendChild(option);
-    });
-    
-    if (voices.length > 0) {
-        speakBtn.disabled = false;
-    }
-}
-
-speakBtn.disabled = true;
-
-// Используем как стандартный обработчик, так и ручной вызов
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = populateVoices;
-}
-
-// Принудительно запускаем на всякий случай
-setTimeout(populateVoices, 500);
-setTimeout(populateVoices, 1500);
-
-speakBtn.addEventListener('click', () => {
-    // Принудительно обновляем список голосов перед каждым использованием
-    // (это может помочь на Android)
-    voices = speechSynthesis.getVoices();
-    
-    const selectedVoiceURI = voiceSelect.value;
-    const utterance = new SpeechSynthesisUtterance(textInput.value);
-    
-    // Принудительно устанавливаем все параметры перед выбором голоса
-    utterance.rate = parseFloat(rate.value);
-    utterance.pitch = parseFloat(pitch.value);
-    utterance.volume = parseFloat(volume.value);
-    
-    // Ищем голос по URI
-    for (let i = 0; i < voices.length; i++) {
-        if (voices[i].voiceURI === selectedVoiceURI) {
-            utterance.voice = voices[i];
-            break;
+        function populateVoices() {
+            voices = speechSynthesis.getVoices();
+            
+            if (voices.length === 0) {
+                setTimeout(populateVoices, 1000);
+                return;
+            }
+            
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice) => {
+                const option = document.createElement('option');
+                // Используем индекс URI голоса как уникальный идентификатор
+                option.value = voice.voiceURI;
+                option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [default]' : ''}`;
+                voiceSelect.appendChild(option);
+            });
+            
+            if (voices.length > 0) {
+                speakBtn.disabled = false;
+                // Показываем URI первого голоса по умолчанию
+                voiceUriText.textContent = voiceSelect.value;
+            }
         }
-    }
-    
-    // Специальный хак для Android
-    if (navigator.userAgent.match(/Android/i)) {
-        // На Android иногда работает установка языка голоса вместо самого голоса
-        const selectedVoice = voices.find(v => v.voiceURI === selectedVoiceURI);
-        if (selectedVoice) {
-            utterance.lang = selectedVoice.lang;
+
+        speakBtn.disabled = true;
+
+        // Используем как стандартный обработчик, так и ручной вызов
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
         }
-    }
-    
-    speechSynthesis.cancel();
-    
-    // Добавляем небольшую задержку перед началом речи (помогает на некоторых устройствах)
-    setTimeout(() => {
-        speechSynthesis.speak(utterance);
-    }, 100);
-});
 
-rate.addEventListener('input', () => rateVal.textContent = rate.value);
-pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
-volume.addEventListener('input', () => volumeVal.textContent = volume.value);
+        // Принудительно запускаем на всякий случай
+        setTimeout(populateVoices, 500);
+        setTimeout(populateVoices, 1500);
 
-populateVoices();
+        // Обновляем отображение URI при выборе голоса
+        voiceSelect.addEventListener('change', () => {
+            voiceUriText.textContent = voiceSelect.value;
+        });
+
+        // Добавляем функцию копирования voiceURI
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(voiceUriText.textContent)
+                .then(() => {
+                    const originalText = copyButton.textContent;
+                    copyButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyButton.textContent = originalText;
+                    }, 1500);
+                })
+                .catch(err => {
+                    console.error('Could not copy text: ', err);
+                    alert('Failed to copy. Please select and copy manually.');
+                });
+        });
+
+        speakBtn.addEventListener('click', () => {
+            // Принудительно обновляем список голосов перед каждым использованием
+            // (это может помочь на Android)
+            voices = speechSynthesis.getVoices();
+            
+            const selectedVoiceURI = voiceSelect.value;
+            const utterance = new SpeechSynthesisUtterance(textInput.value);
+            
+            // Принудительно устанавливаем все параметры перед выбором голоса
+            utterance.rate = parseFloat(rate.value);
+            utterance.pitch = parseFloat(pitch.value);
+            utterance.volume = parseFloat(volume.value);
+            
+            // Ищем голос по URI
+            for (let i = 0; i < voices.length; i++) {
+                if (voices[i].voiceURI === selectedVoiceURI) {
+                    utterance.voice = voices[i];
+                    break;
+                }
+            }
+            
+            // Специальный хак для Android
+            if (navigator.userAgent.match(/Android/i)) {
+                // На Android иногда работает установка языка голоса вместо самого голоса
+                const selectedVoice = voices.find(v => v.voiceURI === selectedVoiceURI);
+                if (selectedVoice) {
+                    utterance.lang = selectedVoice.lang;
+                }
+            }
+            
+            speechSynthesis.cancel();
+            
+            // Добавляем небольшую задержку перед началом речи (помогает на некоторых устройствах)
+            setTimeout(() => {
+                speechSynthesis.speak(utterance);
+            }, 100);
+        });
+
+        rate.addEventListener('input', () => rateVal.textContent = rate.value);
+        pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
+        volume.addEventListener('input', () => volumeVal.textContent = volume.value);
+
+        populateVoices();
     </script>
 </body>
 </html>
