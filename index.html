@@ -1130,6 +1130,7 @@
                         this.userAnswer.push(word);
                         span.classList.add('clicked');
                         this.updateUserAnswerDisplay();
+                        speakText(word.replace(/_/g, ' ')); // Озвучиваем слово при клике
                     }
                 };
                 this.englishWordsContainer.appendChild(span);
