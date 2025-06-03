@@ -748,10 +748,16 @@
           color: #333;
           display: block;
           transition: 0.3s;
+          border-bottom: 1px solid #eaeaea;
         }
 
         .side-panel ul li:hover {
           color: #4CAF50;
+          background-color: #e9f7ef;
+        }
+
+        .side-panel ul li i {
+        margin-right: 10px; /* Отступ для иконок */
         }
 
         /* Стили для кнопки закрытия в боковой панели */
@@ -832,10 +838,10 @@ input:checked + .slider:before {
       <div class="close-btn">&times;</div>
 
     <ul>
-        <li><a href="#" data-section="about-us">Про нас</a></li>
-        <li><a href="#" data-section="rating">📊 Рейтинг</a></li>
-        <li><a href="#" data-section="settings">⚙️ Налаштування</a></li>
-        <li><a href="#" data-section="contacts">Телеграм бот</a></li>
+        <li><a data-section="about-us">Про нас</a></li>
+        <li><a data-section="rating">📊 Рейтинг</a></li>
+        <li><a data-section="settings">⚙️ Налаштування</a></li>
+        <li><a data-section="contacts">Телеграм бот</a></li>
         
 
         <!-- Добавьте другие пункты меню по аналогии -->
