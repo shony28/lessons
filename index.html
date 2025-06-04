@@ -828,6 +828,116 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 
+.payment-info {
+    text-align: center;
+    padding: 20px;
+}
+
+.debt-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin: 15px 0;
+}
+
+.debt-amount.overpayment {
+    color: #27ae60; /* Зеленый цвет для переплаты */
+}
+
+.payment-note {
+    color: #7f8c8d;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+.attendance-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.attendance-info table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.attendance-info thead {
+    background-color: #595959;
+    color: white;
+}
+
+.attendance-info th {
+    padding: 12px 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.attendance-info tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.attendance-info tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.attendance-info tbody tr:hover {
+    background-color: #e3f2fd;
+}
+
+.attendance-info td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 14px;
+    text-align: center;
+}
+
+.attendance-info td:first-child {
+    font-weight: 500;
+    color: #495057;
+}
+
+.attendance-info td:last-child {
+    text-align: center;
+    font-size: 16px;
+}
+
+.attendance-info .payment-note {
+    margin: 8px 0 4px 0;
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.attendance-info .payment-note:first-of-type {
+    margin-top: 15px;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+    .attendance-info table {
+        font-size: 12px;
+    }
+    
+    .attendance-info th,
+    .attendance-info td {
+        padding: 8px 10px;
+    }
+    
+    .attendance-info th {
+        font-size: 12px;
+    }
+}
+
     </style>
 </head>
 
@@ -838,12 +948,10 @@ input:checked + .slider:before {
       <div class="close-btn">&times;</div>
 
     <ul>
-        <li><a data-section="about-us">Про нас</a></li>
         <li><a data-section="rating">📊 Рейтинг</a></li>
         <li><a data-section="settings">⚙️ Налаштування</a></li>
-        <li><a data-section="contacts">Телеграм бот</a></li>
+        <li><a data-section="payment">💳 Оплати</a></li>
         
-
         <!-- Добавьте другие пункты меню по аналогии -->
     </ul>
     </div>
@@ -997,6 +1105,8 @@ input:checked + .slider:before {
     let isTaskList = false;
     // Переменная для кэширования состояния пользователя для озвучки слов
     let userSpeakEnabledCache = null;
+    // переменную для хранения динамических пунктов меню
+    let dynamicMenuItems = [];
 
 
 
@@ -1010,6 +1120,149 @@ input:checked + .slider:before {
                 await updateUserSpeakSetting(userName, newValue);
             });
         };
+
+        const setupPaymentModal = async () => {
+            const paymentContainer = document.getElementById('payment-container');
+            
+            // Получаем текущий месяц и год
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
+            const sheetName = `PAY💲 (${currentMonth}.${currentYear})`;
+            
+            try {
+                // Расширяем диапазон чтобы получить данные до столбца AL
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:AL?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 0) {
+                    // Находим строку пользователя
+                    const userRowIndex = data.values.findIndex(row => row[0] === userName);
+                    const userRow = data.values[userRowIndex];
+                    
+                    let paymentHTML = '';
+                    
+                    // Обработка информации о долге (как было раньше)
+                    if (userRow && userRow[5]) { // Проверяем столбец F (индекс 5)
+                        const debtValue = userRow[5];
+                        const debtNumber = parseFloat(debtValue);
+                        
+                        if (debtValue === "0" || debtNumber === 0) {
+                            // Нет долга
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Боргу не має. Баланс:</strong></p>
+                                    <p class="debt-amount overpayment">${debtValue} грн</p>
+                                </div>
+                            `;
+                        } else if (debtNumber < 0) {
+                            // Переплата (отрицательное значение)
+                            const overpaymentAmount = Math.abs(debtNumber);
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Ваша переплата:</strong></p>
+                                    <p class="debt-amount overpayment">${overpaymentAmount} грн</p>
+                                </div>
+                            `;
+                        } else {
+                            // Обычный долг (положительное значение)
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Ваш поточний борг:</strong></p>
+                                    <p class="debt-amount">${debtValue} грн</p>
+                                    
+                                </div>
+                            `;
+                        }
+                    } else {
+                        paymentHTML = `
+                            <div class="payment-info">
+                                <p>У вас немає заборгованості.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Обработка таблицы посещений
+                    let attendanceHTML = '';
+                    if (userRow && data.values[0]) { // Проверяем что есть первая строка с датами
+                        const headerRow = data.values[0]; // Первая строка с датами
+                        const attendanceData = [];
+                        
+                        // Проверяем столбцы с H по AL (индексы 7-37)
+                        for (let colIndex = 7; colIndex <= 37; colIndex++) {
+                            const attendanceMark = userRow[colIndex];
+                            const dateHeader = headerRow[colIndex];
+                            
+                            // Если есть любые данные в ячейке (не пустая и не undefined) и есть дата в заголовке
+                            if (attendanceMark && attendanceMark.toString().trim() !== '' && dateHeader) {
+                                attendanceData.push({
+                                    date: dateHeader,
+                                    status: attendanceMark,
+                                    present: attendanceMark === '✅'
+                                });
+                            }
+                        }
+                        
+                        if (attendanceData.length > 0) {
+                            attendanceHTML = `
+                                <div class="attendance-info">
+                                    <p><strong>Відвідування занять за поточний місяць:</strong></p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Дата</th>
+                                                <th>Статус</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            attendanceData.forEach(item => {
+                                attendanceHTML += `
+                                    <tr>
+                                        <td>${item.date}</td>
+                                        <td>${item.status}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            attendanceHTML += `
+                                        </tbody>
+                                    </table>
+                                <p class="payment-note">✅-присутній, оплачено</p>
+                                <p class="payment-note">🔴-присутній, не оплачено</p>
+                                </div>
+                            `;
+                        } else {
+                            attendanceHTML = `
+                                <div class="attendance-info">
+                                    <p>Інформація про відвідування недоступна.</p>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    // Объединяем информацию о платеже и посещениях
+                    paymentContainer.innerHTML = paymentHTML + attendanceHTML;
+                    
+                } else {
+                    paymentContainer.innerHTML = `
+                        <div class="payment-info">
+                            <p>Інформація недоступна.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+                paymentContainer.innerHTML = `
+                    <div class="payment-info">
+                        <p style="color: red;">Помилка завантаження даних.</p>
+                    </div>
+                `;
+            }
+        };
+
 
         const updateUserSpeakSetting = async (userName, value) => {
             try {
@@ -1043,6 +1296,7 @@ input:checked + .slider:before {
 
 
 
+
     // Функция для отображения модального окна с соответствующим содержимым
     const showModal = (content) => {
         const modal = document.getElementById('modal');
@@ -1056,53 +1310,111 @@ input:checked + .slider:before {
         document.getElementById('modal').style.display = 'none';
     };
 
-   // Обработчик клика на пункты меню
-               document.querySelectorAll('.side-panel a').forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const section = event.target.getAttribute('data-section');
+   
+   // Функция для загрузки динамических пунктов меню
+    const fetchBurgerMenuItems = async () => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/burger_menu!A:B?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.values && data.values.length > 1) {
+                dynamicMenuItems = data.values.slice(1); // Пропускаем заголовочную строку
+                updateBurgerMenu();
+            }
+        } catch (err) {
+            console.error('Ошибка загрузки пунктов бургер-меню:', err);
+        }
+    };
 
-                let content = '';
-                switch (section) {
-                    case 'about-us':
-                        content = '<h2>Про нас</h2><p>Про нас</p>';
-                        break;
-                    case 'contacts':
-                        content = '<h2>Телеграм бот</h2><p><a href="https://t.me/UlianaVasylivna_bot">t.me/UlianaVasylivna_bot</a></p>';
-                        break;
-                    case 'rating':
-                        content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
-                        break;
-                    case 'settings':
-                        content = `
-                            <h2>Налаштування</h2>
-                            <div class="setting-item">
-                                <span>Озвучування слів при натисканні</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="speak-toggle">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        `;
-                        break;
-                    default:
-                        content = '<p>Інформація відсутня.</p>';
-                }
 
-                showModal(content);
-                document.querySelector('.side-panel').style.width = '0'; // Закрываем панель
-
-                if (section === 'rating') {
-                    const ratingContainer = document.getElementById('rating-container');
-                    const root = ReactDOM.createRoot(ratingContainer);
-                    root.render(React.createElement(RatingTable));
-                } else if (section === 'settings') {
-                    setupSettingsModal();
+        // Функция для обновления бургер-меню
+        const updateBurgerMenu = () => {
+            const sidePanel = document.querySelector('.side-panel ul');
+            
+            // Добавляем динамические пункты меню
+            dynamicMenuItems.forEach((item, index) => {
+                if (item[0]) { // Проверяем, что название пункта не пустое
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.setAttribute('data-section', `dynamic-${index}`);
+                    a.textContent = item[0];
+                    //a.href = '#';
+                    li.appendChild(a);
+                    sidePanel.appendChild(li);
                 }
             });
-        });
+            
+            // Обновляем обработчики событий для всех пунктов меню
+            setupMenuEventListeners();
+        };
 
 
+        // Обновленная функция обработчиков событий для пунктов меню
+        const setupMenuEventListeners = () => {
+            document.querySelectorAll('.side-panel a').forEach(link => {
+                // Удаляем старые обработчики
+                link.removeEventListener('click', handleMenuClick);
+                // Добавляем новые
+                link.addEventListener('click', handleMenuClick);
+            });
+        };
+
+        // Функция обработчика клика на пункты меню
+        const handleMenuClick = (event) => {
+            event.preventDefault();
+            const section = event.target.getAttribute('data-section');
+
+            let content = '';
+            
+            // Обработка стандартных пунктов меню
+            switch (section) {
+                
+                case 'rating':
+                    content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
+                    break;
+                case 'settings':
+                    content = `
+                        <h2>Налаштування</h2>
+                        <div class="setting-item">
+                            <span>Озвучування слів при натисканні</span>
+                            <label class="switch">
+                                <input type="checkbox" id="speak-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    `;
+                    break;
+                case 'payment':
+                    content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
+                    break;
+                default:
+                    // Обработка динамических пунктов меню
+                    if (section.startsWith('dynamic-')) {
+                        const index = parseInt(section.replace('dynamic-', ''));
+                        if (dynamicMenuItems[index] && dynamicMenuItems[index][1]) {
+                            content = dynamicMenuItems[index][1]; // HTML контент из столбца B
+                        } else {
+                            content = '<p>Контент відсутній.</p>';
+                        }
+                    } else {
+                        content = '<p>Інформація відсутня.</p>';
+                    }
+            }
+
+            showModal(content);
+            document.querySelector('.side-panel').style.width = '0'; // Закрываем панель
+
+            // Специальная обработка для стандартных пунктов
+            if (section === 'rating') {
+                const ratingContainer = document.getElementById('rating-container');
+                const root = ReactDOM.createRoot(ratingContainer);
+                root.render(React.createElement(RatingTable));
+            } else if (section === 'settings') {
+                setupSettingsModal();
+            } else if (section === 'payment') {
+                setupPaymentModal();
+            }
+        };
 
 
     // Обработчик клика на кнопку закрытия модального окна
@@ -2580,6 +2892,7 @@ input:checked + .slider:before {
         // Обработчик загрузки страницы
         window.onload = () => {
             fetchAdminData();
+            fetchBurgerMenuItems();
             const savedUserName = localStorage.getItem('userName');
             if (savedUserName) {
                 userName = savedUserName;
