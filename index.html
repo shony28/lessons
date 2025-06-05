@@ -938,6 +938,22 @@ input:checked + .slider:before {
     }
 }
 
+
+.setting-item select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    width: 150px;
+}
+
+.setting-item select:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
     </style>
 </head>
 
@@ -1107,19 +1123,96 @@ input:checked + .slider:before {
     let userSpeakEnabledCache = null;
     // переменную для хранения динамических пунктов меню
     let dynamicMenuItems = [];
+    let userVoiceCache = null; // Cache for voice setting
+
+// Функция для получения настройки голоса из кэша
+const getUserVoiceSetting = async (userName) => {
+    if (userVoiceCache !== null) {
+        return userVoiceCache; // Возвращаем кэшированное значение
+    }
+    // Если кэш пуст, возвращаем значение по умолчанию
+    userVoiceCache = 'en-GB|default';
+    return userVoiceCache;
+};
+
+// Функция для обновления настройки голоса в кэше
+const updateUserVoiceSetting = async (userName, voiceValue) => {
+    try {
+        userVoiceCache = voiceValue; // Обновляем только кэш
+        console.log('Настройка голоса успешно обновлена в кэше:', voiceValue);
+    } catch (err) {
+        console.error('Ошибка при обновлении настройки голоса:', err);
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML += '<p style="color: red; margin-top: 10px;">Ошибка при сохранении настройки голоса. Попробуйте позже.</p>';
+    }
+};
 
 
+const setupSettingsModal = async () => {
+    const speakToggle = document.getElementById('speak-toggle');
+    const voiceSelect = document.getElementById('voice-select');
+    const isEnabled = await isUserSpeakEnabled(userName);
+    const selectedVoice = await getUserVoiceSetting(userName); // Получаем сохранённое значение голоса
 
-        const setupSettingsModal = async () => {
-            const speakToggle = document.getElementById('speak-toggle');
-            const isEnabled = await isUserSpeakEnabled(userName);
-            speakToggle.checked = isEnabled;
+    // Устанавливаем значение переключателя озвучки
+    speakToggle.checked = isEnabled;
 
-            speakToggle.addEventListener('change', async () => {
-                const newValue = speakToggle.checked ? 'on' : 'off';
-                await updateUserSpeakSetting(userName, newValue);
+    // Функция для заполнения выпадающего списка голосами
+    const populateVoiceSelect = (voices) => {
+        // Очищаем существующие опции
+        voiceSelect.innerHTML = '';
+
+        // Фильтруем голоса по языкам en-US и en-GB
+        const supportedLanguages = ['en-US', 'en-GB'];
+        const filteredVoices = voices.filter(voice => supportedLanguages.includes(voice.lang));
+
+        // Заполняем выпадающий список голосами
+        if (filteredVoices.length > 0) {
+            filteredVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
+                option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
+                voiceSelect.appendChild(option);
             });
+        } else {
+            // Запасной вариант, если голоса не найдены
+            const option = document.createElement('option');
+            option.value = 'en-GB|default';
+            option.text = 'Британський (en-GB, за замовчуванням)';
+            voiceSelect.appendChild(option);
+        }
+
+        // Устанавливаем сохранённое значение голоса
+        voiceSelect.value = selectedVoice || 'en-GB|default';
+    };
+
+    // Получаем голоса
+    let voices = speechSynthesis.getVoices();
+
+    // Если голоса уже доступны, заполняем список
+    if (voices.length > 0) {
+        populateVoiceSelect(voices);
+    } else {
+        // Ждём события onvoiceschanged
+        speechSynthesis.onvoiceschanged = () => {
+            voices = speechSynthesis.getVoices();
+            populateVoiceSelect(voices);
         };
+    }
+
+    // Обработчик изменения переключателя озвучки
+    speakToggle.addEventListener('change', async () => {
+        const newValue = speakToggle.checked ? 'on' : 'off';
+        await updateUserSpeakSetting(userName, newValue);
+    });
+
+    // Обработчик изменения выбора голоса
+    voiceSelect.addEventListener('change', async () => {
+        const selectedValue = voiceSelect.value; // Получаем значение в формате lang|name
+        await updateUserVoiceSetting(userName, selectedValue);
+    });
+};
+
 
         const setupPaymentModal = async () => {
             const paymentContainer = document.getElementById('payment-container');
@@ -1389,18 +1482,22 @@ const handleMenuClick = async (event) => {
             content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
             break;
         case 'settings':
-            console.log('Loading settings content');
-            content = `
-                <h2>Налаштування</h2>
-                <div class="setting-item">
-                    <span>Озвучування слів при натисканні</span>
-                    <label class="switch">
-                        <input type="checkbox" id="speak-toggle">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            `;
-            break;
+                console.log('Loading settings content');
+                content = `
+                    <h2>Налаштування</h2>
+                    <div class="setting-item">
+                        <span>Озвучування слів при натисканні</span>
+                        <label class="switch">
+                            <input type="checkbox" id="speak-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Вибір голосу для озвучки</span>
+                       <select id="voice-select"></select>
+                    </div>
+                `;
+                break;
         case 'payment':
             console.log('Loading payment content');
             content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
@@ -1635,37 +1732,46 @@ const handleMenuClick = async (event) => {
     };
 
     // Глобальная функция озвучки текста
-    const speakText = (text) => {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.rate = AUDIO_RATE;
+    const speakText = async (text) => {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.rate = AUDIO_RATE;
 
-        const voices = speechSynthesis.getVoices();
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const voices = speechSynthesis.getVoices();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
+    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
 
-        if (isIOS) {
-            const preferredVoiceNames = ['Daniel', 'Даніель', 'Samantha'];
+    if (isIOS) {
+        // Для iOS пытаемся найти голос по имени и языку
+        let selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
 
-            let selectedVoice = null;
-            for (let name of preferredVoiceNames) {
-                selectedVoice = voices.find(v => v.name === name);
-                if (selectedVoice) break;
-            }
-            // Если ничего не найдено — fallback: первый en-US
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v => v.lang === 'en-US');
-            }
-            // Если нашли голос — используем
-            if (selectedVoice) {
-                msg.voice = selectedVoice;
-                msg.lang = selectedVoice.lang;
-            }
+        // Если голос не найден, используем запасной вариант
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
+        }
+
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
         } else {
-                // Не iOS — просто используем стандартный en-GB
-                msg.lang = 'en-GB';
-            }
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
+    } else {
+        // Для других платформ ищем голос по имени и языку
+        const selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
+            || voices.find(v => v.lang === selectedLang)
+            || voices.find(v => v.lang === 'en-GB');
 
-        window.speechSynthesis.speak(msg);
-    };
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
+        } else {
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
+    }
+
+    window.speechSynthesis.speak(msg);
+};
 
     // Воспроизведение правильного ответа
     const playCorrectAnswer = (correctAnswer) => {
