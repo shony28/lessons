@@ -1078,7 +1078,7 @@ input:checked + .slider:before {
     const TRANSLATION_SIMILARITY_THRESHOLD = 70;
     const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
     const RANGE = 'Граматика!A:D';
-    const USERS_RANGE = 'users!A:M';
+    const USERS_RANGE = 'users!A:Q';
     const ADMIN_RANGE = 'admin!B1:B4';
     const PRESENTS_RANGE = 'present!A:C';
     const API_KEY = 'AIzaSyD-VNZ85_c09OXV9rPkBhHXbtDwXqsNZnM';
@@ -1294,7 +1294,28 @@ input:checked + .slider:before {
             }
         };
 
-
+// Функция для получения содержимого из листа burger_menu по имени пункта
+const fetchMenuContent = async (menuItemName) => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/burger_menu!A:B?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values && data.values.length > 0) {
+            // Ищем строку, где имя в столбце A совпадает с menuItemName
+            const contentRow = data.values.find(row => row[0] === menuItemName);
+            if (contentRow && contentRow[1]) {
+                return contentRow[1]; // Возвращаем HTML-контент из столбца B
+            }
+            console.log(`No content found for menu item "${menuItemName}" in burger_menu`);
+            return `<p>Контент для пункту "${menuItemName}" відсутній.</p>`;
+        }
+        console.log('Burger menu sheet is empty or item not found:', menuItemName);
+        return `<p>Лист burger_menu порожній або пункт "${menuItemName}" не знайдено.</p>`;
+    } catch (err) {
+        console.error('Ошибка загрузки контента бургер-меню:', err);
+        return `<p>Помилка завантаження контенту для "${menuItemName}". Спробуйте пізніше.</p>`;
+    }
+};
 
 
     // Функция для отображения модального окна с соответствующим содержимым
@@ -1311,42 +1332,36 @@ input:checked + .slider:before {
     };
 
    
-   // Функция для загрузки динамических пунктов меню
-    const fetchBurgerMenuItems = async () => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/burger_menu!A:B?key=${API_KEY}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.values && data.values.length > 1) {
-                dynamicMenuItems = data.values.slice(1); // Пропускаем заголовочную строку
-                updateBurgerMenu();
-            }
-        } catch (err) {
-            console.error('Ошибка загрузки пунктов бургер-меню:', err);
-        }
+   
+
+
+// Функция для обновления бургер-меню
+const updateBurgerMenu = (menuItems) => {
+    const sidePanel = document.querySelector('.side-panel ul');
+    sidePanel.innerHTML = ''; // Очищаем текущее меню
+
+    // Маппинг пунктов меню из столбца Q на соответствующие data-section
+    const standardMenuItems = {
+        '📊 Рейтинг': 'rating',
+        '⚙️ Налаштування': 'settings',
+        '💳 Оплати': 'payment'
     };
 
+    // Создаём элементы меню
+    menuItems.forEach(item => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        // Используем название пункта как data-section для динамических пунктов
+        const section = standardMenuItems[item] || item;
+        a.setAttribute('data-section', section);
+        a.innerHTML = item; // Используем innerHTML для поддержки эмодзи
+        li.appendChild(a);
+        sidePanel.appendChild(li);
+    });
 
-        // Функция для обновления бургер-меню
-        const updateBurgerMenu = () => {
-            const sidePanel = document.querySelector('.side-panel ul');
-            
-            // Добавляем динамические пункты меню
-            dynamicMenuItems.forEach((item, index) => {
-                if (item[0]) { // Проверяем, что название пункта не пустое
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.setAttribute('data-section', `dynamic-${index}`);
-                    a.textContent = item[0];
-                    //a.href = '#';
-                    li.appendChild(a);
-                    sidePanel.appendChild(li);
-                }
-            });
-            
-            // Обновляем обработчики событий для всех пунктов меню
-            setupMenuEventListeners();
-        };
+    // Обновляем обработчики событий
+    setupMenuEventListeners();
+};
 
 
         // Обновленная функция обработчиков событий для пунктов меню
@@ -1359,62 +1374,61 @@ input:checked + .slider:before {
             });
         };
 
-        // Функция обработчика клика на пункты меню
-        const handleMenuClick = (event) => {
-            event.preventDefault();
-            const section = event.target.getAttribute('data-section');
+       // Функция обработчика клика на пункты меню
+const handleMenuClick = async (event) => {
+    event.preventDefault();
+    const section = event.target.getAttribute('data-section');
+    console.log('Clicked menu item with data-section:', section); // Логирование для диагностики
 
-            let content = '';
-            
-            // Обработка стандартных пунктов меню
-            switch (section) {
-                
-                case 'rating':
-                    content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
-                    break;
-                case 'settings':
-                    content = `
-                        <h2>Налаштування</h2>
-                        <div class="setting-item">
-                            <span>Озвучування слів при натисканні</span>
-                            <label class="switch">
-                                <input type="checkbox" id="speak-toggle">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    `;
-                    break;
-                case 'payment':
-                    content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
-                    break;
-                default:
-                    // Обработка динамических пунктов меню
-                    if (section.startsWith('dynamic-')) {
-                        const index = parseInt(section.replace('dynamic-', ''));
-                        if (dynamicMenuItems[index] && dynamicMenuItems[index][1]) {
-                            content = dynamicMenuItems[index][1]; // HTML контент из столбца B
-                        } else {
-                            content = '<p>Контент відсутній.</p>';
-                        }
-                    } else {
-                        content = '<p>Інформація відсутня.</p>';
-                    }
-            }
+    let content = '';
 
-            showModal(content);
-            document.querySelector('.side-panel').style.width = '0'; // Закрываем панель
+    // Обработка стандартных пунктов меню
+    switch (section) {
+        case 'rating':
+            console.log('Loading rating content');
+            content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
+            break;
+        case 'settings':
+            console.log('Loading settings content');
+            content = `
+                <h2>Налаштування</h2>
+                <div class="setting-item">
+                    <span>Озвучування слів при натисканні</span>
+                    <label class="switch">
+                        <input type="checkbox" id="speak-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            `;
+            break;
+        case 'payment':
+            console.log('Loading payment content');
+            content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
+            break;
+        default:
+            // Обработка динамических пунктов меню
+            console.log('Fetching dynamic content for menu item:', section);
+            content = await fetchMenuContent(section);
+            console.log('Dynamic content received:', content);
+    }
 
-            // Специальная обработка для стандартных пунктов
-            if (section === 'rating') {
-                const ratingContainer = document.getElementById('rating-container');
-                const root = ReactDOM.createRoot(ratingContainer);
-                root.render(React.createElement(RatingTable));
-            } else if (section === 'settings') {
-                setupSettingsModal();
-            } else if (section === 'payment') {
-                setupPaymentModal();
-            }
-        };
+    showModal(content);
+    document.querySelector('.side-panel').style.width = '0'; // Закрываем панель
+
+    // Специальная обработка для стандартных пунктов
+    if (section === 'rating') {
+        console.log('Rendering rating table');
+        const ratingContainer = document.getElementById('rating-container');
+        const root = ReactDOM.createRoot(ratingContainer);
+        root.render(React.createElement(RatingTable));
+    } else if (section === 'settings') {
+        console.log('Setting up settings modal');
+        await setupSettingsModal();
+    } else if (section === 'payment') {
+        console.log('Setting up payment modal');
+        await setupPaymentModal();
+    }
+};
 
 
     // Обработчик клика на кнопку закрытия модального окна
@@ -2460,7 +2474,19 @@ input:checked + .slider:before {
             const customGreeting = user[3] ? user[3] + " " : "";
             document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
 
-            // Перемещаем установку points в блок проверки листа подарков
+            // Получаем пункты бургер-меню из столбца Q
+            const menuItems = user[16] ? user[16].split(';').map(item => item.trim()) : [];
+
+            // Управляем видимостью бургер-меню
+            const burgerMenu = document.querySelector('.burger-menu');
+            if (menuItems.length > 0 && menuItems[0] !== '') {
+                burgerMenu.classList.remove('hidden'); // Показываем бургер-меню
+            } else {
+                burgerMenu.classList.add('hidden'); // Скрываем бургер-меню
+            }
+
+            // Обновляем бургер-меню
+            updateBurgerMenu(menuItems);
 
             // Проверяем, является ли лист tasklist-ом
             if (userSheet.startsWith('tasklist_')) {
@@ -2497,9 +2523,13 @@ input:checked + .slider:before {
             const feedbackElement = document.getElementById('feedback');
             feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
             feedbackElement.classList.remove('hidden');
+            // Скрываем бургер-меню, если пользователь не найден
+            document.querySelector('.burger-menu').classList.add('hidden');
         }
     } catch (err) {
         console.error('Помилка отримання даних користувача:', err);
+        // Скрываем бургер-меню в случае ошибки
+        document.querySelector('.burger-menu').classList.add('hidden');
     }
 };
 
@@ -2892,7 +2922,7 @@ input:checked + .slider:before {
         // Обработчик загрузки страницы
         window.onload = () => {
             fetchAdminData();
-            fetchBurgerMenuItems();
+            
             const savedUserName = localStorage.getItem('userName');
             if (savedUserName) {
                 userName = savedUserName;
