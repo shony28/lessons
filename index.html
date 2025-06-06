@@ -1746,37 +1746,42 @@ const handleMenuClick = async (event) => {
     msg.rate = AUDIO_RATE;
 
     const voices = speechSynthesis.getVoices();
+    console.log('Voices in speakText:', voices.map(v => ({ name: v.name, lang: v.lang })));
+
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
-    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
+    const selectedVoiceValue = await getUserVoiceSetting(userName); // lang|name
+    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|');
+
+    let selectedVoice;
 
     if (isIOS) {
-        // Для iOS пытаемся найти голос по имени и языку
-        let selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
-
-        // Если голос не найден, используем запасной вариант
+        // На iOS сначала пытаемся использовать голоса Daniel, Даніель, Samantha
+        const priorityVoices = ['Daniel', 'Даніель', 'Samantha'];
+        selectedVoice = voices.find(v => priorityVoices.includes(v.name));
+        
         if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
-        }
-
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
-            msg.lang = selectedLang;
-        } else {
-            msg.lang = 'en-GB'; // Запасной вариант
+            // Если приоритетные голоса не найдены, используем стандартный алгоритм
+            selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang) ||
+                            voices.find(v => v.lang === selectedLang) ||
+                            voices.find(v => v.lang === 'en-GB') ||
+                            voices.find(v => v.lang === 'en-US') ||
+                            voices[0]; // Любой доступный голос
         }
     } else {
-        // Для других платформ ищем голос по имени и языку
-        const selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
-            || voices.find(v => v.lang === selectedLang)
-            || voices.find(v => v.lang === 'en-GB');
+        // На других платформах используем стандартный алгоритм
+        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang) ||
+                        voices.find(v => v.lang === selectedLang) ||
+                        voices.find(v => v.lang === 'en-GB') ||
+                        voices.find(v => v.lang === 'en-US') ||
+                        voices[0]; // Любой доступный голос
+    }
 
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
-            msg.lang = selectedLang;
-        } else {
-            msg.lang = 'en-GB'; // Запасной вариант
-        }
+    if (selectedVoice) {
+        msg.voice = selectedVoice;
+        msg.lang = selectedVoice.lang;
+    } else {
+        console.warn('No voice found, using default');
+        msg.lang = 'en-GB'; // Запасной вариант
     }
 
     window.speechSynthesis.speak(msg);
