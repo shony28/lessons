@@ -1159,32 +1159,41 @@ const setupSettingsModal = async () => {
 
     // Функция для заполнения выпадающего списка голосами
     const populateVoiceSelect = (voices) => {
-        // Очищаем существующие опции
-        voiceSelect.innerHTML = '';
+    // Очищаем существующие опции
+    voiceSelect.innerHTML = '';
 
-        // Фильтруем голоса по языкам en-US и en-GB
-        const supportedLanguages = ['en-US', 'en-GB'];
-        const filteredVoices = voices.filter(voice => supportedLanguages.includes(voice.lang));
+    // Фильтруем голоса по языкам en-US и en-GB
+    const supportedLanguages = ['en-US', 'en-GB'];
+    const filteredVoices = voices.filter(voice => supportedLanguages.includes(voice.lang));
 
-        // Заполняем выпадающий список голосами
-        if (filteredVoices.length > 0) {
-            filteredVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
-                option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
-                voiceSelect.appendChild(option);
-            });
-        } else {
-            // Запасной вариант, если голоса не найдены
+    // Заполняем выпадающий список голосами
+    if (filteredVoices.length > 0) {
+        // Условие 1: есть голоса en-US или en-GB
+        filteredVoices.forEach(voice => {
             const option = document.createElement('option');
-            option.value = 'en-GB|default';
-            option.text = 'Британський (en-GB, за замовчуванням)';
+            option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
+            option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
             voiceSelect.appendChild(option);
-        }
+        });
+    } else if (voices.length > 0) {
+        // Условие 2: нет en-US или en-GB, но есть другие голоса
+        voices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
+            option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
+            voiceSelect.appendChild(option);
+        });
+    } else {
+        // Условие 3: запасной вариант, если голоса не найдены
+        const option = document.createElement('option');
+        option.value = 'en-GB|default';
+        option.text = 'Британський (en-GB, за замовчуванням)';
+        voiceSelect.appendChild(option);
+    }
 
-        // Устанавливаем сохранённое значение голоса
-        voiceSelect.value = selectedVoice || 'en-GB|default';
-    };
+    // Устанавливаем сохранённое значение голоса или первый доступный
+    voiceSelect.value = selectedVoice || (filteredVoices[0]?.value || voices[0]?.value || 'en-GB|default');
+};
 
     // Получаем голоса
     let voices = speechSynthesis.getVoices();
