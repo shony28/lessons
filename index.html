@@ -1220,7 +1220,15 @@ const setupSettingsModal = async () => {
         const selectedValue = voiceSelect.value; // Получаем значение в формате lang|name
         await updateUserVoiceSetting(userName, selectedValue);
     });
-};
+
+    // Добавляем обработчик для кнопки "Перевірити голос"
+        const testVoiceBtn = document.getElementById('test-voice-btn');
+        if (testVoiceBtn) {
+            testVoiceBtn.addEventListener('click', () => {
+                speakText("we didn't travel to Kyiv last summer");
+            });
+        }
+    };
 
 
         const setupPaymentModal = async () => {
@@ -1421,12 +1429,14 @@ const fetchMenuContent = async (menuItemName) => {
 
 
     // Функция для отображения модального окна с соответствующим содержимым
-    const showModal = (content) => {
-        const modal = document.getElementById('modal');
-        const modalBody = document.getElementById('modal-body');
-        modalBody.innerHTML = content;
-        modal.style.display = 'block';
-    };
+const showModal = (content) => {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+    modalBody.innerHTML = content;
+    modal.style.display = 'block';
+    // Принудительно обновляем DOM
+    modalBody.offsetHeight; // Это триггерит reflow
+};
 
     // Функция для закрытия модального окна
     const closeModal = () => {
@@ -1488,25 +1498,28 @@ const handleMenuClick = async (event) => {
     switch (section) {
         case 'rating':
             console.log('Loading rating content');
-            content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
+            content = '<h2>Рейтинг</h2><div id="rating-container">Завантаження...</div>';
             break;
         case 'settings':
-                console.log('Loading settings content');
-                content = `
-                    <h2>Налаштування</h2>
-                    <div class="setting-item">
-                        <span>Озвучування слів при натисканні</span>
-                        <label class="switch">
-                            <input type="checkbox" id="speak-toggle">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <span>Вибір голосу для озвучки</span>
-                       <select id="voice-select"></select>
-                    </div>
-                `;
-                break;
+            console.log('Loading settings content');
+            content = `
+                <h2>Налаштування</h2>
+                <div class="setting-item">
+                    <span>Озвучування слів при натисканні</span>
+                    <label class="switch">
+                        <input type="checkbox" id="speak-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Вибір голосу для озвучки</span>
+                    <select id="voice-select"></select>
+                </div>
+                <div class="setting-item">
+                    <button id="test-voice-btn" class="styled-button">Перевірити голос</button>
+                </div>
+            `;
+            break;
         case 'payment':
             console.log('Loading payment content');
             content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
@@ -1637,42 +1650,41 @@ const handleMenuClick = async (event) => {
     const RatingTable = () => {
     const [ratingsData, setRatingsData] = React.useState([]);
     const [displayCount, setDisplayCount] = React.useState(10);
+    const [isLoading, setIsLoading] = React.useState(true); // Добавляем состояние загрузки
 
     React.useEffect(() => {
         const fetchRatings = async () => {
+            setIsLoading(true); // Устанавливаем состояние загрузки
             const userName = localStorage.getItem('userName');
-            if (!userName) return;
+            if (!userName) {
+                setIsLoading(false);
+                return;
+            }
 
             try {
-                // Сначала получаем специфический рейтинговый лист пользователя
                 const usersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/users!A:N?key=${API_KEY}`;
                 const usersResponse = await fetch(usersUrl);
                 const usersData = await usersResponse.json();
 
-                // Находим строку пользователя
                 const userRow = usersData.values.find(row => row[0] === userName);
+                if (!userRow || !userRow[13]) {
+                    setIsLoading(false);
+                    return;
+                }
 
-                // Если рейтинговый лист не указан, возвращаемся
-                if (!userRow || !userRow[13]) return;
-
-                // Получаем имена рейтинговых листов - их может быть несколько, разделенных точкой с запятой
                 const ratingSheetNames = userRow[13].split(';').map(name => name.trim());
-
-                // Получаем количество отображаемых записей из админского листа
                 const adminUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/admin!B5?key=${API_KEY}`;
                 const adminResponse = await fetch(adminUrl);
                 const adminData = await adminResponse.json();
                 const count = adminData.values?.[0]?.[0] || 10;
                 setDisplayCount(parseInt(count));
 
-                // Получаем данные для каждого рейтингового листа
                 const ratingsPromises = ratingSheetNames.map(async sheetName => {
                     const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:C?key=${API_KEY}`;
                     const response = await fetch(ratingUrl);
                     const data = await response.json();
 
                     if (data.values && data.values.length > 1) {
-                        // Получаем заголовок из первой строки и данные из последующих строк
                         const title = data.values[0][0] || sheetName;
                         const ratings = data.values.slice(1, parseInt(count) + 1);
                         return { sheetName, title, ratings };
@@ -1684,11 +1696,17 @@ const handleMenuClick = async (event) => {
                 setRatingsData(allRatingsData.filter(data => data.ratings.length > 0));
             } catch (error) {
                 console.error('Error fetching ratings:', error);
+            } finally {
+                setIsLoading(false); // Снимаем состояние загрузки
             }
         };
 
         fetchRatings();
     }, []);
+
+    if (isLoading) {
+        return React.createElement('div', { className: 'text-center' }, 'Завантаження...');
+    }
 
     if (!ratingsData.length) return null;
 
@@ -1745,12 +1763,19 @@ const handleMenuClick = async (event) => {
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = AUDIO_RATE;
 
-    const voices = speechSynthesis.getVoices();
-    console.log('Voices in speakText:', voices.map(v => ({ name: v.name, lang: v.lang })));
+    // Ожидаем загрузки голосов
+    const voices = await new Promise((resolve) => {
+        const voices = speechSynthesis.getVoices();
+        if (voices.length) {
+            resolve(voices);
+        } else {
+            speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices());
+        }
+    });
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const selectedVoiceValue = await getUserVoiceSetting(userName); // lang|name
-    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|');
+    const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
+    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
 
     let selectedVoice;
 
@@ -1758,29 +1783,22 @@ const handleMenuClick = async (event) => {
         // На iOS сначала пытаемся использовать голоса Daniel, Даніель, Samantha
         const priorityVoices = ['Daniel', 'Даніель', 'Samantha'];
         selectedVoice = voices.find(v => priorityVoices.includes(v.name));
-        
+
+        // Если приоритетный голос не найден, ищем по языку или используем en-GB
         if (!selectedVoice) {
-            // Если приоритетные голоса не найдены, используем стандартный алгоритм
-            selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang) ||
-                            voices.find(v => v.lang === selectedLang) ||
-                            voices.find(v => v.lang === 'en-GB') ||
-                            voices.find(v => v.lang === 'en-US') ||
-                            voices[0]; // Любой доступный голос
+            selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
         }
     } else {
-        // На других платформах используем стандартный алгоритм
-        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang) ||
-                        voices.find(v => v.lang === selectedLang) ||
-                        voices.find(v => v.lang === 'en-GB') ||
-                        voices.find(v => v.lang === 'en-US') ||
-                        voices[0]; // Любой доступный голос
+        // Для других платформ ищем голос по имени и языку
+        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
+            || voices.find(v => v.lang === selectedLang)
+            || voices.find(v => v.lang === 'en-GB');
     }
 
     if (selectedVoice) {
         msg.voice = selectedVoice;
-        msg.lang = selectedVoice.lang;
+        msg.lang = selectedVoice.lang; // Используем язык выбранного голоса
     } else {
-        console.warn('No voice found, using default');
         msg.lang = 'en-GB'; // Запасной вариант
     }
 
