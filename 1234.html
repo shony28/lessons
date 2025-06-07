@@ -1,0 +1,3070 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Англійська з Уляною Василівною 🎓</title>
+    <!-- Иконка сайта -->
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <!-- Манифест для PWA -->
+    <link rel="manifest" href="/lessons/manifest.json">
+    <!-- Подключение иконок Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Подключение библиотек React -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Подключение библиотеки для вычисления расстояния Левенштейна -->
+    <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
+    <style>
+        /* Общие стили для тела страницы */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7fcff;
+            padding: 5px;
+        }
+
+        /* Стили для заголовка */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1px;
+        }
+
+        /* Стили для информации о пользователе */
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-size: 20px;
+            color: #000000ba;
+            text-align: center;
+        }
+
+        /* Стили для кнопки выхода */
+        .logout-btn {
+            font-size: 18px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #333;
+        }
+
+        .logout-btn:hover {
+            color: darkred;
+        }
+
+        /* Стили для контейнера очков */
+        #points-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffe97dde;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 20px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        #points-container span {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        #points-container:hover {
+            transform: scale(1.2);
+            background-color: #ffcc00;
+        }
+
+        /* Стили для контейнера предложений */
+        .sentence-container {
+            margin: 20px 0;
+        }
+
+        /* Стили для слов */
+        .word {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #333;
+            cursor: pointer;
+            font-size: 30px;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .word.clicked {
+            background-color: lightgreen;
+            border-color: green;
+        }
+
+        /* Стили для обратной связи */
+        #feedback {
+            margin-top: 20px;
+        }
+
+        /* Стили для русского предложения */
+        #russian-sentence {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        /* Стили для ответа пользователя */
+        #user-answer,
+        #user-answer-select {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Стили для кнопок */
+        #check-btn,
+        #reset-btn,
+        #hint-btn {
+            font-size: 18px;
+            padding: 12px 15px;
+            margin-top: 20px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        /* Стили для правильного ответа */
+        #correct-answer {
+            color: darkgreen;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 40px;
+            text-align: center;
+        }
+
+        /* Стили для неверного ответа */
+        #feedback.incorrect {
+            color: darkred;
+            font-size: 20px;
+        }
+
+        /* Стили для заголовка */
+        h1 {
+            font-size: 20px;
+            color: #00000094;
+            font-weight: lighter;
+            margin-top: 10px;
+            margin-bottom: 3px;
+        }
+
+        /* Стили для контейнера ввода имени */
+        #name-input-container {
+            margin-top: 20px;
+        }
+
+        /* Стили для контейнера статистики */
+        #stats-container {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        /* Стили для разделителя */
+        .separator {
+            margin: 15px 0;
+            border-bottom: 2px solid #9f9f9f;
+            position: relative;
+        }
+
+        /* Стили для прогресс-бара */
+        .progress-bar {
+            height: 2px;
+            background-color: green;
+            width: 0;
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+        }
+
+        /* Стили для скрытых элементов */
+        .hidden {
+            display: none;
+        }
+
+        /* Стили для правильных ответов */
+        .correct-count {
+            color: darkgreen;
+            font-weight: bold;
+        }
+
+        /* Стили для неправильных ответов */
+        .incorrect-count {
+            color: darkred;
+            font-weight: bold;
+        }
+
+        /* Стили для правильных ответов после неправильных */
+        .correct-after-incorrect-count {
+            color: #cb8401;
+            font-weight: bold;
+        }
+
+        /* Стили для обратной связи */
+        .correct-feedback {
+            color: darkgreen;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Стили для контейнера ввода имени */
+        #name-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #name-input-container label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        /* Стили для поля ввода имени */
+        #name-input {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+
+        /* Стили для кнопки начала */
+        #start-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* Стили для стилизованных кнопок */
+        .styled-button {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            height: 95%;
+            max-width: 600px;
+            overflow: auto;
+            background-color: #fefefe;
+            padding: 100%;
+        }
+
+        #modal-body {
+            padding-top: 50px;
+        }
+
+        /* Стили для модального окна подсказки */
+        #hint-modal, #points-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Стили для содержимого модального окна */
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+
+        /* Стили для кнопки закрытия */
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Стили для изображения подсказки */
+        #hint-image {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            max-height: calc(100vh - 100px);
+        }
+
+        /* Стили для индикатора загрузки */
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        /* Стили для уведомления пользователя */
+        #user-notification {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            padding-top: 30px;
+            border: 3px solid #333;
+            border-radius: 10px;
+            max-width: 90%;
+            text-align: center;
+            font-size: 24px;
+            width: 75%;
+        }
+
+        /* Стили для оверлея */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Стили для кнопки закрытия уведомления */
+        .notification-close-btn {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 30px;
+            color: #aaa;
+        }
+
+        .notification-close-btn:hover,
+        .notification-close-btn:focus {
+            color: black;
+        }
+
+        /* Стили для поля ввода пользователя */
+        #listen-user-input,
+        #speak-user-input,
+        #translate-user-input {
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+            height: 50px;
+        }
+
+        /* Стили для кнопки воспроизведения аудио */
+        #play-audio-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #play-audio-btn i {
+            margin-right: 8px;
+        }
+
+        /* Стили для обратной связи */
+        #feedback {
+            margin-top: 20px;
+            color: inherit;
+        }
+
+        #feedback.correct-feedback {
+            color: green;
+            font-size: 20px;
+        }
+
+        #feedback.incorrect {
+            color: #800000;
+            font-size: 20px;
+        }
+
+        /* Стили для модального окна очков */
+        #points-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #points-modal .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            border-radius: 10px;
+            min-height: 60%;
+        }
+
+        /* Стили для деталей очков */
+        #points-detail {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Стили для контейнера подарков */
+        #gifts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        /* Стили для элемента подарка */
+        .gift-item {
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .gift-item img {
+            width: 100%;
+            height: auto;
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Стили для текста администратора */
+        div#admin-text {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Стили для текста очков */
+        div#point-text {
+            font-size: 24px;
+        }
+
+        /* Стили для текста задания */
+        .task-text {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        #speak-task-text.task-text {
+           font-size: 28px;
+        }
+
+        /* Стили для контейнера ввода */
+        .input-container {
+            position: relative;
+            width: calc(100% - 20px);
+            max-width: 500px;
+        }
+
+        #speak-user-input {
+            padding-right: 30px; /* Отступ для кнопки */
+        }
+
+        /* Стили для кнопки очистки */
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 35px;
+            color: #aaa;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            color: #333;
+        }
+
+        #translate-clear-btn {
+            top: 30%;
+        }
+
+        /* Стили для еженедельного прогресса */
+        .weekly-progress {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Стили для сетки */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        /* Стили для центрирования текста */
+        .text-center {
+            text-align: center;
+        }
+
+        /* Стили для отступа снизу */
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        /* Стили для текста */
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        /* Стили для текущего дня */
+        .today-cell {
+            background-color: #fff7e0;  /* Светло-желтый фон */
+            border-radius: 8px;
+            padding: 3px;
+            transform: scale(1.1);  /* Немного увеличиваем размер */
+            transition: all 0.3s ease;
+        }
+
+        .today-text {
+            color: #d4a017;  /* Золотистый цвет текста */
+            font-weight: bold;
+        }
+
+        /* Стили для контейнера рейтинга */
+        .mt-8 {
+            margin-top: 2rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        /* Стили для таблицы */
+        .w-full {
+            width: 100%;
+        }
+
+        .border-collapse {
+            border-collapse: collapse;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        /* Стили для заголовков таблицы */
+        .rating-table th {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Стили для ячеек таблицы */
+        .rating-table td {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Стили для строк таблицы */
+        .rating-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Стили для первого места */
+        .rating-table tr:nth-child(1) {
+            background-color: #fef3c7;
+        }
+
+        .rating-table tr:nth-child(1) td {
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        /* Стили для второго места */
+        .rating-table tr:nth-child(2) {
+            background-color: #f1f5f9;
+        }
+
+        /* Стили для третьего места */
+        .rating-table tr:nth-child(3) {
+            background-color: #faf5ff;
+        }
+
+        /* Медали для первых трех мест */
+        .rating-table tr:nth-child(1) td:first-child::after {
+            content: " 🏆";
+        }
+
+        .rating-table tr:nth-child(2) td:first-child::after {
+            content: " 🥈";
+        }
+
+        .rating-table tr:nth-child(3) td:first-child::after {
+            content: " 🥉";
+        }
+        .rating-table tr:nth-child(4) td:first-child::after {
+            content: " 💛";
+        }
+
+        .rating-table tr:nth-child(5) td:first-child::after {
+            content: " 🤍";
+        }
+        .rating-table tr:nth-child(6) td:first-child::after {
+            content: " 🤎";
+        }
+
+        /* Стили для ячеек таблицы */
+        .rating-table td, .rating-table th {
+            text-align: center;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 640px) {
+            .rating-table td,
+            .rating-table th {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+
+        /* Стили для бургер-меню */
+        .burger-menu {
+          /*position: fixed;*/
+          top: 20px;
+          left: 20px;
+          z-index: 1000;
+          cursor: pointer;
+          padding-right: 12px;
+        }
+
+        /* Стили для иконки бургер-меню */
+        .burger-icon span {
+          display: block;
+          width: 28px;
+          height: 3px;
+          background-color: #686a6b;
+          margin: 5px 0;
+          transition: 0.4s;
+        }
+
+        /* Стили для боковой панели */
+        .side-panel {
+          height: 100%;
+          width: 0;
+          position: fixed;
+          z-index: 1001;
+          top: 0;
+          left: 0;
+          background-color: #ffffff;
+          overflow-x: hidden;
+          transition: 0.3s;
+          padding-top: 40px;
+          border-right: 1px solid #9f9f9f;
+          max-width: 400px;
+        }
+
+        /* Стили для списка в боковой панели */
+        .side-panel ul {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .side-panel ul li {
+          padding: 8px 8px 8px 32px;
+          text-decoration: none;
+          font-size: 25px;
+          color: #333;
+          display: block;
+          transition: 0.3s;
+          border-bottom: 1px solid #eaeaea;
+        }
+
+        .side-panel ul li:hover {
+          color: #4CAF50;
+          background-color: #e9f7ef;
+        }
+
+        .side-panel ul li i {
+        margin-right: 10px; /* Отступ для иконок */
+        }
+
+        /* Стили для кнопки закрытия в боковой панели */
+        .side-panel .close-btn {
+          position: absolute;
+          top: 0;
+          right: 25px;
+          font-size: 36px;
+          margin-left: 50px;
+          cursor: pointer;
+        }
+
+        .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.payment-info {
+    text-align: center;
+    padding: 20px;
+}
+
+.debt-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin: 15px 0;
+}
+
+.debt-amount.overpayment {
+    color: #27ae60; /* Зеленый цвет для переплаты */
+}
+
+.payment-note {
+    color: #7f8c8d;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+.attendance-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.attendance-info table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.attendance-info thead {
+    background-color: #595959;
+    color: white;
+}
+
+.attendance-info th {
+    padding: 12px 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.attendance-info tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.attendance-info tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.attendance-info tbody tr:hover {
+    background-color: #e3f2fd;
+}
+
+.attendance-info td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 14px;
+    text-align: center;
+}
+
+.attendance-info td:first-child {
+    font-weight: 500;
+    color: #495057;
+}
+
+.attendance-info td:last-child {
+    text-align: center;
+    font-size: 16px;
+}
+
+.attendance-info .payment-note {
+    margin: 8px 0 4px 0;
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.attendance-info .payment-note:first-of-type {
+    margin-top: 15px;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+    .attendance-info table {
+        font-size: 12px;
+    }
+    
+    .attendance-info th,
+    .attendance-info td {
+        padding: 8px 10px;
+    }
+    
+    .attendance-info th {
+        font-size: 12px;
+    }
+}
+
+
+.setting-item select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    width: 150px;
+}
+
+.setting-item select:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Боковая панель -->
+    <div class="side-panel">
+      <div class="close-btn">&times;</div>
+
+    <ul>
+        <li><a data-section="rating">📊 Рейтинг</a></li>
+        <li><a data-section="settings">⚙️ Налаштування</a></li>
+        <li><a data-section="payment">💳 Оплати</a></li>
+        
+        <!-- Добавьте другие пункты меню по аналогии -->
+    </ul>
+    </div>
+
+    <!-- Заголовок -->
+    <div class="header">
+
+        <div class="burger-menu hidden">
+
+          <div class="burger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+            </div>
+
+        </div>
+
+        <!-- Заголовок страницы -->
+        <h1 id="page-title">Англійська з Уляною Василівною</h1>
+        <!-- Информация о пользователе -->
+        <div class="user-info hidden">
+            <span id="points-container">
+                <span id="points"></span>
+            </span>
+            <span id="user-name"></span>
+            <button class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+    <!-- Разделитель -->
+    <div class="separator">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <!-- Контейнер для ввода имени -->
+    <div id="name-input-container">
+        <label for="name-input">Введіть ваше ім'я: </label>
+        <input type="text" id="name-input">
+        <button id="start-btn">Почати</button>
+    </div>
+    <div class="separator hidden"></div>
+
+    <!-- Контейнер для модуля заданий -->
+    <div id="task-module-container" class="hidden">
+        <div id="russian-sentence" class="hidden"></div>
+        <div id="english-words-container" class="sentence-container hidden"></div>
+        <div id="user-answer" class="hidden"></div>
+        <button id="check-btn" class="hidden styled-button">Перевірити</button>
+        <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
+        <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
+    </div>
+
+    <!-- Контейнер для модуля заданий на прослушивание -->
+    <div id="listen-task-module" class="hidden">
+        <button id="play-audio-btn" class="styled-button">
+            <i class="fas fa-play"></i> Прослухати
+        </button>
+        <div id="listen-task-text" class="task-text"></div>
+        <input type="text" id="listen-user-input" class="styled-input" placeholder="Введіть те, що почули">
+        <button id="listen-check-btn" class="styled-button">Перевірити</button>
+    </div>
+
+    <!-- Контейнер для модуля заданий на выбор прослушивания -->
+    <div id="listen-select-module" class="hidden">
+        <button id="play-audio-btn-select" class="styled-button">
+            <i class="fas fa-play"></i> Прослухати
+        </button>
+        <div id="listen-task-text-select" class="task-text"></div>
+        <div id="words-container-select" class="sentence-container"></div>
+        <div id="user-answer-select" class="hidden"></div>
+        <button id="listen-check-btn-select" class="styled-button">Перевірити</button>
+    </div>
+
+    <!-- Контейнер для модуля заданий на перевод -->
+    <div id="translate-task-module" class="hidden">
+        <!-- Контент будет добавлен динамически через JavaScript -->
+    </div>
+
+    <!-- Модальное окно подсказки -->
+    <div id="hint-modal" class="hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <img id="hint-image" src="" alt="Hint" />
+        </div>
+    </div>
+    <!-- Модальное окно очков -->
+    <div id="points-modal" class="hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="points-detail">
+                <div id="point-text">You have <span id="points"></span> English coins</div>
+                <div id="admin-text"></div>
+            </div>
+            <div id="gifts-container"></div>
+        </div>
+    </div>
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-body">
+                <!-- Содержимое модального окна будет заполняться динамически -->
+            </div>
+        </div>
+    </div>
+    <!-- Обратная связь -->
+    <div id="feedback" class="hidden"></div>
+    <div id="correct-answer" class="hidden"></div>
+
+    <!-- Индикатор загрузки -->
+    <div class="loading-indicator" id="loading-indicator">Завантаження даних...</div>
+    <div class="separator"></div>
+
+    <!-- Контейнер для статистики -->
+    <div id="stats-container" class="hidden"></div>
+    <!-- Уведомление пользователя -->
+    <div id="user-notification">
+        <span class="notification-close-btn">&times;</span>
+    </div>
+    <!-- Оверлей -->
+    <div class="overlay"></div>
+
+    <script>
+    // Константы для настройки приложения
+    const AUDIO_RATE = 0.8;
+    const TRANSLATION_SIMILARITY_THRESHOLD = 70;
+    const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
+    const RANGE = 'Граматика!A:D';
+    const USERS_RANGE = 'users!A:Q';
+    const ADMIN_RANGE = 'admin!B1:B4';
+    const PRESENTS_RANGE = 'present!A:C';
+    const API_KEY = 'AIzaSyD-VNZ85_c09OXV9rPkBhHXbtDwXqsNZnM';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5rnFstVmmRh__J41HxE0qS0savLkmO5U4PHFbsvJ0D6qqh98KYhhKz9hLoJ-s9OeQQA/exec';
+
+    // Переменные для отслеживания состояния приложения
+    let previousIncorrect = false;
+    let correctAnswers = 0;
+    let incorrectAnswers = 0;
+    let correctAfterIncorrect = 0;
+    let currentIndex = 0;
+    let values = [];
+    let sheetName = '';
+    let hintImageUrl = '';
+    let userName = '';
+    let points = 0;
+
+    // Переменные для модулей заданий
+    let taskModule, listenTaskModule, listenSelectTaskModule, translateTaskModule;
+
+    // Переменные для работы с tasklist
+    let currentTaskListIndex = 0;
+    let taskListSheets = [];
+    let isTaskList = false;
+    // Переменная для кэширования состояния пользователя для озвучки слов
+    let userSpeakEnabledCache = null;
+    // переменную для хранения динамических пунктов меню
+    let dynamicMenuItems = [];
+    let userVoiceCache = null; // Cache for voice setting
+
+// Функция для получения настройки голоса из кэша
+const getUserVoiceSetting = async (userName) => {
+    if (userVoiceCache !== null) {
+        return userVoiceCache; // Возвращаем кэшированное значение
+    }
+    // Если кэш пуст, возвращаем значение по умолчанию
+    userVoiceCache = 'en-GB|default';
+    return userVoiceCache;
+};
+
+// Функция для обновления настройки голоса в кэше
+const updateUserVoiceSetting = async (userName, voiceValue) => {
+    try {
+        userVoiceCache = voiceValue; // Обновляем только кэш
+        console.log('Настройка голоса успешно обновлена в кэше:', voiceValue);
+    } catch (err) {
+        console.error('Ошибка при обновлении настройки голоса:', err);
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML += '<p style="color: red; margin-top: 10px;">Ошибка при сохранении настройки голоса. Попробуйте позже.</p>';
+    }
+};
+
+
+const setupSettingsModal = async () => {
+    const speakToggle = document.getElementById('speak-toggle');
+    const voiceSelect = document.getElementById('voice-select');
+    const isEnabled = await isUserSpeakEnabled(userName);
+    const selectedVoice = await getUserVoiceSetting(userName); // Получаем сохранённое значение голоса
+
+    // Устанавливаем значение переключателя озвучки
+    speakToggle.checked = isEnabled;
+
+    // Функция для заполнения выпадающего списка голосами
+    const populateVoiceSelect = (voices) => {
+    // Очищаем существующие опции
+    voiceSelect.innerHTML = '';
+
+    // Фильтруем голоса по языкам en-US и en-GB
+    const supportedLanguages = ['en-US', 'en-GB'];
+    const filteredVoices = voices.filter(voice => supportedLanguages.includes(voice.lang));
+
+    // Заполняем выпадающий список голосами
+    if (filteredVoices.length > 0) {
+        // Условие 1: есть голоса en-US или en-GB
+        filteredVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
+            option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
+            voiceSelect.appendChild(option);
+        });
+    } else if (voices.length > 0) {
+        // Условие 2: нет en-US или en-GB, но есть другие голоса
+        voices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = `${voice.lang}|${voice.name}`; // Уникальное значение: lang|name
+            option.text = `${voice.name} (${voice.lang})`; // Отображаем имя голоса и язык
+            voiceSelect.appendChild(option);
+        });
+    } else {
+        // Условие 3: запасной вариант, если голоса не найдены
+        const option = document.createElement('option');
+        option.value = 'en-GB|default';
+        option.text = 'Британський (en-GB, за замовчуванням)';
+        voiceSelect.appendChild(option);
+    }
+
+    // Устанавливаем сохранённое значение голоса или первый доступный
+    voiceSelect.value = selectedVoice || (filteredVoices[0]?.value || voices[0]?.value || 'en-GB|default');
+};
+
+    // Получаем голоса
+    let voices = speechSynthesis.getVoices();
+
+    // Если голоса уже доступны, заполняем список
+    if (voices.length > 0) {
+        populateVoiceSelect(voices);
+    } else {
+        // Ждём события onvoiceschanged
+        speechSynthesis.onvoiceschanged = () => {
+            voices = speechSynthesis.getVoices();
+            populateVoiceSelect(voices);
+        };
+    }
+
+    // Обработчик изменения переключателя озвучки
+    speakToggle.addEventListener('change', async () => {
+        const newValue = speakToggle.checked ? 'on' : 'off';
+        await updateUserSpeakSetting(userName, newValue);
+    });
+
+    // Обработчик изменения выбора голоса
+    voiceSelect.addEventListener('change', async () => {
+        const selectedValue = voiceSelect.value; // Получаем значение в формате lang|name
+        await updateUserVoiceSetting(userName, selectedValue);
+    });
+};
+
+
+        const setupPaymentModal = async () => {
+            const paymentContainer = document.getElementById('payment-container');
+            
+            // Получаем текущий месяц и год
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
+            const sheetName = `PAY💲 (${currentMonth}.${currentYear})`;
+            
+            try {
+                // Расширяем диапазон чтобы получить данные до столбца AL
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:AL?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 0) {
+                    // Находим строку пользователя
+                    const userRowIndex = data.values.findIndex(row => row[0] === userName);
+                    const userRow = data.values[userRowIndex];
+                    
+                    let paymentHTML = '';
+                    
+                    // Обработка информации о долге (как было раньше)
+                    if (userRow && userRow[5]) { // Проверяем столбец F (индекс 5)
+                        const debtValue = userRow[5];
+                        const debtNumber = parseFloat(debtValue);
+                        
+                        if (debtValue === "0" || debtNumber === 0) {
+                            // Нет долга
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Боргу не має. Баланс:</strong></p>
+                                    <p class="debt-amount overpayment">${debtValue} грн</p>
+                                </div>
+                            `;
+                        } else if (debtNumber < 0) {
+                            // Переплата (отрицательное значение)
+                            const overpaymentAmount = Math.abs(debtNumber);
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Ваша переплата:</strong></p>
+                                    <p class="debt-amount overpayment">${overpaymentAmount} грн</p>
+                                </div>
+                            `;
+                        } else {
+                            // Обычный долг (положительное значение)
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p><strong>Ваш поточний борг:</strong></p>
+                                    <p class="debt-amount">${debtValue} грн</p>
+                                    
+                                </div>
+                            `;
+                        }
+                    } else {
+                        paymentHTML = `
+                            <div class="payment-info">
+                                <p>У вас немає заборгованості.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Обработка таблицы посещений
+                    let attendanceHTML = '';
+                    if (userRow && data.values[0]) { // Проверяем что есть первая строка с датами
+                        const headerRow = data.values[0]; // Первая строка с датами
+                        const attendanceData = [];
+                        
+                        // Проверяем столбцы с H по AL (индексы 7-37)
+                        for (let colIndex = 7; colIndex <= 37; colIndex++) {
+                            const attendanceMark = userRow[colIndex];
+                            const dateHeader = headerRow[colIndex];
+                            
+                            // Если есть любые данные в ячейке (не пустая и не undefined) и есть дата в заголовке
+                            if (attendanceMark && attendanceMark.toString().trim() !== '' && dateHeader) {
+                                attendanceData.push({
+                                    date: dateHeader,
+                                    status: attendanceMark,
+                                    present: attendanceMark === '✅'
+                                });
+                            }
+                        }
+                        
+                        if (attendanceData.length > 0) {
+                            attendanceHTML = `
+                                <div class="attendance-info">
+                                    <p><strong>Відвідування занять за поточний місяць:</strong></p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Дата</th>
+                                                <th>Статус</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            attendanceData.forEach(item => {
+                                attendanceHTML += `
+                                    <tr>
+                                        <td>${item.date}</td>
+                                        <td>${item.status}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            attendanceHTML += `
+                                        </tbody>
+                                    </table>
+                                <p class="payment-note">✅-присутній, оплачено</p>
+                                <p class="payment-note">🔴-присутній, не оплачено</p>
+                                </div>
+                            `;
+                        } else {
+                            attendanceHTML = `
+                                <div class="attendance-info">
+                                    <p>Інформація про відвідування недоступна.</p>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    // Объединяем информацию о платеже и посещениях
+                    paymentContainer.innerHTML = paymentHTML + attendanceHTML;
+                    
+                } else {
+                    paymentContainer.innerHTML = `
+                        <div class="payment-info">
+                            <p>Інформація недоступна.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+                paymentContainer.innerHTML = `
+                    <div class="payment-info">
+                        <p style="color: red;">Помилка завантаження даних.</p>
+                    </div>
+                `;
+            }
+        };
+
+
+        const updateUserSpeakSetting = async (userName, value) => {
+            try {
+                // Используем Google Apps Script для обновления данных
+                const data = {
+                    action: 'updateSpeakSetting',
+                    userName: userName,
+                    value: value
+                };
+
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Настройка успешно отправлена на обновление');
+                userSpeakEnabledCache = value === 'on'; // Обновляем кэш
+                
+            } catch (err) {
+                console.error('Ошибка при обновлении настройки:', err);
+                // Показываем пользователю сообщение об ошибке
+                const modal = document.getElementById('modal');
+                const modalBody = document.getElementById('modal-body');
+                modalBody.innerHTML += '<p style="color: red; margin-top: 10px;">Ошибка при сохранении настройки. Попробуйте позже.</p>';
+            }
+        };
+
+// Функция для получения содержимого из листа burger_menu по имени пункта
+const fetchMenuContent = async (menuItemName) => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/burger_menu!A:B?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values && data.values.length > 0) {
+            // Ищем строку, где имя в столбце A совпадает с menuItemName
+            const contentRow = data.values.find(row => row[0] === menuItemName);
+            if (contentRow && contentRow[1]) {
+                return contentRow[1]; // Возвращаем HTML-контент из столбца B
+            }
+            console.log(`No content found for menu item "${menuItemName}" in burger_menu`);
+            return `<p>Контент для пункту "${menuItemName}" відсутній.</p>`;
+        }
+        console.log('Burger menu sheet is empty or item not found:', menuItemName);
+        return `<p>Лист burger_menu порожній або пункт "${menuItemName}" не знайдено.</p>`;
+    } catch (err) {
+        console.error('Ошибка загрузки контента бургер-меню:', err);
+        return `<p>Помилка завантаження контенту для "${menuItemName}". Спробуйте пізніше.</p>`;
+    }
+};
+
+
+    // Функция для отображения модального окна с соответствующим содержимым
+    const showModal = (content) => {
+        const modal = document.getElementById('modal');
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = content;
+        modal.style.display = 'block';
+    };
+
+    // Функция для закрытия модального окна
+    const closeModal = () => {
+        document.getElementById('modal').style.display = 'none';
+    };
+
+   
+   
+
+
+// Функция для обновления бургер-меню
+const updateBurgerMenu = (menuItems) => {
+    const sidePanel = document.querySelector('.side-panel ul');
+    sidePanel.innerHTML = ''; // Очищаем текущее меню
+
+    // Маппинг пунктов меню из столбца Q на соответствующие data-section
+    const standardMenuItems = {
+        '📊 Рейтинг': 'rating',
+        '⚙️ Налаштування': 'settings',
+        '💳 Оплати': 'payment'
+    };
+
+    // Создаём элементы меню
+    menuItems.forEach(item => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        // Используем название пункта как data-section для динамических пунктов
+        const section = standardMenuItems[item] || item;
+        a.setAttribute('data-section', section);
+        a.innerHTML = item; // Используем innerHTML для поддержки эмодзи
+        li.appendChild(a);
+        sidePanel.appendChild(li);
+    });
+
+    // Обновляем обработчики событий
+    setupMenuEventListeners();
+};
+
+
+        // Обновленная функция обработчиков событий для пунктов меню
+        const setupMenuEventListeners = () => {
+            document.querySelectorAll('.side-panel a').forEach(link => {
+                // Удаляем старые обработчики
+                link.removeEventListener('click', handleMenuClick);
+                // Добавляем новые
+                link.addEventListener('click', handleMenuClick);
+            });
+        };
+
+       // Функция обработчика клика на пункты меню
+const handleMenuClick = async (event) => {
+    event.preventDefault();
+    const section = event.target.getAttribute('data-section');
+    console.log('Clicked menu item with data-section:', section); // Логирование для диагностики
+
+    let content = '';
+
+    // Обработка стандартных пунктов меню
+    switch (section) {
+        case 'rating':
+            console.log('Loading rating content');
+            content = '<h2>Рейтинг</h2><div id="rating-container"></div>';
+            break;
+        case 'settings':
+                console.log('Loading settings content');
+                content = `
+                    <h2>Налаштування</h2>
+                    <div class="setting-item">
+                        <span>Озвучування слів при натисканні</span>
+                        <label class="switch">
+                            <input type="checkbox" id="speak-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Вибір голосу для озвучки</span>
+                       <select id="voice-select"></select>
+                    </div>
+                `;
+                break;
+        case 'payment':
+            console.log('Loading payment content');
+            content = '<h2>Інформація про оплату</h2><div id="payment-container">Завантаження...</div>';
+            break;
+        default:
+            // Обработка динамических пунктов меню
+            console.log('Fetching dynamic content for menu item:', section);
+            content = await fetchMenuContent(section);
+            console.log('Dynamic content received:', content);
+    }
+
+    showModal(content);
+    document.querySelector('.side-panel').style.width = '0'; // Закрываем панель
+
+    // Специальная обработка для стандартных пунктов
+    if (section === 'rating') {
+        console.log('Rendering rating table');
+        const ratingContainer = document.getElementById('rating-container');
+        const root = ReactDOM.createRoot(ratingContainer);
+        root.render(React.createElement(RatingTable));
+    } else if (section === 'settings') {
+        console.log('Setting up settings modal');
+        await setupSettingsModal();
+    } else if (section === 'payment') {
+        console.log('Setting up payment modal');
+        await setupPaymentModal();
+    }
+};
+
+
+    // Обработчик клика на кнопку закрытия модального окна
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+
+    // Закрытие модального окна при клике вне его содержимого
+    window.onclick = (event) => {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+
+    // Функция для вычисления расстояния Левенштейна между строками
+    const calculateLevenshteinDistance = (str1, str2) => {
+        if (window.Levenshtein) {
+            return window.Levenshtein.get(str1, str2);
+        }
+        // Резервная простая реализация, если библиотека не загрузилась
+        if (str1.length === 0) return str2.length;
+        if (str2.length === 0) return str1.length;
+
+        const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+
+        for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+        for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+        for (let j = 1; j <= str2.length; j++) {
+            for (let i = 1; i <= str1.length; i++) {
+                const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                matrix[j][i] = Math.min(
+                    matrix[j][i - 1] + 1,
+                    matrix[j - 1][i] + 1,
+                    matrix[j - 1][i - 1] + indicator
+                );
+            }
+        }
+        return matrix[str2.length][str1.length];
+    };
+
+    // Простой токенайзер для текста
+    const SimpleTokenizer = {
+        tokenize: (text) => {
+            return text.toLowerCase()
+                .replace(/[.,!?]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 0);
+        }
+    };
+
+    // Обработка tasklist
+    const handleTaskList = async (taskListName) => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${taskListName}!A:B?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.values && data.values.length > 0) {
+                // Поиск первой строки, где столбец B пуст
+                const rowIndex = data.values.findIndex(row => !row[1]);
+
+                // Сохранение всех листов и текущего индекса для отслеживания прогресса
+                taskListSheets = data.values.map(row => row[0]).filter(Boolean);
+                isTaskList = true;
+
+                if (rowIndex !== -1) {
+                    // Найдена пустая ячейка - используем соответствующее имя листа
+                    currentTaskListIndex = rowIndex;
+                    return data.values[rowIndex][0];
+                } else {
+                    // Пустые ячейки не найдены - возвращаем "day_off"
+                    return "day_off";
+                }
+            }
+            return "day_off";
+        } catch (err) {
+            console.error('Помилка отримання даних tasklist:', err);
+            return "day_off";
+        }
+    };
+
+    // Очистка интерфейса
+    const cleanupUI = () => {
+        document.getElementById('task-module-container').classList.add('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('correct-answer').classList.add('hidden');
+        document.getElementById('stats-container').classList.add('hidden');
+
+        // Удаляем контейнер с еженедельным прогрессом
+        const weeklyProgressContainer = document.getElementById('weekly-progress-container');
+        if (weeklyProgressContainer) {
+            weeklyProgressContainer.remove();
+        }
+    };
+
+    // Компонент таблицы рейтинга
+    const RatingTable = () => {
+    const [ratingsData, setRatingsData] = React.useState([]);
+    const [displayCount, setDisplayCount] = React.useState(10);
+
+    React.useEffect(() => {
+        const fetchRatings = async () => {
+            const userName = localStorage.getItem('userName');
+            if (!userName) return;
+
+            try {
+                // Сначала получаем специфический рейтинговый лист пользователя
+                const usersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/users!A:N?key=${API_KEY}`;
+                const usersResponse = await fetch(usersUrl);
+                const usersData = await usersResponse.json();
+
+                // Находим строку пользователя
+                const userRow = usersData.values.find(row => row[0] === userName);
+
+                // Если рейтинговый лист не указан, возвращаемся
+                if (!userRow || !userRow[13]) return;
+
+                // Получаем имена рейтинговых листов - их может быть несколько, разделенных точкой с запятой
+                const ratingSheetNames = userRow[13].split(';').map(name => name.trim());
+
+                // Получаем количество отображаемых записей из админского листа
+                const adminUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/admin!B5?key=${API_KEY}`;
+                const adminResponse = await fetch(adminUrl);
+                const adminData = await adminResponse.json();
+                const count = adminData.values?.[0]?.[0] || 10;
+                setDisplayCount(parseInt(count));
+
+                // Получаем данные для каждого рейтингового листа
+                const ratingsPromises = ratingSheetNames.map(async sheetName => {
+                    const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:C?key=${API_KEY}`;
+                    const response = await fetch(ratingUrl);
+                    const data = await response.json();
+
+                    if (data.values && data.values.length > 1) {
+                        // Получаем заголовок из первой строки и данные из последующих строк
+                        const title = data.values[0][0] || sheetName;
+                        const ratings = data.values.slice(1, parseInt(count) + 1);
+                        return { sheetName, title, ratings };
+                    }
+                    return { sheetName, title: sheetName, ratings: [] };
+                });
+
+                const allRatingsData = await Promise.all(ratingsPromises);
+                setRatingsData(allRatingsData.filter(data => data.ratings.length > 0));
+            } catch (error) {
+                console.error('Error fetching ratings:', error);
+            }
+        };
+
+        fetchRatings();
+    }, []);
+
+    if (!ratingsData.length) return null;
+
+    return React.createElement('div', { className: 'mt-8' },
+        ratingsData.map((data, tableIndex) =>
+            React.createElement('div', { key: tableIndex, className: 'mb-8' },
+                React.createElement('h3', { className: 'text-center mb-4 text-xl font-semibold' }, data.title),
+                React.createElement('div', { className: 'overflow-x-auto' },
+                    React.createElement('table', { className: 'w-full border-collapse rating-table' },
+                        React.createElement('thead', null,
+                            React.createElement('tr', null,
+                                React.createElement('th', { className: 'text-left' }, 'Місце'),
+                                React.createElement('th', { className: 'text-left' }, 'Ім\'я'),
+                                React.createElement('th', { className: 'text-right' }, 'Бали')
+                            )
+                        ),
+                        React.createElement('tbody', null,
+                            data.ratings.map((row, index) =>
+                                React.createElement('tr', { key: index },
+                                    React.createElement('td', null, index + 1),
+                                    React.createElement('td', null, row[0]),
+                                    React.createElement('td', { className: 'text-right font-medium' }, row[1])
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+    // Отображение обратной связи
+    const displayFeedback = (message, correctAnswer, isCorrect) => {
+        const feedbackElement = document.getElementById('feedback');
+        const correctAnswerElement = document.getElementById('correct-answer');
+
+        feedbackElement.innerText = message;
+        feedbackElement.classList.remove('hidden');
+        correctAnswerElement.innerText = correctAnswer;
+        correctAnswerElement.classList.remove('hidden');
+
+        if (isCorrect) {
+            feedbackElement.classList.remove('incorrect');
+            feedbackElement.classList.add('correct-feedback');
+        } else {
+            feedbackElement.classList.remove('correct-feedback');
+            feedbackElement.classList.add('incorrect');
+        }
+    };
+
+    // Глобальная функция озвучки текста
+    const speakText = async (text) => {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.rate = AUDIO_RATE;
+
+    const voices = speechSynthesis.getVoices();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
+    const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
+
+    if (isIOS) {
+        // Для iOS пытаемся найти голос по имени и языку
+        let selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
+
+        // Если голос не найден, используем запасной вариант
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
+        }
+
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
+        } else {
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
+    } else {
+        // Для других платформ ищем голос по имени и языку
+        const selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
+            || voices.find(v => v.lang === selectedLang)
+            || voices.find(v => v.lang === 'en-GB');
+
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
+        } else {
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
+    }
+
+    window.speechSynthesis.speak(msg);
+};
+
+    // Воспроизведение правильного ответа
+    const playCorrectAnswer = (correctAnswer) => {
+        const normalizedAnswer = correctAnswer.replace(/_/g, ' ');
+        speakText(normalizedAnswer);
+    };
+
+    // Воспроизведение звука ошибки
+    const playWrongSound = () => {
+        speakText("wrong");
+    };
+
+    // Функция для проверки состояния пользователя для озвучки слов
+    const isUserSpeakEnabled = async (userName) => {
+        // Если данные уже в кэше, возвращаем их
+        if (userSpeakEnabledCache !== null) {
+            return userSpeakEnabledCache;
+        }
+
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/users!A:R?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const users = data.values || [];
+            const userRow = users.find(row => row[0] === userName);
+            if (userRow && userRow.length > 17) { // Проверяем, что столбец R (индекс 17) существует
+                const isEnabled = userRow[17] === 'on';
+                // Сохраняем результат в кэш
+                userSpeakEnabledCache = isEnabled;
+                return isEnabled;
+            }
+        } catch (err) {
+            console.error('Ошибка при получении данных пользователя:', err);
+        }
+        // Сохраняем результат в кэш
+        userSpeakEnabledCache = false;
+        return false;
+    };
+
+
+    // Обновление прогресс-бара
+    const updateProgressBar = () => {
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = ((currentIndex + 1) / values.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    };
+
+    // Обновление статистики
+    const updateStats = () => {
+        const statsElement = document.getElementById('stats-container');
+        statsElement.innerHTML = `
+            <p>Правильні відповіді: <span class="correct-count">${correctAnswers}</span></p>
+            <p>Неправильні відповіді: <span class="incorrect-count">${incorrectAnswers}</span></p>
+            <p>Правильні відповіді після помилки: <span class="correct-after-incorrect-count">${correctAfterIncorrect}</span></p>`;
+        statsElement.classList.remove('hidden');
+    };
+
+    // Сохранение прогресса
+    const saveProgress = () => {
+        const progress = {
+            currentIndex,
+            correctAnswers,
+            incorrectAnswers,
+            correctAfterIncorrect,
+            previousIncorrect,
+            completed: currentIndex >= values.length
+        };
+        localStorage.setItem('progress', JSON.stringify(progress));
+    };
+
+    // Очистка прогресса
+    const clearProgress = () => {
+        localStorage.removeItem('progress');
+    };
+
+    // Завершение модуля
+    const completeModule = async () => {
+        clearProgress();
+        cleanupUI();
+
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.innerText = 'Завантаження прогресу...';
+        feedbackElement.classList.remove('hidden');
+
+        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+
+        feedbackElement.innerText = '🎉Ви виконали всі завдання.';
+
+        if (isTaskList) {
+            // Проверяем, есть ли следующий лист с заданиями
+            if (currentTaskListIndex + 1 < taskListSheets.length) {
+                const nextButton = document.createElement('button');
+                nextButton.innerText = 'Завантажити наступні завдання';
+                nextButton.className = 'styled-button';
+                nextButton.onclick = async () => {
+                    cleanupUI(); // Очищаем UI перед загрузкой новых заданий
+                    currentTaskListIndex++;
+                    sheetName = taskListSheets[currentTaskListIndex];
+                    currentIndex = 0;
+                    correctAnswers = 0;
+                    incorrectAnswers = 0;
+                    correctAfterIncorrect = 0;
+                    previousIncorrect = false;
+                    feedbackElement.classList.add('hidden');
+                    nextButton.remove();
+                    await fetchData(sheetName);
+                };
+                feedbackElement.appendChild(document.createElement('br'));
+                feedbackElement.appendChild(nextButton);
+            }
+        }
+
+        document.getElementById('stats-container').classList.remove('hidden');
+
+        const weeklyProgressContainer = document.createElement('div');
+        weeklyProgressContainer.id = 'weekly-progress-container';
+        document.getElementById('stats-container').after(weeklyProgressContainer);
+
+        const root = ReactDOM.createRoot(weeklyProgressContainer);
+        root.render(React.createElement(WeeklyProgress));
+
+        updateStats();
+    };
+
+    // Отправка результатов в Google Sheets
+    const sendResultsToGoogleSheets = async (userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName) => {
+        const data = {
+            userName,
+            results: {
+                correct: correctAnswers,
+                incorrect: incorrectAnswers,
+                afterIncorrect: correctAfterIncorrect
+            },
+            sheetName
+        };
+
+        await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        console.log('Запит до Google Sheets успішно надіслано');
+    };
+
+    // Класс модуля заданий
+    class TaskModule {
+        constructor(containerId, russianSentenceId, englishWordsContainerId, userAnswerId, checkBtnId, resetBtnId, hintBtnId) {
+            this.container = document.getElementById(containerId);
+            this.russianSentenceElem = document.getElementById(russianSentenceId);
+            this.englishWordsContainer = document.getElementById(englishWordsContainerId);
+            this.userAnswerElem = document.getElementById(userAnswerId);
+            this.checkBtn = document.getElementById(checkBtnId);
+            this.resetBtn = document.getElementById(resetBtnId);
+            this.hintBtn = document.getElementById(hintBtnId);
+
+            this.correctAnswer = '';
+            this.userAnswer = [];
+            this.hintImageUrl = '';
+
+            this.hintBtn.onclick = () => {
+                this.openHintModal();
+            };
+
+            this.resetBtn.onclick = () => {
+                this.resetQuestion();
+            };
+        }
+
+        // Загрузка вопроса
+        loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl) {
+            console.log('Loading question:', russianSentence, correctAnswer, distractors);
+            this.russianSentenceElem.innerText = russianSentence.replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
+            this.correctAnswer = correctAnswer.replace(/_/g, ' ');
+
+            this.userAnswer = [];
+            this.userAnswerElem.innerText = '';
+            this.clearWordsContainer();
+            this.populateWords(correctAnswer, distractors);
+
+            this.russianSentenceElem.classList.remove('hidden');
+            this.englishWordsContainer.classList.remove('hidden');
+            this.userAnswerElem.classList.remove('hidden');
+            this.checkBtn.classList.remove('hidden');
+            this.resetBtn.classList.remove('hidden');
+            this.hintImageUrl = hintImageUrl;
+            console.log('Loaded Hint Image URL:', this.hintImageUrl);
+        }
+
+        // Очистка контейнера слов
+        clearWordsContainer() {
+            this.englishWordsContainer.innerHTML = '';
+        }
+
+        // Заполнение слов
+           populateWords(correctAnswer, distractors) {
+            const words = correctAnswer.split(' ').concat(distractors).sort(() => 0.5 - Math.random());
+            words.forEach(word => {
+                const span = document.createElement('span');
+                span.innerText = word.replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
+                span.className = 'word';
+                span.onclick = async () => {
+                    if (!span.classList.contains('clicked')) {
+                        this.userAnswer.push(word);
+                        span.classList.add('clicked');
+                        this.updateUserAnswerDisplay();
+                        // Проверяем, разрешено ли озвучивание для пользователя
+                        const speakEnabled = await isUserSpeakEnabled(userName);
+                        if (speakEnabled) {
+                            speakText(word.replace(/_/g, ' ')); // Озвучиваем слово при клике
+                        }
+                    }
+                };
+                this.englishWordsContainer.appendChild(span);
+            });
+        }
+
+        // Обновление отображения ответа пользователя
+        updateUserAnswerDisplay() {
+            this.userAnswerElem.innerText = this.userAnswer.join(' ').replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
+            this.userAnswerElem.classList.remove('hidden');
+        }
+
+        // Сброс вопроса
+        resetQuestion() {
+            this.userAnswer = [];
+            this.updateUserAnswerDisplay();
+            this.resetClickedWords();
+        }
+
+        // Сброс кликнутых слов
+        resetClickedWords() {
+            const words = this.englishWordsContainer.querySelectorAll('.word');
+            words.forEach(word => word.classList.remove('clicked'));
+        }
+
+        // Проверка ответа
+        checkAnswer() {
+            const normalizeText = (text) => text.trim().toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' '); // Заменяем подчеркивания на пробелы
+            const userAnswerStr = normalizeText(this.userAnswer.join(' '));
+            const normalizedCorrectAnswer = normalizeText(this.correctAnswer);
+            return userAnswerStr === normalizedCorrectAnswer;
+        }
+
+        // Открытие модального окна подсказки
+        openHintModal() {
+            const hintModal = document.getElementById('hint-modal');
+            const hintImage = document.getElementById('hint-image');
+            hintImage.src = this.hintImageUrl;
+            hintModal.classList.remove('hidden');
+            hintModal.style.display = 'flex';
+            console.log('Hint Image URL in Modal:', this.hintImageUrl);
+        }
+    }
+
+    // Класс модуля заданий на прослушивание
+    class ListenTaskModule {
+        constructor(containerId, playAudioBtnId, taskTextId, userInputId, checkBtnId) {
+            this.container = document.getElementById(containerId);
+            this.playAudioBtn = document.getElementById(playAudioBtnId);
+            this.taskTextElem = document.getElementById(taskTextId);
+            this.userInput = document.getElementById(userInputId);
+            this.checkBtn = document.getElementById(checkBtnId);
+
+            this.correctAnswer = '';
+
+            this.playAudioBtn.onclick = () => {
+                this.playAudio();
+            };
+        }
+
+        // Загрузка вопроса
+        loadQuestion(taskText, correctAnswer) {
+            this.correctAnswer = correctAnswer;
+            this.userInput.value = '';
+            this.taskTextElem.innerText = taskText;
+            this.container.classList.remove('hidden');
+            this.playAudio();
+        }
+
+        // Воспроизведение аудио
+        playAudio() {
+            speakText(this.correctAnswer);
+        }
+
+        // Проверка ответа
+        checkAnswer() {
+            const userAnswer = this.userInput.value.trim().toLowerCase();
+            return userAnswer === this.correctAnswer.trim().toLowerCase();
+        }
+
+        // Воспроизведение звука правильного ответа
+        playCorrectSound() {
+            speakText("You're right!");
+        }
+    }
+
+    // Класс модуля заданий на перевод
+    class TranslateTaskModule {
+        constructor(containerId) {
+            this.container = document.getElementById(containerId);
+            this.playAudioBtn = document.createElement('button');
+            this.userInput = document.createElement('textarea');
+            this.checkBtn = document.createElement('button');
+            this.taskText = document.createElement('div');
+
+            this.correctAnswer = '';
+            this.synonyms = [];
+            this.sourceText = '';
+
+            this.setupUI();
+            this.setupEventListeners();
+        }
+
+        // Настройка интерфейса
+        setupUI() {
+            this.playAudioBtn.id = 'translate-audio-btn';
+            this.playAudioBtn.className = 'styled-button';
+            this.playAudioBtn.innerHTML = '<i class="fas fa-play"></i> Прослухати';
+
+            // Создаём контейнер для поля ввода
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'input-container';
+
+            this.userInput.id = 'translate-user-input';
+            this.userInput.className = 'styled-input';
+            this.userInput.placeholder = 'Введіть переклад або 🗣️🎤';
+            this.userInput.rows = 2; // Set number of visible rows
+            this.userInput.style.resize = 'none'; // Prevent manual resizing
+            this.userInput.style.height = 'auto'; // Allow content to determine height
+            this.userInput.style.minHeight = '3.5em'; // Minimum height for 2 rows
+
+            // Создаём кнопку очистки
+            const clearBtn = document.createElement('span');
+            clearBtn.id = 'translate-clear-btn';
+            clearBtn.className = 'clear-btn';
+            clearBtn.innerHTML = '&times;';
+            clearBtn.style.display = 'none'; // Скрыта по умолчанию
+
+            // Добавляем поле и кнопку в контейнер
+            inputContainer.appendChild(this.userInput);
+            inputContainer.appendChild(clearBtn);
+
+            this.checkBtn.id = 'translate-check-btn';
+            this.checkBtn.className = 'styled-button';
+            this.checkBtn.textContent = 'Перевірити';
+
+            this.taskText.id = 'translate-task-text';
+            this.taskText.className = 'task-text';
+
+            this.container.appendChild(this.playAudioBtn);
+            this.container.appendChild(this.taskText);
+            this.container.appendChild(inputContainer); // Добавляем контейнер вместо userInput
+            this.container.appendChild(this.checkBtn);
+
+            // Логика кнопки очистки
+            this.userInput.addEventListener('input', () => {
+                clearBtn.style.display = this.userInput.value.length > 0 ? 'block' : 'none';
+            });
+            clearBtn.addEventListener('click', () => {
+                this.userInput.value = '';
+                clearBtn.style.display = 'none';
+                this.userInput.focus();
+            });
+        }
+
+        // Настройка обработчиков событий
+        setupEventListeners() {
+            this.playAudioBtn.onclick = () => this.playAudio();
+            this.checkBtn.onclick = async () => this.checkAnswer();
+        }
+
+        // Загрузка вопроса
+        loadQuestion(sourceText, correctAnswer, synonymsStr = '') {
+            this.sourceText = sourceText;
+            this.correctAnswer = correctAnswer;
+            // Разделяем строку синонимов на массив и фильтруем пустые строки
+            this.synonyms = synonymsStr.split(' ').filter(Boolean);
+            this.userInput.value = '';
+            this.container.classList.remove('hidden');
+            // Автоматически воспроизводим аудио после небольшой задержки
+            setTimeout(() => this.playAudio(), 500);
+        }
+
+        // Воспроизведение аудио
+        playAudio() {
+            speakText(this.correctAnswer);
+        }
+
+        // Вычисление схожести текстов
+        calculateSimilarity(userText, targetText) {
+            // Функция нормализации текста (убираем знаки препинания и приводим к нижнему регистру)
+            const normalize = (text) => text.toLowerCase().trim()
+                .replace(/[.,!?«»'"\-]/g, '')
+                .replace(/\s+/g, ' ');
+
+            // Нормализация входных данных
+            const normalizedUser = normalize(userText);
+            const normalizedTarget = normalize(targetText);
+            const normalizedSynonyms = this.synonyms.map(s => normalize(s));
+
+            // Разбиваем на слова
+            const userWords = normalizedUser.split(' ');
+            const targetWords = normalizedTarget.split(' ');
+
+            // Функция для вычисления расстояния Левенштейна между словами
+            const levenshteinDistance = (a, b) => {
+                if (a.length === 0) return b.length;
+                if (b.length === 0) return a.length;
+
+                const matrix = Array(b.length + 1).fill().map(() => Array(a.length + 1).fill(0));
+
+                for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
+                for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
+
+                for (let j = 1; j <= b.length; j++) {
+                    for (let i = 1; i <= a.length; i++) {
+                        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                        matrix[j][i] = Math.min(
+                            matrix[j][i - 1] + 1,
+                            matrix[j - 1][i] + 1,
+                            matrix[j - 1][i - 1] + cost
+                        );
+                    }
+                }
+                return matrix[b.length][a.length];
+            };
+
+            // Функция для проверки схожести слов с учетом небольших различий
+            const areSimilarWords = (word1, word2) => {
+                const distance = levenshteinDistance(word1, word2);
+                // Допускаем 1 различие для коротких слов (до 5 букв) и 2 различия для длинных слов
+                const maxAllowedDistance = word1.length <= 5 ? 1 : 2;
+                return distance <= maxAllowedDistance;
+            };
+
+            // Функция для проверки наличия синонимов с учетом морфологических форм
+            const isSynonymMatch = (word, targetWord) => {
+                // Проверяем точное совпадение
+                if (word === targetWord) return true;
+
+                // Проверяем синонимы
+                for (const synonym of normalizedSynonyms) {
+                    const synonymWords = synonym.split(' ');
+                    for (const synonymWord of synonymWords) {
+                        if (areSimilarWords(word, synonymWord)) return true;
+                    }
+                }
+
+                // Проверяем похожие слова (учитываем падежи и другие морфологические формы)
+                return areSimilarWords(word, targetWord);
+            };
+
+            // Вычисление схожести с учетом синонимов и морфологических форм
+            let matchedWords = 0;
+            let totalWords = Math.max(userWords.length, targetWords.length);
+
+            // Создаем копии массивов для отслеживания использованных слов
+            let remainingUserWords = [...userWords];
+            let remainingTargetWords = [...targetWords];
+
+            // Проходим по словам и ищем совпадения
+            for (let i = 0; i < userWords.length; i++) {
+                const userWord = userWords[i];
+                for (let j = 0; j < targetWords.length; j++) {
+                    if (isSynonymMatch(userWord, targetWords[j])) {
+                        matchedWords++;
+                        break;
+                    }
+                }
+            }
+
+            // Базовый процент схожести
+            let similarity = (matchedWords / totalWords) * 100;
+
+            // Бонусные баллы за использование синонимов
+            const usedSynonyms = normalizedSynonyms.some(synonym =>
+                userWords.some(word => isSynonymMatch(word, synonym))
+            );
+            if (usedSynonyms) {
+                similarity += 10; // Добавляем 10% за правильное использование синонимов
+            }
+
+            // Бонус за сохранение смысла при небольших грамматических различиях
+            if (similarity >= 70) {
+                const mainWordsMatch = targetWords
+                    .filter(word => word.length > 3)
+                    .every(word => userWords.some(userWord => isSynonymMatch(userWord, word)));
+                if (mainWordsMatch) {
+                    similarity += 10; // Добавляем еще 10% за сохранение основного смысла
+                }
+            }
+
+            // Ограничиваем максимальное значение до 100%
+            return Math.min(Math.round(similarity), 100);
+        }
+
+        // Воспроизведение звука правильного ответа
+        playCorrectSound() {
+            speakText("You're right!");
+        }
+
+        // Проверка ответа
+        async checkAnswer() {
+            const userAnswer = this.userInput.value;
+            const similarity = this.calculateSimilarity(userAnswer, this.correctAnswer);
+
+            if (similarity >= TRANSLATION_SIMILARITY_THRESHOLD) {
+                if (previousIncorrect) {
+                    correctAfterIncorrect++;
+                    previousIncorrect = false;
+                } else {
+                    correctAnswers++;
+                }
+
+                displayFeedback(`Правильно! Схожість: ${similarity.toFixed(1)}%`, this.correctAnswer, true);
+                this.playCorrectSound(); // Добавлено воспроизведение звука правильного ответа
+                this.container.classList.add('hidden');
+                setTimeout(async () => {
+                    currentIndex++;
+                    if (currentIndex < values.length) {
+                        document.getElementById('feedback').classList.add('hidden');
+                        document.getElementById('correct-answer').classList.add('hidden');
+                        await loadQuestion(currentIndex, sheetName);
+                    } else {
+                        completeModule();
+                    }
+                }, 3000);
+            } else {
+                incorrectAnswers++;
+                previousIncorrect = true;
+                displayFeedback(`Відповідь неправильна 😕 (${similarity.toFixed(1)}%), спробуйте ще раз.`, '', false);
+                playWrongSound();
+            }
+            updateProgressBar();
+            updateStats();
+            saveProgress();
+        }
+    }
+
+    // Класс модуля заданий на выбор прослушивания
+    class ListenSelectTaskModule {
+        constructor(containerId) {
+            this.container = document.getElementById(containerId);
+            this.playAudioBtn = document.getElementById('play-audio-btn-select');
+            this.taskTextElem = document.getElementById('listen-task-text-select');
+            this.wordsContainer = document.getElementById('words-container-select');
+            this.userAnswerElem = document.getElementById('user-answer-select');
+            this.checkBtn = document.getElementById('listen-check-btn-select');
+            this.resetBtn = document.createElement('button');
+
+            // Настройка кнопки сброса
+            this.resetBtn.id = 'reset-btn-select';
+            this.resetBtn.className = 'styled-button';
+            this.resetBtn.innerHTML = '<i class="fas fa-redo"></i> Ще раз';
+            this.container.appendChild(this.resetBtn);
+
+            this.correctAnswer = '';
+            this.userAnswer = [];
+
+            this.playAudioBtn.onclick = () => {
+                this.playAudio();
+            };
+
+            this.resetBtn.onclick = () => {
+                this.resetQuestion();
+            };
+
+            this.checkBtn.onclick = async () => {
+                if (this.checkAnswer()) {
+                    if (previousIncorrect) {
+                        correctAfterIncorrect++;
+                        previousIncorrect = false;
+                    } else {
+                        correctAnswers++;
+                    }
+                    displayFeedback('Правильно!', this.correctAnswer, true);
+                    this.playCorrectSound();
+                    document.getElementById('listen-select-module').classList.add('hidden');
+                    setTimeout(async () => {
+                        currentIndex++;
+                        if (currentIndex < values.length) {
+                            document.getElementById('feedback').classList.add('hidden');
+                            document.getElementById('correct-answer').classList.add('hidden');
+                            document.getElementById('listen-select-module').classList.remove('hidden');
+                            await loadQuestion(currentIndex, sheetName);
+                        } else {
+                            completeModule();
+                        }
+                    }, 3000);
+                } else {
+                    incorrectAnswers++;
+                    previousIncorrect = true;
+                    displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
+                    playWrongSound();
+                    this.resetQuestion(); // Автоматический сброс после неправильного ответа
+                }
+                updateProgressBar();
+                updateStats();
+                saveProgress();
+            };
+        }
+
+        // Загрузка вопроса
+        loadQuestion(taskText, correctAnswer, distractors) {
+            this.correctAnswer = correctAnswer;
+            this.userAnswer = [];
+            this.taskTextElem.innerText = taskText;
+            this.clearWordsContainer();
+
+            // Разбиваем correctAnswer на слова
+            const correctWords = correctAnswer.split(' ');
+
+            // Используем distractors напрямую, так как они уже являются массивом
+            const distractorWords = Array.isArray(distractors) ? distractors : [];
+
+            // Объединяем правильные слова и дистракторы
+            this.populateWords(correctWords, distractorWords);
+
+            this.container.classList.remove('hidden');
+            this.userAnswerElem.classList.remove('hidden');
+            this.playAudio();
+        }
+
+        // Очистка контейнера слов
+        clearWordsContainer() {
+            this.wordsContainer.innerHTML = '';
+            this.userAnswerElem.innerText = '';
+        }
+
+        // Заполнение слов
+        populateWords(correctWords, distractorWords) {
+            // Объединяем все слова в один массив
+            const allWords = [...correctWords, ...distractorWords];
+
+            // Перемешиваем слова
+            const shuffledWords = allWords.sort(() => 0.5 - Math.random());
+
+            // Создаем элементы для каждого слова
+            shuffledWords.forEach(word => {
+                const span = document.createElement('span');
+                span.innerText = word.replace(/_/g, ' ');
+                span.className = 'word';
+                span.onclick = () => {
+                    if (!span.classList.contains('clicked')) {
+                        this.userAnswer.push(word);
+                        span.classList.add('clicked');
+                        this.updateUserAnswerDisplay();
+                    }
+                };
+                this.wordsContainer.appendChild(span);
+            });
+        }
+
+        // Обновление отображения ответа пользователя
+        updateUserAnswerDisplay() {
+            this.userAnswerElem.innerText = this.userAnswer.join(' ').replace(/_/g, ' ');
+        }
+
+        // Сброс вопроса
+        resetQuestion() {
+            this.userAnswer = [];
+            this.updateUserAnswerDisplay();
+            const words = this.wordsContainer.querySelectorAll('.word');
+            words.forEach(word => word.classList.remove('clicked'));
+        }
+
+        // Воспроизведение аудио
+        playAudio() {
+            speakText(this.correctAnswer);
+        }
+
+        // Воспроизведение звука правильного ответа
+        playCorrectSound() {
+            speakText("You're right!");
+        }
+
+        // Проверка ответа
+        checkAnswer() {
+            const normalizeText = (text) => text.trim().toLowerCase()
+                .replace(/_/g, ' ')
+                .replace(/[.,?]/g, '')
+                .replace(/\s+/g, ' ');
+            const userAnswerStr = normalizeText(this.userAnswer.join(' '));
+            const normalizedCorrectAnswer = normalizeText(this.correctAnswer);
+            return userAnswerStr === normalizedCorrectAnswer;
+        }
+    }
+
+    // Загрузка вопроса
+    const loadQuestion = async (index, sheetName) => {
+        const russianSentence = values[index][0];
+        const correctAnswer = values[index][1];
+        const distractors = values[index][2] ? values[index][2].split(' ') : [];
+
+        await fetchHintImageUrl(sheetName);
+
+        // Скрываем все модули
+        document.getElementById('task-module-container').classList.add('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('listen-select-module').classList.add('hidden');
+        document.getElementById('translate-task-module').classList.add('hidden');
+
+        if (sheetName.startsWith("translate_")) {
+            if (translateTaskModule) {
+                translateTaskModule.loadQuestion(russianSentence, correctAnswer, distractors.join(' '));
+                document.getElementById('translate-task-module').classList.remove('hidden');
+            }
+        } else if (sheetName.startsWith("listen-select_")) {
+            if (listenSelectTaskModule) {
+                listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
+                document.getElementById('listen-select-module').classList.remove('hidden');
+            }
+        } else if (sheetName.startsWith("listen_")) {
+            if (listenTaskModule) {
+                listenTaskModule.loadQuestion(russianSentence, correctAnswer);
+                document.getElementById('listen-task-module').classList.remove('hidden');
+            }
+        } else {
+            if (taskModule) {
+                taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
+                document.getElementById('task-module-container').classList.remove('hidden');
+            }
+        }
+        updateProgressBar();
+        if (taskModule) {
+            taskModule.updateUserAnswerDisplay();
+        }
+    };
+
+    // Получение URL изображения подсказки
+    const fetchHintImageUrl = async (sheetName) => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!E1?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.values && data.values.length > 0 && data.values[0][0]) {
+                hintImageUrl = data.values[0][0];
+                document.getElementById('hint-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('hint-btn').classList.add('hidden');
+            }
+        } catch (err) {
+            console.error('Помилка отримання URL зображення підказки:', err);
+        }
+    };
+
+    // Получение данных администратора
+    const fetchAdminData = async () => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${ADMIN_RANGE}?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const adminValues = data.values;
+            if (adminValues.length >= 1) {
+                document.getElementById('page-title').innerText = adminValues[0][0];
+            }
+        } catch (err) {
+            console.error('Помилка отримання даних адміністратора:', err);
+        }
+    };
+
+    // Получение данных
+    const fetchData = async (sheetName) => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:D?key=${API_KEY}`;
+        try {
+            showLoadingIndicator();
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.values.length > 1) {
+                values = data.values.slice(1);
+                fetchHintImageUrl(sheetName);
+                loadProgressOrQuestion(sheetName);
+            } else {
+                throw new Error('Завдань не знайдено');
+            }
+        } catch (err) {
+            console.error('Помилка отримання даних:', err);
+            document.getElementById('feedback').innerText = 'Завдань не знайдено';
+            document.getElementById('feedback').classList.remove('hidden');
+            document.getElementById('check-btn').classList.add('hidden');
+            document.getElementById('reset-btn').classList.add('hidden');
+            document.getElementById('hint-btn').classList.add('hidden');
+        } finally {
+            hideLoadingIndicator();
+        }
+    };
+
+    // Получение листа пользователя
+    const fetchUserSheet = async () => {
+    // Сначала скрываем points-container
+    document.getElementById('points-container').style.display = 'none';
+
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const users = data.values.slice(1);
+        const user = users.find(row => row[0] === userName);
+        if (user) {
+            let userSheet = user[1] ? user[1] : "day_off";
+            points = user[12];
+            const customGreeting = user[3] ? user[3] + " " : "";
+            document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
+
+            // Получаем пункты бургер-меню из столбца Q
+            const menuItems = user[16] ? user[16].split(';').map(item => item.trim()) : [];
+
+            // Управляем видимостью бургер-меню
+            const burgerMenu = document.querySelector('.burger-menu');
+            if (menuItems.length > 0 && menuItems[0] !== '') {
+                burgerMenu.classList.remove('hidden'); // Показываем бургер-меню
+            } else {
+                burgerMenu.classList.add('hidden'); // Скрываем бургер-меню
+            }
+
+            // Обновляем бургер-меню
+            updateBurgerMenu(menuItems);
+
+            // Проверяем, является ли лист tasklist-ом
+            if (userSheet.startsWith('tasklist_')) {
+                const firstSheet = await handleTaskList(userSheet);
+                if (firstSheet) {
+                    sheetName = firstSheet;
+                } else {
+                    sheetName = "day_off";
+                }
+            } else {
+                isTaskList = false;
+                sheetName = userSheet;
+            }
+            fetchData(sheetName);
+            if (user[2]) {
+                showNotification(user[2]);
+            }
+
+            // Проверяем наличие листа подарков
+            const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/present-${userName}!A:C?key=${API_KEY}`;
+            try {
+                const presentsResponse = await fetch(presentsUrl);
+                const presentsData = await presentsResponse.json();
+                if (!presentsData.error) {
+                    // Только если лист подарков существует, показываем points
+                    document.getElementById('points-container').style.display = 'flex';
+                    document.getElementById('points').innerText = `${points}`;
+                }
+            } catch (err) {
+                console.error('Помилка отримання даних present:', err);
+            }
+        } else {
+            cleanupUI();
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = 'Вас немає в системі. Зверніться до адміністратора';
+            feedbackElement.classList.remove('hidden');
+            // Скрываем бургер-меню, если пользователь не найден
+            document.querySelector('.burger-menu').classList.add('hidden');
+        }
+    } catch (err) {
+        console.error('Помилка отримання даних користувача:', err);
+        // Скрываем бургер-меню в случае ошибки
+        document.querySelector('.burger-menu').classList.add('hidden');
+    }
+};
+
+    // Загрузка прогресса или вопроса
+    const loadProgressOrQuestion = (sheetName) => {
+        const savedProgress = localStorage.getItem('progress');
+
+        if (savedProgress) {
+            const progress = JSON.parse(savedProgress);
+            if (progress.completed) {
+                clearProgress();
+                currentIndex = 0;
+                correctAnswers = 0;
+                incorrectAnswers = 0;
+                correctAfterIncorrect = 0;
+                previousIncorrect = false;
+                loadQuestion(currentIndex, sheetName);
+            } else {
+                currentIndex = progress.currentIndex || 0;
+                correctAnswers = progress.correctAnswers || 0;
+                incorrectAnswers = progress.incorrectAnswers || 0;
+                correctAfterIncorrect = progress.correctAfterIncorrect || 0;
+                previousIncorrect = progress.previousIncorrect || false;
+                loadQuestion(currentIndex, sheetName);
+                updateStats();
+            }
+        } else {
+            loadQuestion(currentIndex, sheetName);
+        }
+    };
+
+    // Открытие модального окна подсказки
+    const openHintModal = () => {
+        const hintModal = document.getElementById('hint-modal');
+        const hintImage = document.getElementById('hint-image');
+        hintImage.src = hintImageUrl;
+        hintImage.alt = "Hint Image";
+        hintModal.classList.remove('hidden');
+        hintModal.style.display = 'flex';
+        console.log('Hint Image URL in Modal:', this.hintImageUrl);
+    };
+
+    // Закрытие модального окна подсказки
+    const closeHintModal = () => {
+        const hintModal = document.getElementById('hint-modal');
+        hintModal.style.display = 'none';
+    };
+
+    // Открытие модального окна очков
+    const openPointsModal = async () => {
+        const userNameSheet = `present-${userName}`;
+        const pointsModal = document.getElementById('points-modal');
+        const pointsDetail = document.getElementById('points-detail');
+        const adminText = document.getElementById('admin-text');
+        const giftsContainer = document.getElementById('gifts-container');
+
+        pointsDetail.querySelector('#points').innerText = points;
+
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/admin!B4?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.values && data.values.length > 0 && data.values[0][0]) {
+                adminText.innerText = data.values[0][0];
+            }
+        } catch (err) {
+            console.error('Помилка отримання даних admin:', err);
+        }
+
+        const presentsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${userNameSheet}!A:C?key=${API_KEY}`;
+        try {
+            const response = await fetch(presentsUrl);
+            const data = await response.json();
+            if (data.values && data.values.length > 0) {
+                giftsContainer.innerHTML = '';
+                data.values.slice(1).forEach(present => {
+                    const giftItem = document.createElement('div');
+                    giftItem.className = 'gift-item';
+                    giftItem.innerHTML = `
+                        <img src="${present[2]}" alt="${present[0]}">
+                        <div>${present[0]}</div>
+                        <div>${present[1]} coins</div>
+                    `;
+                    giftsContainer.appendChild(giftItem);
+                });
+                pointsModal.classList.remove('hidden');
+                pointsModal.style.display = 'flex';
+            }
+        } catch (err) {
+            console.error('Помилка отримання даних present:', err);
+        }
+    };
+
+    // Закрытие модального окна очков
+    const closePointsModal = () => {
+        const pointsModal = document.getElementById('points-modal');
+        pointsModal.style.display = 'none';
+    };
+
+    // Обработчик клика на контейнер очков
+    document.getElementById('points-container').onclick = () => {
+        openPointsModal();
+    };
+
+    // Обработчики клика на кнопки закрытия
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.onclick = () => {
+            closeHintModal();
+            closePointsModal();
+        };
+    });
+
+    // Обработчик клика на окно
+    window.onclick = (event) => {
+        const hintModal = document.getElementById('hint-modal');
+        const pointsModal = document.getElementById('points-modal');
+        if (event.target === hintModal) {
+            closeHintModal();
+        }
+        if (event.target === pointsModal) {
+            closePointsModal();
+        }
+    };
+
+    // Обработчик клика на кнопку начала
+    document.getElementById('start-btn').onclick = () => {
+        userName = document.getElementById('name-input').value;
+        if (userName.trim()) {
+            localStorage.setItem('userName', userName);
+            document.getElementById('user-name').innerText = `${userName}`;
+            document.querySelector('.user-info').classList.remove('hidden');
+            document.getElementById('name-input-container').style.display = 'none';
+            document.querySelector('.separator').classList.remove('hidden');
+            document.querySelector('.burger-menu').classList.remove('hidden'); // Показываем бургер-меню
+
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = '';
+            feedbackElement.classList.add('hidden');
+
+            document.getElementById('task-module-container').classList.remove('hidden');
+            document.getElementById('listen-task-module').classList.add('hidden');
+            document.getElementById('correct-answer').classList.remove('hidden');
+            fetchAdminData();
+            fetchUserSheet();
+        } else {
+            alert('Введіть ваше ім\'я.');
+        }
+    };
+
+    // Обработчик клика на кнопку выхода
+    document.querySelector('.logout-btn').onclick = () => {
+        localStorage.removeItem('userName');
+        clearProgress();
+        document.querySelector('.user-info').classList.add('hidden');
+        document.getElementById('name-input-container').style.display = 'flex';
+        document.querySelector('.separator').classList.add('hidden');
+        document.getElementById('task-module-container').classList.add('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('correct-answer').classList.add('hidden');
+        document.getElementById('stats-container').classList.add('hidden');
+        location.reload();
+    };
+
+    // Показ индикатора загрузки
+    const showLoadingIndicator = () => {
+        document.getElementById('loading-indicator').style.display = 'block';
+    };
+
+    // Скрытие индикатора загрузки
+    const hideLoadingIndicator = () => {
+        document.getElementById('loading-indicator').style.display = 'none';
+    };
+
+    // Показ уведомления
+    const showNotification = (message) => {
+        const overlay = document.querySelector('.overlay');
+        const notification = document.getElementById('user-notification');
+        notification.innerHTML = `${message} <span class="notification-close-btn">&times;</span>`;
+        overlay.style.display = 'block';
+        notification.style.display = 'block';
+
+        document.querySelector('.notification-close-btn').onclick = hideNotification;
+    };
+
+    // Скрытие уведомления
+    const hideNotification = () => {
+        const overlay = document.querySelector('.overlay');
+        const notification = document.getElementById('user-notification');
+        overlay.style.display = 'none';
+        notification.style.display = 'none';
+    };
+
+    // Компонент еженедельного прогресса
+    const WeeklyProgress = () => {
+        const [progress, setProgress] = React.useState([]);
+        const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
+
+        const today = new Date().getDay();
+        const currentDayIndex = today === 0 ? 6 : today - 1;
+
+        React.useEffect(() => {
+            const fetchProgress = async () => {
+                const userName = localStorage.getItem('userName');
+                if (!userName) return;
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/users!A:K?key=${API_KEY}`;
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const userRow = data.values.find(row => row[0] === userName);
+
+                    if (userRow) {
+                        const currentSheetName = userRow[1];
+                        const isTaskSheet = currentSheetName && (
+                            currentSheetName.startsWith('listen-select_') ||
+                            currentSheetName.startsWith('listen_') ||
+                            !currentSheetName.includes('_off')
+                        );
+
+                        const weekProgress = userRow.slice(4, 11).map((cell, index) =>
+                            index === currentDayIndex && isTaskSheet ? true : !!cell
+                        );
+                        setProgress(weekProgress);
+                    }
+                } catch (error) {
+                    console.error('Error fetching progress:', error);
+                    const defaultProgress = Array(7).fill(false);
+                    defaultProgress[currentDayIndex] = false;
+                    setProgress(defaultProgress);
+                }
+            };
+
+            fetchProgress();
+        }, [currentDayIndex]);
+
+        return React.createElement('div', null,
+            React.createElement('div', { className: 'weekly-progress mt-4' },
+                React.createElement('h3', { className: 'text-center mb-4' }, 'Ваш тижневий прогрес'),
+                React.createElement('div', { className: 'grid grid-cols-7 gap-2 text-center' },
+                    days.map((day, index) =>
+                        React.createElement('div', {
+                            key: day,
+                            className: `flex flex-col items-center ${index === currentDayIndex ? 'today-cell' : ''}`
+                        },
+                            React.createElement('div', {
+                                className: `font-medium mb-2 ${index === currentDayIndex ? 'today-text' : ''}`
+                            }, day),
+                            React.createElement('div', { className: 'text-2xl' },
+                                progress[index] ? '✅' : '❌'
+                            )
+                        )
+                    )
+                )
+            ),
+            React.createElement(RatingTable)
+        );
+    };
+
+    // Обработчик загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputField = document.getElementById('speak-user-input');
+        const clearBtn = document.getElementById('clear-btn');
+
+        // Показать крестик, если поле заполнено
+        if (inputField) {
+            inputField.addEventListener('input', () => {
+                if (inputField.value.length > 0) {
+                    clearBtn.style.display = 'block';
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+            });
+
+            // Очистка поля при нажатии на крестик
+            clearBtn.addEventListener('click', () => {
+                inputField.value = '';
+                clearBtn.style.display = 'none';
+                inputField.focus();
+            });
+        }
+
+        // Инициализация других модулей
+        if (document.getElementById('task-module-container')) {
+            taskModule = new TaskModule(
+                'task-module-container',
+                'russian-sentence',
+                'english-words-container',
+                'user-answer',
+                'check-btn',
+                'reset-btn',
+                'hint-btn'
+            );
+        }
+
+        if (document.getElementById('listen-task-module')) {
+            listenTaskModule = new ListenTaskModule(
+                'listen-task-module',
+                'play-audio-btn',
+                'listen-task-text',
+                'listen-user-input',
+                'listen-check-btn'
+            );
+        }
+
+        if (document.getElementById('listen-select-module')) {
+            listenSelectTaskModule = new ListenSelectTaskModule(
+                'listen-select-module'
+            );
+        }
+
+        if (document.getElementById('translate-task-module')) {
+            translateTaskModule = new TranslateTaskModule(
+                'translate-task-module'
+            );
+        }
+
+        if (document.getElementById('check-btn')) {
+            document.getElementById('check-btn').onclick = async () => {
+                if (taskModule && taskModule.checkAnswer()) {
+                    if (previousIncorrect) {
+                        correctAfterIncorrect++;
+                        previousIncorrect = false;
+                    } else {
+                        correctAnswers++;
+                    }
+                    displayFeedback('Правильно!', taskModule.correctAnswer, true);
+                    playCorrectAnswer(taskModule.correctAnswer);
+                    document.getElementById('task-module-container').classList.add('hidden');
+                    setTimeout(async () => {
+                        currentIndex++;
+                        if (currentIndex < values.length) {
+                            document.getElementById('feedback').classList.add('hidden');
+                            document.getElementById('correct-answer').classList.add('hidden');
+                            await loadQuestion(currentIndex, sheetName);
+                        } else {
+                            completeModule();
+                        }
+                    }, 3000);
+                } else {
+                    incorrectAnswers++;
+                    previousIncorrect = true;
+                    displayFeedback('Відповідь неправильна 😕, спробуйте ще раз.', '', false);
+                    playWrongSound();
+                    // Автоматический сброс после неправильного ответа
+                    taskModule.resetQuestion();
+                }
+                updateProgressBar();
+                updateStats();
+                saveProgress();
+            };
+        }
+
+        if (document.getElementById('listen-check-btn')) {
+            document.getElementById('listen-check-btn').onclick = async () => {
+                if (listenTaskModule && listenTaskModule.checkAnswer()) {
+                    if (previousIncorrect) {
+                        correctAfterIncorrect++;
+                        previousIncorrect = false;
+                    } else {
+                        correctAnswers++;
+                    }
+                    displayFeedback('Правильно!', listenTaskModule.correctAnswer, true);
+                    listenTaskModule.playCorrectSound();
+                    document.getElementById('listen-task-module').classList.add('hidden');
+                    setTimeout(async () => {
+                        currentIndex++;
+                        if (currentIndex < values.length) {
+                            document.getElementById('feedback').classList.add('hidden');
+                            document.getElementById('correct-answer').classList.add('hidden');
+                            document.getElementById('listen-task-module').classList.remove('hidden');
+                            await loadQuestion(currentIndex, sheetName);
+                        } else {
+                            completeModule();
+                        }
+                    }, 3000);
+                } else {
+                    incorrectAnswers++;
+                    previousIncorrect = true;
+                    displayFeedback('Відповідь неправильна😕, спробуйте ще раз.', '', false);
+                    playWrongSound();
+                }
+                updateProgressBar();
+                updateStats();
+                saveProgress();
+            };
+        }
+
+        // Обработчик загрузки страницы
+        window.onload = () => {
+            fetchAdminData();
+            
+            const savedUserName = localStorage.getItem('userName');
+            if (savedUserName) {
+                userName = savedUserName;
+                document.querySelector('.user-info').classList.remove('hidden');
+                document.querySelector('.burger-menu').classList.remove('hidden');
+                document.getElementById('name-input-container').style.display = 'none';
+                document.querySelector('.separator').classList.remove('hidden');
+                fetchUserSheet(); // Это установит правильное приветствие из листа
+            }
+        };
+
+        // Обработчик клика на оверлей
+        document.querySelector('.overlay').onclick = hideNotification;
+
+        // Обработчик клика на бургер-меню
+        document.querySelector('.burger-icon').addEventListener('click', function() {
+            document.querySelector('.side-panel').style.width = '85%';
+        });
+
+        // Обработчик клика на кнопку закрытия боковой панели
+        document.querySelector('.side-panel .close-btn').addEventListener('click', function() {
+            document.querySelector('.side-panel').style.width = '0';
+        });
+    });
+</script>
+
+</body>
+</html>
+
+
