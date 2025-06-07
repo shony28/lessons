@@ -1010,13 +1010,14 @@ input:checked + .slider:before {
 
     <!-- Контейнер для модуля заданий -->
     <div id="task-module-container" class="hidden">
-        <div id="russian-sentence" class="hidden"></div>
-        <div id="english-words-container" class="sentence-container hidden"></div>
-        <div id="user-answer" class="hidden"></div>
-        <button id="check-btn" class="hidden styled-button">Перевірити</button>
-        <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
-        <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
-    </div>
+    <div id="loading-task" class="text-center">Завантаження...</div>
+    <div id="russian-sentence" class="hidden"></div>
+    <div id="english-words-container" class="sentence-container hidden"></div>
+    <div id="user-answer" class="hidden"></div>
+    <button id="check-btn" class="hidden styled-button">Перевірити</button>
+    <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
+    <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
+</div>
 
     <!-- Контейнер для модуля заданий на прослушивание -->
     <div id="listen-task-module" class="hidden">
@@ -1076,7 +1077,7 @@ input:checked + .slider:before {
     <div id="correct-answer" class="hidden"></div>
 
     <!-- Индикатор загрузки -->
-    <div class="loading-indicator" id="loading-indicator">Завантаження даних...</div>
+    
     <div class="separator"></div>
 
     <!-- Контейнер для статистики -->
@@ -1763,43 +1764,38 @@ const handleMenuClick = async (event) => {
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = AUDIO_RATE;
 
-    // Ожидаем загрузки голосов
-    const voices = await new Promise((resolve) => {
-        const voices = speechSynthesis.getVoices();
-        if (voices.length) {
-            resolve(voices);
-        } else {
-            speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices());
-        }
-    });
-
+    const voices = speechSynthesis.getVoices();
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
     const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
 
-    let selectedVoice;
-
     if (isIOS) {
-        // На iOS сначала пытаемся использовать голоса Daniel, Даніель, Samantha
-        const priorityVoices = ['Daniel', 'Даніель', 'Samantha'];
-        selectedVoice = voices.find(v => priorityVoices.includes(v.name));
+        // Для iOS пытаемся найти голос по имени и языку
+        let selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
 
-        // Если приоритетный голос не найден, ищем по языку или используем en-GB
+        // Если голос не найден, используем запасной вариант
         if (!selectedVoice) {
             selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
         }
+
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
+        } else {
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
     } else {
         // Для других платформ ищем голос по имени и языку
-        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
+        const selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
             || voices.find(v => v.lang === selectedLang)
             || voices.find(v => v.lang === 'en-GB');
-    }
 
-    if (selectedVoice) {
-        msg.voice = selectedVoice;
-        msg.lang = selectedVoice.lang; // Используем язык выбранного голоса
-    } else {
-        msg.lang = 'en-GB'; // Запасной вариант
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+            msg.lang = selectedLang;
+        } else {
+            msg.lang = 'en-GB'; // Запасной вариант
+        }
     }
 
     window.speechSynthesis.speak(msg);
@@ -2498,44 +2494,50 @@ const handleMenuClick = async (event) => {
 
     // Загрузка вопроса
     const loadQuestion = async (index, sheetName) => {
-        const russianSentence = values[index][0];
-        const correctAnswer = values[index][1];
-        const distractors = values[index][2] ? values[index][2].split(' ') : [];
+    const russianSentence = values[index][0];
+    const correctAnswer = values[index][1];
+    const distractors = values[index][2] ? values[index][2].split(' ') : [];
 
-        await fetchHintImageUrl(sheetName);
+    await fetchHintImageUrl(sheetName);
 
-        // Скрываем все модули
-        document.getElementById('task-module-container').classList.add('hidden');
-        document.getElementById('listen-task-module').classList.add('hidden');
-        document.getElementById('listen-select-module').classList.add('hidden');
-        document.getElementById('translate-task-module').classList.add('hidden');
+    // Скрываем все модули
+    document.getElementById('task-module-container').classList.add('hidden');
+    document.getElementById('listen-task-module').classList.add('hidden');
+    document.getElementById('listen-select-module').classList.add('hidden');
+    document.getElementById('translate-task-module').classList.add('hidden');
 
-        if (sheetName.startsWith("translate_")) {
-            if (translateTaskModule) {
-                translateTaskModule.loadQuestion(russianSentence, correctAnswer, distractors.join(' '));
-                document.getElementById('translate-task-module').classList.remove('hidden');
-            }
-        } else if (sheetName.startsWith("listen-select_")) {
-            if (listenSelectTaskModule) {
-                listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
-                document.getElementById('listen-select-module').classList.remove('hidden');
-            }
-        } else if (sheetName.startsWith("listen_")) {
-            if (listenTaskModule) {
-                listenTaskModule.loadQuestion(russianSentence, correctAnswer);
-                document.getElementById('listen-task-module').classList.remove('hidden');
-            }
-        } else {
-            if (taskModule) {
-                taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
-                document.getElementById('task-module-container').classList.remove('hidden');
-            }
+    // Скрываем loading-task
+    const loadingTask = document.getElementById('loading-task');
+    if (loadingTask) {
+        loadingTask.classList.add('hidden');
+    }
+
+    if (sheetName.startsWith("translate_")) {
+        if (translateTaskModule) {
+            translateTaskModule.loadQuestion(russianSentence, correctAnswer, distractors.join(' '));
+            document.getElementById('translate-task-module').classList.remove('hidden');
         }
-        updateProgressBar();
+    } else if (sheetName.startsWith("listen-select_")) {
+        if (listenSelectTaskModule) {
+            listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
+            document.getElementById('listen-select-module').classList.remove('hidden');
+        }
+    } else if (sheetName.startsWith("listen_")) {
+        if (listenTaskModule) {
+            listenTaskModule.loadQuestion(russianSentence, correctAnswer);
+            document.getElementById('listen-task-module').classList.remove('hidden');
+        }
+    } else {
         if (taskModule) {
-            taskModule.updateUserAnswerDisplay();
+            taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
+            document.getElementById('task-module-container').classList.remove('hidden');
         }
-    };
+    }
+    updateProgressBar();
+    if (taskModule) {
+        taskModule.updateUserAnswerDisplay();
+    }
+};
 
     // Получение URL изображения подсказки
     const fetchHintImageUrl = async (sheetName) => {
@@ -2570,30 +2572,34 @@ const handleMenuClick = async (event) => {
     };
 
     // Получение данных
-    const fetchData = async (sheetName) => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:D?key=${API_KEY}`;
-        try {
-            showLoadingIndicator();
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.values.length > 1) {
-                values = data.values.slice(1);
-                fetchHintImageUrl(sheetName);
-                loadProgressOrQuestion(sheetName);
-            } else {
-                throw new Error('Завдань не знайдено');
-            }
-        } catch (err) {
-            console.error('Помилка отримання даних:', err);
-            document.getElementById('feedback').innerText = 'Завдань не знайдено';
-            document.getElementById('feedback').classList.remove('hidden');
-            document.getElementById('check-btn').classList.add('hidden');
-            document.getElementById('reset-btn').classList.add('hidden');
-            document.getElementById('hint-btn').classList.add('hidden');
-        } finally {
-            hideLoadingIndicator();
+const fetchData = async (sheetName) => {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:D?key=${API_KEY}`;
+    try {
+        // Показываем task-module-container и loading-task
+        const taskContainer = document.getElementById('task-module-container');
+        const loadingTask = document.getElementById('loading-task');
+        taskContainer.classList.remove('hidden');
+        loadingTask.classList.remove('hidden');
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values.length > 1) {
+            values = data.values.slice(1);
+            fetchHintImageUrl(sheetName);
+            loadProgressOrQuestion(sheetName);
+        } else {
+            throw new Error('Завдань не знайдено');
         }
-    };
+    } catch (err) {
+        console.error('Помилка отримання даних:', err);
+        document.getElementById('feedback').innerText = 'Завдань не знайдено';
+        document.getElementById('feedback').classList.remove('hidden');
+        document.getElementById('check-btn').classList.add('hidden');
+        document.getElementById('reset-btn').classList.add('hidden');
+        document.getElementById('hint-btn').classList.add('hidden');
+        // Скрываем loading-task при ошибке
+        document.getElementById('loading-task').classList.add('hidden');
+    }
+};
 
     // Получение листа пользователя
     const fetchUserSheet = async () => {
