@@ -1092,6 +1092,7 @@ input:checked + .slider:before {
     <script>
     // Константы для настройки приложения
     const AUDIO_RATE = 0.8;
+    const PRIORITY_VOICES = ['Daniel', 'Даніель', 'Samantha'];
     const TRANSLATION_SIMILARITY_THRESHOLD = 70;
     const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
     const RANGE = 'Граматика!A:D';
@@ -1128,19 +1129,37 @@ input:checked + .slider:before {
 
 // Функция для получения настройки голоса из кэша
 const getUserVoiceSetting = async (userName) => {
-    if (userVoiceCache !== null) {
-        return userVoiceCache; // Возвращаем кэшированное значение
+    // Проверяем localStorage на наличие сохранённого голоса
+    let savedVoice = localStorage.getItem(`voiceSetting_${userName}`);
+    if (savedVoice) {
+        return savedVoice; // Возвращаем сохранённый голос
     }
-    // Если кэш пуст, возвращаем значение по умолчанию
-    userVoiceCache = 'en-GB|default';
-    return userVoiceCache;
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+        // Для iOS ищем приоритетные голоса
+        const voices = speechSynthesis.getVoices();
+        for (const voiceName of PRIORITY_VOICES) {
+            const voice = voices.find(v => v.name === voiceName);
+            if (voice) {
+                savedVoice = `${voice.lang}|${voice.name}`;
+                localStorage.setItem(`voiceSetting_${userName}`, savedVoice);
+                return savedVoice;
+            }
+        }
+    }
+
+    // Если голос не найден или не iOS, возвращаем значение по умолчанию
+    savedVoice = 'en-GB|default';
+    localStorage.setItem(`voiceSetting_${userName}`, savedVoice);
+    return savedVoice;
 };
 
 // Функция для обновления настройки голоса в кэше
 const updateUserVoiceSetting = async (userName, voiceValue) => {
     try {
-        userVoiceCache = voiceValue; // Обновляем только кэш
-        console.log('Настройка голоса успешно обновлена в кэше:', voiceValue);
+        localStorage.setItem(`voiceSetting_${userName}`, voiceValue);
+        console.log('Настройка голоса успешно обновлена в localStorage:', voiceValue);
     } catch (err) {
         console.error('Ошибка при обновлении настройки голоса:', err);
         const modalBody = document.getElementById('modal-body');
@@ -1192,8 +1211,8 @@ const setupSettingsModal = async () => {
         voiceSelect.appendChild(option);
     }
 
-    // Устанавливаем сохранённое значение голоса или первый доступный
-    voiceSelect.value = selectedVoice || (filteredVoices[0]?.value || voices[0]?.value || 'en-GB|default');
+    // Устанавливаем сохранённое значение голоса
+    voiceSelect.value = selectedVoice || 'en-GB|default';
 };
 
     // Получаем голоса
@@ -1769,33 +1788,36 @@ const handleMenuClick = async (event) => {
     const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
     const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
 
-    if (isIOS) {
-        // Для iOS пытаемся найти голос по имени и языку
-        let selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
+    let selectedVoice = null;
 
-        // Если голос не найден, используем запасной вариант
+    if (isIOS) {
+        // Для iOS сначала пытаемся использовать сохранённый голос
+        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang);
+
+        // Если сохранённый голос не найден, пробуем приоритетные голоса
+        if (!selectedVoice) {
+            for (const voiceName of PRIORITY_VOICES) {
+                selectedVoice = voices.find(v => v.name === voiceName);
+                if (selectedVoice) break;
+            }
+        }
+
+        // Если приоритетные голоса не найдены, используем любой голос для en-GB
         if (!selectedVoice) {
             selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
         }
-
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
-            msg.lang = selectedLang;
-        } else {
-            msg.lang = 'en-GB'; // Запасной вариант
-        }
     } else {
         // Для других платформ ищем голос по имени и языку
-        const selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
+        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
             || voices.find(v => v.lang === selectedLang)
             || voices.find(v => v.lang === 'en-GB');
+    }
 
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
-            msg.lang = selectedLang;
-        } else {
-            msg.lang = 'en-GB'; // Запасной вариант
-        }
+    if (selectedVoice) {
+        msg.voice = selectedVoice;
+        msg.lang = selectedVoice.lang;
+    } else {
+        msg.lang = 'en-GB'; // Запасной вариант
     }
 
     window.speechSynthesis.speak(msg);
