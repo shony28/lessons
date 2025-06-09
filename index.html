@@ -2822,28 +2822,30 @@ const fetchData = async (sheetName) => {
 
     // Обработчик клика на кнопку начала
     document.getElementById('start-btn').onclick = () => {
-        userName = document.getElementById('name-input').value;
-        if (userName.trim()) {
-            localStorage.setItem('userName', userName);
-            document.getElementById('user-name').innerText = `${userName}`;
-            document.querySelector('.user-info').classList.remove('hidden');
-            document.getElementById('name-input-container').style.display = 'none';
-            document.querySelector('.separator').classList.remove('hidden');
-            document.querySelector('.burger-menu').classList.remove('hidden'); // Показываем бургер-меню
+    // Получаем значение поля ввода и нормализуем его
+    let inputValue = document.getElementById('name-input').value;
+    userName = inputValue.trim().replace(/\s+/g, ' '); // Удаляем лишние пробелы
+    if (userName) {
+        localStorage.setItem('userName', userName);
+        document.getElementById('user-name').innerText = `${userName}`;
+        document.querySelector('.user-info').classList.remove('hidden');
+        document.getElementById('name-input-container').style.display = 'none';
+        document.querySelector('.separator').classList.remove('hidden');
+        document.querySelector('.burger-menu').classList.remove('hidden');
 
-            const feedbackElement = document.getElementById('feedback');
-            feedbackElement.innerText = '';
-            feedbackElement.classList.add('hidden');
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.innerText = '';
+        feedbackElement.classList.add('hidden');
 
-            document.getElementById('task-module-container').classList.remove('hidden');
-            document.getElementById('listen-task-module').classList.add('hidden');
-            document.getElementById('correct-answer').classList.remove('hidden');
-            fetchAdminData();
-            fetchUserSheet();
-        } else {
-            alert('Введіть ваше ім\'я.');
-        }
-    };
+        document.getElementById('task-module-container').classList.remove('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('correct-answer').classList.remove('hidden');
+        fetchAdminData();
+        fetchUserSheet();
+    } else {
+        alert('Введіть ваше ім\'я.');
+    }
+};
 
     // Обработчик клика на кнопку выхода
     document.querySelector('.logout-btn').onclick = () => {
