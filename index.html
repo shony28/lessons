@@ -1700,7 +1700,7 @@ const handleMenuClick = async (event) => {
                 setDisplayCount(parseInt(count));
 
                 const ratingsPromises = ratingSheetNames.map(async sheetName => {
-                    const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:C?key=${API_KEY}`;
+                    const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:D?key=${API_KEY}`; // изменение диапазона запроса
                     const response = await fetch(ratingUrl);
                     const data = await response.json();
 
@@ -1741,14 +1741,20 @@ const handleMenuClick = async (event) => {
                                 React.createElement('th', { className: 'text-left' }, 'Місце'),
                                 React.createElement('th', { className: 'text-left' }, 'Ім\'я'),
                                 React.createElement('th', { className: 'text-right' }, 'Бали')
+                                //React.createElement('th', { className: 'text-right' }, '')
+                                //для нового столбца
                             )
                         ),
                         React.createElement('tbody', null,
                             data.ratings.map((row, index) =>
                                 React.createElement('tr', { key: index },
                                     React.createElement('td', null, index + 1),
-                                    React.createElement('td', null, row[0]),
+                                    React.createElement('td', null, row[0], row[2]),
                                     React.createElement('td', { className: 'text-right font-medium' }, row[1])
+                                    
+                                    //React.createElement('td', { className: 'text-right font-medium' }, row[2] || '')
+
+                                    // заголовок и данные для нового столбца
                                 )
                             )
                         )
@@ -2883,13 +2889,36 @@ const fetchData = async (sheetName) => {
         document.querySelector('.notification-close-btn').onclick = hideNotification;
     };
 
-    // Скрытие уведомления
-    const hideNotification = () => {
-        const overlay = document.querySelector('.overlay');
-        const notification = document.getElementById('user-notification');
-        overlay.style.display = 'none';
-        notification.style.display = 'none';
-    };
+   // Скрытие уведомления и очистка ячейки в столбце C
+        const hideNotification = async () => {
+            const overlay = document.querySelector('.overlay');
+            const notification = document.getElementById('user-notification');
+            
+            // Отправляем запрос на очистку ячейки в столбце C
+            try {
+                const data = {
+                    action: 'clearNotification',
+                    userName: userName
+                };
+
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Запрос на очистку уведомления отправлен');
+            } catch (err) {
+                console.error('Ошибка при отправке запроса на очистку уведомления:', err);
+            }
+
+            // Скрываем уведомление и оверлей
+            overlay.style.display = 'none';
+            notification.style.display = 'none';
+        };
 
     // Компонент еженедельного прогресса
     const WeeklyProgress = () => {
