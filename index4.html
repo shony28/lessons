@@ -61,7 +61,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #ffe97dde;
+            /*background-color: #ffe97dde;*/
+            background-image: url('coin.png'); /* Set the background image */
+            background-size: cover; /* Ensure the image covers the container */
+            background-position: center; /* Center the image */
+            
+            width: 30px;
+
             padding: 10px;
             border-radius: 50%;
             cursor: pointer;
@@ -71,7 +77,7 @@
 
         #points-container span {
             font-size: 18px;
-            color: #333;
+            color: #271d08b5;
             font-weight: bold;
         }
 
@@ -1700,7 +1706,7 @@ const handleMenuClick = async (event) => {
                 setDisplayCount(parseInt(count));
 
                 const ratingsPromises = ratingSheetNames.map(async sheetName => {
-                    const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:C?key=${API_KEY}`;
+                    const ratingUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:D?key=${API_KEY}`; // изменение диапазона запроса
                     const response = await fetch(ratingUrl);
                     const data = await response.json();
 
@@ -1741,14 +1747,20 @@ const handleMenuClick = async (event) => {
                                 React.createElement('th', { className: 'text-left' }, 'Місце'),
                                 React.createElement('th', { className: 'text-left' }, 'Ім\'я'),
                                 React.createElement('th', { className: 'text-right' }, 'Бали')
+                                //React.createElement('th', { className: 'text-right' }, '')
+                                //для нового столбца
                             )
                         ),
                         React.createElement('tbody', null,
                             data.ratings.map((row, index) =>
                                 React.createElement('tr', { key: index },
                                     React.createElement('td', null, index + 1),
-                                    React.createElement('td', null, row[0]),
+                                    React.createElement('td', null, row[0], row[2]),
                                     React.createElement('td', { className: 'text-right font-medium' }, row[1])
+                                    
+                                    //React.createElement('td', { className: 'text-right font-medium' }, row[2] || '')
+
+                                    // заголовок и данные для нового столбца
                                 )
                             )
                         )
@@ -1779,11 +1791,42 @@ const handleMenuClick = async (event) => {
     };
 
     // Глобальная функция озвучки текста
-    const speakText = async (text) => {
+const speakText = async (text) => {
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = AUDIO_RATE;
 
-    const voices = speechSynthesis.getVoices();
+    // Проверка, является ли браузер Chrome на Windows
+    const isChromeOnWindows = /Chrome/.test(navigator.userAgent) && /Win/.test(navigator.platform);
+
+    let voices = speechSynthesis.getVoices();
+
+    // Функция для ожидания голосов с увеличенным таймаутом
+    const waitForVoices = () => {
+        return new Promise((resolve) => {
+            if (voices.length > 0) {
+                console.log('Voices available immediately:', voices.map(v => `${v.name} (${v.lang})`));
+                resolve(voices);
+            } else {
+                console.log('Waiting for voices to load...');
+                speechSynthesis.onvoiceschanged = () => {
+                    voices = speechSynthesis.getVoices();
+                    console.log('Voices loaded:', voices.map(v => `${v.name} (${v.lang})`));
+                    resolve(voices);
+                };
+                // Увеличиваем таймаут до 2000 мс для большей надёжности
+                setTimeout(() => {
+                    console.log('Voice loading timeout reached, using available voices:', voices.map(v => `${v.name} (${v.lang})`));
+                    resolve(voices);
+                }, 2000);
+            }
+        });
+    };
+
+    // Если Chrome на Windows, ждём голоса
+    if (isChromeOnWindows) {
+        voices = await waitForVoices();
+    }
+
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const selectedVoiceValue = await getUserVoiceSetting(userName); // Получаем значение в формате lang|name
     const [selectedLang, selectedVoiceName] = selectedVoiceValue.split('|'); // Разделяем язык и имя
@@ -1802,25 +1845,45 @@ const handleMenuClick = async (event) => {
             }
         }
 
-        // Если приоритетные голоса не найдены, используем любой голос для en-GB
+        // Если приоритетные голоса не найдены, используем любой голос для en-GB или en-US
         if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang === selectedLang) || voices.find(v => v.lang === 'en-GB');
+            selectedVoice = voices.find(v => v.lang === selectedLang) ||
+                           voices.find(v => v.lang === 'en-GB') ||
+                           voices.find(v => v.lang === 'en-US');
         }
     } else {
-        // Для других платформ ищем голос по имени и языку
-        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang)
-            || voices.find(v => v.lang === selectedLang)
-            || voices.find(v => v.lang === 'en-GB');
+        // Для других платформ (включая Chrome на Windows)
+        selectedVoice = voices.find(v => v.name === selectedVoiceName && v.lang === selectedLang) ||
+                        voices.find(v => v.lang === selectedLang) ||
+                        voices.find(v => v.lang === 'en-GB') ||
+                        voices.find(v => v.lang === 'en-US') ||
+                        voices[0]; // Запасной вариант — первый доступный голос
     }
 
     if (selectedVoice) {
         msg.voice = selectedVoice;
         msg.lang = selectedVoice.lang;
+        console.log(`Selected voice: ${selectedVoice.name} (${selectedVoice.lang})`);
     } else {
         msg.lang = 'en-GB'; // Запасной вариант
+        console.warn('No suitable voice found, falling back to en-GB');
     }
 
-    window.speechSynthesis.speak(msg);
+    // Очищаем очередь синтеза речи только если голос выбран
+    if (selectedVoice) {
+        window.speechSynthesis.cancel();
+    }
+
+    // Добавляем обработчик ошибок для диагностики
+    msg.onerror = (event) => {
+        console.error('SpeechSynthesisUtterance error:', event);
+    };
+
+    try {
+        window.speechSynthesis.speak(msg);
+    } catch (error) {
+        console.error('SpeechSynthesis error:', error);
+    }
 };
 
     // Воспроизведение правильного ответа
@@ -1897,54 +1960,84 @@ const handleMenuClick = async (event) => {
         localStorage.removeItem('progress');
     };
 
-    // Завершение модуля
-    const completeModule = async () => {
-        clearProgress();
-        cleanupUI();
+    // Обновление данных пользователя (points и user-name)
+    const updateUserData = async () => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const users = data.values.slice(1);
+            const user = users.find(row => row[0] === userName);
+            if (user) {
+                // Обновляем очки
+                points = user[12] || 0;
+                document.getElementById('points').innerText = `${points}`;
+                document.getElementById('points-container').style.display = user[12] ? 'flex' : 'none';
 
-        const feedbackElement = document.getElementById('feedback');
-        feedbackElement.innerText = 'Завантаження прогресу...';
-        feedbackElement.classList.remove('hidden');
-
-        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
-
-        feedbackElement.innerText = '🎉Ви виконали всі завдання.';
-
-        if (isTaskList) {
-            // Проверяем, есть ли следующий лист с заданиями
-            if (currentTaskListIndex + 1 < taskListSheets.length) {
-                const nextButton = document.createElement('button');
-                nextButton.innerText = 'Завантажити наступні завдання';
-                nextButton.className = 'styled-button';
-                nextButton.onclick = async () => {
-                    cleanupUI(); // Очищаем UI перед загрузкой новых заданий
-                    currentTaskListIndex++;
-                    sheetName = taskListSheets[currentTaskListIndex];
-                    currentIndex = 0;
-                    correctAnswers = 0;
-                    incorrectAnswers = 0;
-                    correctAfterIncorrect = 0;
-                    previousIncorrect = false;
-                    feedbackElement.classList.add('hidden');
-                    nextButton.remove();
-                    await fetchData(sheetName);
-                };
-                feedbackElement.appendChild(document.createElement('br'));
-                feedbackElement.appendChild(nextButton);
+                // Обновляем имя пользователя с учетом customGreeting
+                const customGreeting = user[3] ? user[3] + " " : "";
+                document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
+            } else {
+                console.warn('Пользователь не найден в листе users:', userName);
             }
+        } catch (err) {
+            console.error('Ошибка при обновлении данных пользователя:', err);
         }
-
-        document.getElementById('stats-container').classList.remove('hidden');
-
-        const weeklyProgressContainer = document.createElement('div');
-        weeklyProgressContainer.id = 'weekly-progress-container';
-        document.getElementById('stats-container').after(weeklyProgressContainer);
-
-        const root = ReactDOM.createRoot(weeklyProgressContainer);
-        root.render(React.createElement(WeeklyProgress));
-
-        updateStats();
     };
+
+    // Завершение модуля
+   
+        const completeModule = async () => {
+            clearProgress();
+            cleanupUI();
+
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = 'Завантаження прогресу...';
+            feedbackElement.classList.remove('hidden');
+
+            // Отправляем результаты в Google Sheets
+            await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+
+            // Обновляем данные пользователя (points и user-name)
+            await updateUserData();
+
+            feedbackElement.innerText = '🎉Ви виконали всі завдання.';
+
+            if (isTaskList) {
+                // Проверяем, есть ли следующий лист с заданиями
+                if (currentTaskListIndex + 1 < taskListSheets.length) {
+                    const nextButton = document.createElement('button');
+                    nextButton.innerText = 'Завантажити наступні завдання';
+                    nextButton.className = 'styled-button';
+                    nextButton.onclick = async () => {
+                        cleanupUI(); // Очищаем UI перед загрузкой новых заданий
+                        currentTaskListIndex++;
+                        sheetName = taskListSheets[currentTaskListIndex];
+                        currentIndex = 0;
+                        correctAnswers = 0;
+                        incorrectAnswers = 0;
+                        correctAfterIncorrect = 0;
+                        previousIncorrect = false;
+                        feedbackElement.classList.add('hidden');
+                        nextButton.remove();
+                        await fetchData(sheetName);
+                    };
+                    feedbackElement.appendChild(document.createElement('br'));
+                    feedbackElement.appendChild(nextButton);
+                }
+            }
+
+            document.getElementById('stats-container').classList.remove('hidden');
+
+            const weeklyProgressContainer = document.createElement('div');
+            weeklyProgressContainer.id = 'weekly-progress-container';
+            document.getElementById('stats-container').after(weeklyProgressContainer);
+
+            const root = ReactDOM.createRoot(weeklyProgressContainer);
+            root.render(React.createElement(WeeklyProgress));
+
+            updateStats();
+        };
 
     // Отправка результатов в Google Sheets
     const sendResultsToGoogleSheets = async (userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName) => {
@@ -2822,28 +2915,30 @@ const fetchData = async (sheetName) => {
 
     // Обработчик клика на кнопку начала
     document.getElementById('start-btn').onclick = () => {
-        userName = document.getElementById('name-input').value;
-        if (userName.trim()) {
-            localStorage.setItem('userName', userName);
-            document.getElementById('user-name').innerText = `${userName}`;
-            document.querySelector('.user-info').classList.remove('hidden');
-            document.getElementById('name-input-container').style.display = 'none';
-            document.querySelector('.separator').classList.remove('hidden');
-            document.querySelector('.burger-menu').classList.remove('hidden'); // Показываем бургер-меню
+    // Получаем значение поля ввода и нормализуем его
+    let inputValue = document.getElementById('name-input').value;
+    userName = inputValue.trim().replace(/\s+/g, ' '); // Удаляем лишние пробелы
+    if (userName) {
+        localStorage.setItem('userName', userName);
+        document.getElementById('user-name').innerText = `${userName}`;
+        document.querySelector('.user-info').classList.remove('hidden');
+        document.getElementById('name-input-container').style.display = 'none';
+        document.querySelector('.separator').classList.remove('hidden');
+        document.querySelector('.burger-menu').classList.remove('hidden');
 
-            const feedbackElement = document.getElementById('feedback');
-            feedbackElement.innerText = '';
-            feedbackElement.classList.add('hidden');
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.innerText = '';
+        feedbackElement.classList.add('hidden');
 
-            document.getElementById('task-module-container').classList.remove('hidden');
-            document.getElementById('listen-task-module').classList.add('hidden');
-            document.getElementById('correct-answer').classList.remove('hidden');
-            fetchAdminData();
-            fetchUserSheet();
-        } else {
-            alert('Введіть ваше ім\'я.');
-        }
-    };
+        document.getElementById('task-module-container').classList.remove('hidden');
+        document.getElementById('listen-task-module').classList.add('hidden');
+        document.getElementById('correct-answer').classList.remove('hidden');
+        fetchAdminData();
+        fetchUserSheet();
+    } else {
+        alert('Введіть ваше ім\'я.');
+    }
+};
 
     // Обработчик клика на кнопку выхода
     document.querySelector('.logout-btn').onclick = () => {
@@ -2881,13 +2976,36 @@ const fetchData = async (sheetName) => {
         document.querySelector('.notification-close-btn').onclick = hideNotification;
     };
 
-    // Скрытие уведомления
-    const hideNotification = () => {
-        const overlay = document.querySelector('.overlay');
-        const notification = document.getElementById('user-notification');
-        overlay.style.display = 'none';
-        notification.style.display = 'none';
-    };
+   // Скрытие уведомления и очистка ячейки в столбце C
+        const hideNotification = async () => {
+            const overlay = document.querySelector('.overlay');
+            const notification = document.getElementById('user-notification');
+            
+            // Отправляем запрос на очистку ячейки в столбце C
+            try {
+                const data = {
+                    action: 'clearNotification',
+                    userName: userName
+                };
+
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Запрос на очистку уведомления отправлен');
+            } catch (err) {
+                console.error('Ошибка при отправке запроса на очистку уведомления:', err);
+            }
+
+            // Скрываем уведомление и оверлей
+            overlay.style.display = 'none';
+            notification.style.display = 'none';
+        };
 
     // Компонент еженедельного прогресса
     const WeeklyProgress = () => {
