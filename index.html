@@ -1903,54 +1903,84 @@ const handleMenuClick = async (event) => {
         localStorage.removeItem('progress');
     };
 
-    // Завершение модуля
-    const completeModule = async () => {
-        clearProgress();
-        cleanupUI();
+    // Обновление данных пользователя (points и user-name)
+    const updateUserData = async () => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const users = data.values.slice(1);
+            const user = users.find(row => row[0] === userName);
+            if (user) {
+                // Обновляем очки
+                points = user[12] || 0;
+                document.getElementById('points').innerText = `${points}`;
+                document.getElementById('points-container').style.display = user[12] ? 'flex' : 'none';
 
-        const feedbackElement = document.getElementById('feedback');
-        feedbackElement.innerText = 'Завантаження прогресу...';
-        feedbackElement.classList.remove('hidden');
-
-        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
-
-        feedbackElement.innerText = '🎉Ви виконали всі завдання.';
-
-        if (isTaskList) {
-            // Проверяем, есть ли следующий лист с заданиями
-            if (currentTaskListIndex + 1 < taskListSheets.length) {
-                const nextButton = document.createElement('button');
-                nextButton.innerText = 'Завантажити наступні завдання';
-                nextButton.className = 'styled-button';
-                nextButton.onclick = async () => {
-                    cleanupUI(); // Очищаем UI перед загрузкой новых заданий
-                    currentTaskListIndex++;
-                    sheetName = taskListSheets[currentTaskListIndex];
-                    currentIndex = 0;
-                    correctAnswers = 0;
-                    incorrectAnswers = 0;
-                    correctAfterIncorrect = 0;
-                    previousIncorrect = false;
-                    feedbackElement.classList.add('hidden');
-                    nextButton.remove();
-                    await fetchData(sheetName);
-                };
-                feedbackElement.appendChild(document.createElement('br'));
-                feedbackElement.appendChild(nextButton);
+                // Обновляем имя пользователя с учетом customGreeting
+                const customGreeting = user[3] ? user[3] + " " : "";
+                document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
+            } else {
+                console.warn('Пользователь не найден в листе users:', userName);
             }
+        } catch (err) {
+            console.error('Ошибка при обновлении данных пользователя:', err);
         }
-
-        document.getElementById('stats-container').classList.remove('hidden');
-
-        const weeklyProgressContainer = document.createElement('div');
-        weeklyProgressContainer.id = 'weekly-progress-container';
-        document.getElementById('stats-container').after(weeklyProgressContainer);
-
-        const root = ReactDOM.createRoot(weeklyProgressContainer);
-        root.render(React.createElement(WeeklyProgress));
-
-        updateStats();
     };
+
+    // Завершение модуля
+   
+        const completeModule = async () => {
+            clearProgress();
+            cleanupUI();
+
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.innerText = 'Завантаження прогресу...';
+            feedbackElement.classList.remove('hidden');
+
+            // Отправляем результаты в Google Sheets
+            await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+
+            // Обновляем данные пользователя (points и user-name)
+            await updateUserData();
+
+            feedbackElement.innerText = '🎉Ви виконали всі завдання.';
+
+            if (isTaskList) {
+                // Проверяем, есть ли следующий лист с заданиями
+                if (currentTaskListIndex + 1 < taskListSheets.length) {
+                    const nextButton = document.createElement('button');
+                    nextButton.innerText = 'Завантажити наступні завдання';
+                    nextButton.className = 'styled-button';
+                    nextButton.onclick = async () => {
+                        cleanupUI(); // Очищаем UI перед загрузкой новых заданий
+                        currentTaskListIndex++;
+                        sheetName = taskListSheets[currentTaskListIndex];
+                        currentIndex = 0;
+                        correctAnswers = 0;
+                        incorrectAnswers = 0;
+                        correctAfterIncorrect = 0;
+                        previousIncorrect = false;
+                        feedbackElement.classList.add('hidden');
+                        nextButton.remove();
+                        await fetchData(sheetName);
+                    };
+                    feedbackElement.appendChild(document.createElement('br'));
+                    feedbackElement.appendChild(nextButton);
+                }
+            }
+
+            document.getElementById('stats-container').classList.remove('hidden');
+
+            const weeklyProgressContainer = document.createElement('div');
+            weeklyProgressContainer.id = 'weekly-progress-container';
+            document.getElementById('stats-container').after(weeklyProgressContainer);
+
+            const root = ReactDOM.createRoot(weeklyProgressContainer);
+            root.render(React.createElement(WeeklyProgress));
+
+            updateStats();
+        };
 
     // Отправка результатов в Google Sheets
     const sendResultsToGoogleSheets = async (userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName) => {
