@@ -13,8 +13,7 @@
     <!-- Подключение библиотек React -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Подключение библиотеки для вычисления расстояния Левенштейна -->
-    <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
+    
     <style>
         /* Общие стили для тела страницы */
         body {
@@ -1608,12 +1607,9 @@ const handleMenuClick = async (event) => {
         }
     };
 
+    
     // Функция для вычисления расстояния Левенштейна между строками
     const calculateLevenshteinDistance = (str1, str2) => {
-        if (window.Levenshtein) {
-            return window.Levenshtein.get(str1, str2);
-        }
-        // Резервная простая реализация, если библиотека не загрузилась
         if (str1.length === 0) return str2.length;
         if (str2.length === 0) return str1.length;
 
@@ -2312,25 +2308,7 @@ class TaskModule {
 
             // Функция для вычисления расстояния Левенштейна между словами
             const levenshteinDistance = (a, b) => {
-                if (a.length === 0) return b.length;
-                if (b.length === 0) return a.length;
-
-                const matrix = Array(b.length + 1).fill().map(() => Array(a.length + 1).fill(0));
-
-                for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
-                for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
-
-                for (let j = 1; j <= b.length; j++) {
-                    for (let i = 1; i <= a.length; i++) {
-                        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                        matrix[j][i] = Math.min(
-                            matrix[j][i - 1] + 1,
-                            matrix[j - 1][i] + 1,
-                            matrix[j - 1][i - 1] + cost
-                        );
-                    }
-                }
-                return matrix[b.length][a.length];
+                return calculateLevenshteinDistance(a, b);
             };
 
             // Функция для проверки схожести слов с учетом небольших различий
