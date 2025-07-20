@@ -114,7 +114,7 @@
         }
 
         /* Стили для русского предложения */
-        #russian-sentence {
+        #ukr-sentence {
             font-size: 36px;
             font-weight: bold;
         }
@@ -960,6 +960,23 @@ input:checked + .slider:before {
     border-color: #4CAF50;
 }
 
+#hint-text.hidden {
+    display: none;
+}
+
+#hint-text {
+    margin-top: 10px;
+    color: #555;
+    font-style: italic;
+    font-size: 22px;
+}
+
+
+#hint-text.with-emoji::before {
+    content: "💡👉 ";
+    margin-right: 5px;
+}
+
     </style>
 </head>
 
@@ -1016,14 +1033,15 @@ input:checked + .slider:before {
 
     <!-- Контейнер для модуля заданий -->
     <div id="task-module-container" class="hidden">
-    <div id="loading-task" class="text-center">Завантаження...</div>
-    <div id="russian-sentence" class="hidden"></div>
-    <div id="english-words-container" class="sentence-container hidden"></div>
-    <div id="user-answer" class="hidden"></div>
-    <button id="check-btn" class="hidden styled-button">Перевірити</button>
-    <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
-    <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
-</div>
+        <div id="loading-task" class="text-center">Завантаження...</div>
+        <div id="ukr-sentence" class="hidden"></div>
+        <div id="hint-text" class="hidden"></div> <!-- Новый элемент для текста из столбца B -->
+        <div id="english-words-container" class="sentence-container hidden"></div>
+        <div id="user-answer" class="hidden"></div>
+        <button id="check-btn" class="hidden styled-button">Перевірити</button>
+        <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
+        <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
+    </div>
 
     <!-- Контейнер для модуля заданий на прослушивание -->
     <div id="listen-task-module" class="hidden">
@@ -1098,6 +1116,7 @@ input:checked + .slider:before {
     <script>
     // Константы для настройки приложения
     const AUDIO_RATE = 0.8;
+    const ERROR_COUNT_ANSWER = 5;
     const PRIORITY_VOICES = ['Daniel', 'Даніель', 'Samantha'];
     const TRANSLATION_SIMILARITY_THRESHOLD = 70;
     const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
@@ -2012,115 +2031,134 @@ const handleMenuClick = async (event) => {
         console.log('Запит до Google Sheets успішно надіслано');
     };
 
+   
     // Класс модуля заданий
-    class TaskModule {
-        constructor(containerId, russianSentenceId, englishWordsContainerId, userAnswerId, checkBtnId, resetBtnId, hintBtnId) {
-            this.container = document.getElementById(containerId);
-            this.russianSentenceElem = document.getElementById(russianSentenceId);
-            this.englishWordsContainer = document.getElementById(englishWordsContainerId);
-            this.userAnswerElem = document.getElementById(userAnswerId);
-            this.checkBtn = document.getElementById(checkBtnId);
-            this.resetBtn = document.getElementById(resetBtnId);
-            this.hintBtn = document.getElementById(hintBtnId);
+class TaskModule {
+    constructor(containerId, ukrSentenceId, englishWordsContainerId, userAnswerId, checkBtnId, resetBtnId, hintBtnId) {
+        this.container = document.getElementById(containerId);
+        this.ukrSentenceElem = document.getElementById(ukrSentenceId);
+        this.hintTextElem = document.getElementById('hint-text'); // Элемент для текста подсказки
+        this.englishWordsContainer = document.getElementById(englishWordsContainerId);
+        this.userAnswerElem = document.getElementById(userAnswerId);
+        this.checkBtn = document.getElementById(checkBtnId);
+        this.resetBtn = document.getElementById(resetBtnId);
+        this.hintBtn = document.getElementById(hintBtnId);
 
-            this.correctAnswer = '';
-            this.userAnswer = [];
-            this.hintImageUrl = '';
+        this.correctAnswer = '';
+        this.userAnswer = [];
+        this.hintImageUrl = '';
+        this.errorCount = 0; // Счетчик ошибок для текущего вопроса
 
-            this.hintBtn.onclick = () => {
-                this.openHintModal();
-            };
+        this.hintBtn.onclick = () => {
+            this.openHintModal();
+        };
 
-            this.resetBtn.onclick = () => {
-                this.resetQuestion();
-            };
-        }
-
-        // Загрузка вопроса
-        loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl) {
-            console.log('Loading question:', russianSentence, correctAnswer, distractors);
-            this.russianSentenceElem.innerText = russianSentence.replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
-            this.correctAnswer = correctAnswer.replace(/_/g, ' ');
-
-            this.userAnswer = [];
-            this.userAnswerElem.innerText = '';
-            this.clearWordsContainer();
-            this.populateWords(correctAnswer, distractors);
-
-            this.russianSentenceElem.classList.remove('hidden');
-            this.englishWordsContainer.classList.remove('hidden');
-            this.userAnswerElem.classList.remove('hidden');
-            this.checkBtn.classList.remove('hidden');
-            this.resetBtn.classList.remove('hidden');
-            this.hintImageUrl = hintImageUrl;
-            console.log('Loaded Hint Image URL:', this.hintImageUrl);
-        }
-
-        // Очистка контейнера слов
-        clearWordsContainer() {
-            this.englishWordsContainer.innerHTML = '';
-        }
-
-        // Заполнение слов
-           populateWords(correctAnswer, distractors) {
-            const words = correctAnswer.split(' ').concat(distractors).sort(() => 0.5 - Math.random());
-            words.forEach(word => {
-                const span = document.createElement('span');
-                span.innerText = word.replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
-                span.className = 'word';
-                span.onclick = async () => {
-                    if (!span.classList.contains('clicked')) {
-                        this.userAnswer.push(word);
-                        span.classList.add('clicked');
-                        this.updateUserAnswerDisplay();
-                        // Проверяем, разрешено ли озвучивание для пользователя
-                        const speakEnabled = await isUserSpeakEnabled(userName);
-                        if (speakEnabled) {
-                            speakText(word.replace(/_/g, ' ')); // Озвучиваем слово при клике
-                        }
-                    }
-                };
-                this.englishWordsContainer.appendChild(span);
-            });
-        }
-
-        // Обновление отображения ответа пользователя
-        updateUserAnswerDisplay() {
-            this.userAnswerElem.innerText = this.userAnswer.join(' ').replace(/_/g, ' '); // Заменяем подчеркивания на пробелы
-            this.userAnswerElem.classList.remove('hidden');
-        }
-
-        // Сброс вопроса
-        resetQuestion() {
-            this.userAnswer = [];
-            this.updateUserAnswerDisplay();
-            this.resetClickedWords();
-        }
-
-        // Сброс кликнутых слов
-        resetClickedWords() {
-            const words = this.englishWordsContainer.querySelectorAll('.word');
-            words.forEach(word => word.classList.remove('clicked'));
-        }
-
-        // Проверка ответа
-        checkAnswer() {
-            const normalizeText = (text) => text.trim().toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' '); // Заменяем подчеркивания на пробелы
-            const userAnswerStr = normalizeText(this.userAnswer.join(' '));
-            const normalizedCorrectAnswer = normalizeText(this.correctAnswer);
-            return userAnswerStr === normalizedCorrectAnswer;
-        }
-
-        // Открытие модального окна подсказки
-        openHintModal() {
-            const hintModal = document.getElementById('hint-modal');
-            const hintImage = document.getElementById('hint-image');
-            hintImage.src = this.hintImageUrl;
-            hintModal.classList.remove('hidden');
-            hintModal.style.display = 'flex';
-            console.log('Hint Image URL in Modal:', this.hintImageUrl);
-        }
+        this.resetBtn.onclick = () => {
+            this.resetQuestion();
+        };
     }
+
+    // Загрузка вопроса
+    loadQuestion(ukrSentence, correctAnswer, distractors, hintImageUrl) {
+        console.log('Loading question:', ukrSentence, correctAnswer, distractors);
+        this.ukrSentenceElem.innerText = ukrSentence.replace(/_/g, ' ');
+        this.correctAnswer = correctAnswer.replace(/_/g, ' ');
+        this.hintTextElem.innerText = ''; // Очищаем текст подсказки при загрузке нового вопроса
+        this.hintTextElem.classList.add('hidden'); // Скрываем элемент подсказки
+        this.errorCount = 0; // Сбрасываем счетчик ошибок только при загрузке нового вопроса
+
+        this.userAnswer = [];
+        this.userAnswerElem.innerText = '';
+        this.clearWordsContainer();
+        this.populateWords(correctAnswer, distractors);
+
+        this.ukrSentenceElem.classList.remove('hidden');
+        this.englishWordsContainer.classList.remove('hidden');
+        this.userAnswerElem.classList.remove('hidden');
+        this.checkBtn.classList.remove('hidden');
+        this.resetBtn.classList.remove('hidden');
+        this.hintImageUrl = hintImageUrl;
+        console.log('Loaded Hint Image URL:', this.hintImageUrl);
+    }
+
+    // Очистка контейнера слов
+    clearWordsContainer() {
+        this.englishWordsContainer.innerHTML = '';
+    }
+
+    // Заполнение слов
+    populateWords(correctAnswer, distractors) {
+        const words = correctAnswer.split(' ').concat(distractors).sort(() => 0.5 - Math.random());
+        words.forEach(word => {
+            const span = document.createElement('span');
+            span.innerText = word.replace(/_/g, ' ');
+            span.className = 'word';
+            span.onclick = async () => {
+                if (!span.classList.contains('clicked')) {
+                    this.userAnswer.push(word);
+                    span.classList.add('clicked');
+                    this.updateUserAnswerDisplay();
+                    const speakEnabled = await isUserSpeakEnabled(userName);
+                    if (speakEnabled) {
+                        speakText(word.replace(/_/g, ' '));
+                    }
+                }
+            };
+            this.englishWordsContainer.appendChild(span);
+        });
+    }
+
+    // Обновление отображения ответа пользователя
+    updateUserAnswerDisplay() {
+        this.userAnswerElem.innerText = this.userAnswer.join(' ').replace(/_/g, ' ');
+        this.userAnswerElem.classList.remove('hidden');
+    }
+
+    // Сброс вопроса
+    resetQuestion() {
+        this.userAnswer = [];
+        this.updateUserAnswerDisplay();
+        this.resetClickedWords();
+        // Не сбрасываем errorCount, чтобы сохранить количество ошибок
+        // this.errorCount = 0; // Удаляем сброс счетчика
+        this.hintTextElem.classList.remove('hidden'); // Показываем элемент подсказки, если он уже был показан
+    }
+
+    // Сброс кликнутых слов
+    resetClickedWords() {
+        const words = this.englishWordsContainer.querySelectorAll('.word');
+        words.forEach(word => word.classList.remove('clicked'));
+    }
+
+    // Проверка ответа
+    checkAnswer() {
+        const normalizeText = (text) => text.trim().toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ');
+        const userAnswerStr = normalizeText(this.userAnswer.join(' '));
+        const normalizedCorrectAnswer = normalizeText(this.correctAnswer);
+        return userAnswerStr === normalizedCorrectAnswer;
+    }
+
+    // Показать текст подсказки
+    showHintText() {
+        console.log('Showing hint text:', this.correctAnswer);
+        console.log('Current errorCount:', this.errorCount);
+        this.hintTextElem.innerText = this.correctAnswer;
+        this.hintTextElem.classList.add('with-emoji'); // Добавляем класс
+        this.hintTextElem.classList.remove('hidden');
+        this.hintTextElem.offsetHeight; // Принудительный reflow
+        console.log('hintTextElem display style:', window.getComputedStyle(this.hintTextElem).display);
+    }
+
+    // Открытие модального окна подсказки
+    openHintModal() {
+        const hintModal = document.getElementById('hint-modal');
+        const hintImage = document.getElementById('hint-image');
+        hintImage.src = this.hintImageUrl;
+        hintModal.classList.remove('hidden');
+        hintModal.style.display = 'flex';
+        console.log('Hint Image URL in Modal:', this.hintImageUrl);
+    }
+}
 
     // Класс модуля заданий на прослушивание
     class ListenTaskModule {
@@ -2558,7 +2596,7 @@ const handleMenuClick = async (event) => {
 
     // Загрузка вопроса
     const loadQuestion = async (index, sheetName) => {
-    const russianSentence = values[index][0];
+    const ukrSentence = values[index][0];
     const correctAnswer = values[index][1];
     const distractors = values[index][2] ? values[index][2].split(' ') : [];
 
@@ -2578,22 +2616,22 @@ const handleMenuClick = async (event) => {
 
     if (sheetName.startsWith("translate_")) {
         if (translateTaskModule) {
-            translateTaskModule.loadQuestion(russianSentence, correctAnswer, distractors.join(' '));
+            translateTaskModule.loadQuestion(ukrSentence, correctAnswer, distractors.join(' '));
             document.getElementById('translate-task-module').classList.remove('hidden');
         }
     } else if (sheetName.startsWith("listen-select_")) {
         if (listenSelectTaskModule) {
-            listenSelectTaskModule.loadQuestion(russianSentence, correctAnswer, distractors);
+            listenSelectTaskModule.loadQuestion(ukrSentence, correctAnswer, distractors);
             document.getElementById('listen-select-module').classList.remove('hidden');
         }
     } else if (sheetName.startsWith("listen_")) {
         if (listenTaskModule) {
-            listenTaskModule.loadQuestion(russianSentence, correctAnswer);
+            listenTaskModule.loadQuestion(ukrSentence, correctAnswer);
             document.getElementById('listen-task-module').classList.remove('hidden');
         }
     } else {
         if (taskModule) {
-            taskModule.loadQuestion(russianSentence, correctAnswer, distractors, hintImageUrl);
+            taskModule.loadQuestion(ukrSentence, correctAnswer, distractors, hintImageUrl);
             document.getElementById('task-module-container').classList.remove('hidden');
         }
     }
@@ -3050,7 +3088,7 @@ const fetchData = async (sheetName) => {
         if (document.getElementById('task-module-container')) {
             taskModule = new TaskModule(
                 'task-module-container',
-                'russian-sentence',
+                'ukr-sentence',
                 'english-words-container',
                 'user-answer',
                 'check-btn',
@@ -3081,7 +3119,7 @@ const fetchData = async (sheetName) => {
             );
         }
 
-        if (document.getElementById('check-btn')) {
+                if (document.getElementById('check-btn')) {
             document.getElementById('check-btn').onclick = async () => {
                 if (taskModule && taskModule.checkAnswer()) {
                     if (previousIncorrect) {
@@ -3106,14 +3144,18 @@ const fetchData = async (sheetName) => {
                 } else {
                     incorrectAnswers++;
                     previousIncorrect = true;
+                    taskModule.errorCount++;
+                    console.log('Error count after increment:', taskModule.errorCount);
                     displayFeedback('Відповідь неправильна 😕, спробуйте ще раз.', '', false);
                     playWrongSound();
-                    // Автоматический сброс после неправильного ответа
-                    taskModule.resetQuestion();
+                    if (taskModule.errorCount >= ERROR_COUNT_ANSWER) {
+                        taskModule.showHintText();
+                    }
+                    // Не вызываем resetQuestion здесь, чтобы пользователь мог сам сбросить ответ
+                    updateProgressBar();
+                    updateStats();
+                    saveProgress();
                 }
-                updateProgressBar();
-                updateStats();
-                saveProgress();
             };
         }
 
