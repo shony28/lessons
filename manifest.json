@@ -3,8 +3,8 @@
   "short_name": "Англійська Граматика",
   "start_url": "/lessons/",
   "display": "standalone",
-  "background_color": "#f7fcff",
-  "theme_color": "#4CAF50",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "icon-192x192.png",
