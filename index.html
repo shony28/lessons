@@ -1276,146 +1276,157 @@ const setupSettingsModal = async () => {
 
 
         const setupPaymentModal = async () => {
-            const paymentContainer = document.getElementById('payment-container');
-            
-            // Получаем текущий месяц и год
-            const now = new Date();
-            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-            const currentYear = now.getFullYear();
-            const sheetName = `PAY💲 (${currentMonth}.${currentYear})`;
-            
-            try {
-                // Расширяем диапазон чтобы получить данные до столбца AL
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:AL?key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
+                const paymentContainer = document.getElementById('payment-container');
                 
-                if (data.values && data.values.length > 0) {
-                    // Находим строку пользователя
-                    const userRowIndex = data.values.findIndex(row => row[0] === userName);
-                    const userRow = data.values[userRowIndex];
+                // Получаем текущий месяц и год
+                const now = new Date();
+                const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+                const currentYear = now.getFullYear();
+                const sheetName = `PAY💲 (${currentMonth}.${currentYear})`;
+                
+                try {
+                    // Расширяем диапазон чтобы получить данные до столбца AL
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:AL?key=${API_KEY}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
                     
-                    let paymentHTML = '';
-                    
-                    // Обработка информации о долге (как было раньше)
-                    if (userRow && userRow[5]) { // Проверяем столбец F (индекс 5)
-                        const debtValue = userRow[5];
-                        const debtNumber = parseFloat(debtValue);
+                    if (data.values && data.values.length > 0) {
+                        // Находим строку пользователя
+                        const userRowIndex = data.values.findIndex(row => row[0] === userName);
+                        const userRow = data.values[userRowIndex];
                         
-                        if (debtValue === "0" || debtNumber === 0) {
-                            // Нет долга
-                            paymentHTML = `
-                                <div class="payment-info">
-                                    <p><strong>Боргу не має. Баланс:</strong></p>
-                                    <p class="debt-amount overpayment">${debtValue} грн</p>
-                                </div>
-                            `;
-                        } else if (debtNumber < 0) {
-                            // Переплата (отрицательное значение)
-                            const overpaymentAmount = Math.abs(debtNumber);
-                            paymentHTML = `
-                                <div class="payment-info">
-                                    <p><strong>Ваша переплата:</strong></p>
-                                    <p class="debt-amount overpayment">${overpaymentAmount} грн</p>
-                                </div>
-                            `;
-                        } else {
-                            // Обычный долг (положительное значение)
-                            paymentHTML = `
-                                <div class="payment-info">
-                                    <p><strong>Ваш поточний борг:</strong></p>
-                                    <p class="debt-amount">${debtValue} грн</p>
-                                    
-                                </div>
-                            `;
-                        }
-                    } else {
-                        paymentHTML = `
-                            <div class="payment-info">
-                                <p>У вас немає заборгованості.</p>
-                            </div>
-                        `;
-                    }
-                    
-                    // Обработка таблицы посещений
-                    let attendanceHTML = '';
-                    if (userRow && data.values[0]) { // Проверяем что есть первая строка с датами
-                        const headerRow = data.values[0]; // Первая строка с датами
-                        const attendanceData = [];
+                        let paymentHTML = '';
                         
-                        // Проверяем столбцы с H по AL (индексы 7-37)
-                        for (let colIndex = 7; colIndex <= 37; colIndex++) {
-                            const attendanceMark = userRow[colIndex];
-                            const dateHeader = headerRow[colIndex];
+                        // Обработка информации о долге (как было раньше)
+                        if (userRow && userRow[5]) { // Проверяем столбец F (индекс 5)
+                            const debtValue = userRow[5];
+                            const debtNumber = parseFloat(debtValue);
                             
-                            // Если есть любые данные в ячейке (не пустая и не undefined) и есть дата в заголовке
-                            if (attendanceMark && attendanceMark.toString().trim() !== '' && dateHeader) {
-                                attendanceData.push({
-                                    date: dateHeader,
-                                    status: attendanceMark,
-                                    present: attendanceMark === '✅'
-                                });
-                            }
-                        }
-                        
-                        if (attendanceData.length > 0) {
-                            attendanceHTML = `
-                                <div class="attendance-info">
-                                    <p><strong>Відвідування занять за поточний місяць:</strong></p>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Дата</th>
-                                                <th>Статус</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                            `;
-                            
-                            attendanceData.forEach(item => {
-                                attendanceHTML += `
-                                    <tr>
-                                        <td>${item.date}</td>
-                                        <td>${item.status}</td>
-                                    </tr>
+                            if (debtValue === "0" || debtNumber === 0) {
+                                // Нет долга
+                                paymentHTML = `
+                                    <div class="payment-info">
+                                        <p><strong>Боргу не має. Баланс:</strong></p>
+                                        <p class="debt-amount overpayment">${debtValue} грн</p>
+                                    </div>
                                 `;
-                            });
-                            
-                            attendanceHTML += `
-                                        </tbody>
-                                    </table>
-                                <p class="payment-note">✅-присутній, оплачено</p>
-                                <p class="payment-note">🔴-присутній, не оплачено</p>
+                            } else if (debtNumber < 0) {
+                                // Переплата (отрицательное значение)
+                                const overpaymentAmount = Math.abs(debtNumber);
+                                paymentHTML = `
+                                    <div class="payment-info">
+                                        <p><strong>Ваша переплата:</strong></p>
+                                        <p class="debt-amount overpayment">${overpaymentAmount} грн</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Обычный долг (положительное значение)
+                                paymentHTML = `
+                                    <div class="payment-info">
+                                        <p><strong>Ваш поточний борг:</strong></p>
+                                        <p class="debt-amount">${debtValue} грн</p>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            paymentHTML = `
+                                <div class="payment-info">
+                                    <p>У вас немає заборгованості.</p>
                                 </div>
                             `;
+                        }
+                        
+                        // Получаем значение долга на конец предыдущего месяца из столбца D
+                        const previousMonthDebt = userRow && userRow[3] ? userRow[3] : '0'; // Столбец D (индекс 3)
+                        
+                        // Обработка таблицы посещений
+                        let attendanceHTML = '';
+                        if (userRow && data.values[0]) { // Проверяем что есть первая строка с датами
+                            const headerRow = data.values[0]; // Первая строка с датами
+                            const attendanceData = [];
+                            
+                            // Проверяем столбцы с H по AL (индексы 7-37)
+                            for (let colIndex = 7; colIndex <= 37; colIndex++) {
+                                const attendanceMark = userRow[colIndex];
+                                const dateHeader = headerRow[colIndex];
+                                
+                                // Если есть любые данные в ячейке (не пустая и не undefined) и есть дата в заголовке
+                                if (attendanceMark && attendanceMark.toString().trim() !== '' && dateHeader) {
+                                    attendanceData.push({
+                                        date: dateHeader,
+                                        status: attendanceMark,
+                                        present: attendanceMark === '✅'
+                                    });
+                                }
+                            }
+                            
+                            if (attendanceData.length > 0) {
+                                attendanceHTML = `
+                                    <div class="attendance-info">
+                                        <p><strong>Відвідування занять за поточний місяць:</strong></p>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Дата</th>
+                                                    <th>Статус</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                `;
+                                
+                                attendanceData.forEach(item => {
+                                    attendanceHTML += `
+                                        <tr>
+                                            <td>${item.date}</td>
+                                            <td>${item.status}</td>
+                                        </tr>
+                                    `;
+                                });
+                                
+                                attendanceHTML += `
+                                            </tbody>
+                                        </table>
+                                        <p class="payment-note">✅-присутній, оплачено</p>
+                                        <p class="payment-note">🔴-присутній, не оплачено</p>
+                                        <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
+                                    </div>
+                                `;
+                            } else {
+                                attendanceHTML = `
+                                    <div class="attendance-info">
+                                        <p>Інформація про відвідування недоступна.</p>
+                                        <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
+                                    </div>
+                                `;
+                            }
                         } else {
                             attendanceHTML = `
                                 <div class="attendance-info">
                                     <p>Інформація про відвідування недоступна.</p>
+                                    <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
                                 </div>
                             `;
                         }
+                        
+                        // Объединяем информацию о платеже и посещениях
+                        paymentContainer.innerHTML = paymentHTML + attendanceHTML;
+                        
+                    } else {
+                        paymentContainer.innerHTML = `
+                            <div class="payment-info">
+                                <p>Інформація недоступна.</p>
+                            </div>
+                        `;
                     }
-                    
-                    // Объединяем информацию о платеже и посещениях
-                    paymentContainer.innerHTML = paymentHTML + attendanceHTML;
-                    
-                } else {
+                } catch (error) {
+                    console.error('Ошибка при получении данных:', error);
                     paymentContainer.innerHTML = `
                         <div class="payment-info">
-                            <p>Інформація недоступна.</p>
+                            <p style="color: red;">Помилка завантаження даних.</p>
                         </div>
                     `;
                 }
-            } catch (error) {
-                console.error('Ошибка при получении данных:', error);
-                paymentContainer.innerHTML = `
-                    <div class="payment-info">
-                        <p style="color: red;">Помилка завантаження даних.</p>
-                    </div>
-                `;
-            }
-        };
+            };
 
 
         const updateUserSpeakSetting = async (userName, value) => {
