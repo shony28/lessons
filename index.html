@@ -1388,14 +1388,14 @@ const setupSettingsModal = async () => {
                                         </table>
                                         <p class="payment-note">✅-присутній, оплачено</p>
                                         <p class="payment-note">🔴-присутній, не оплачено</p>
-                                        <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
+                                        <p class="payment-note">${previousMonthDebt}грн - борг на кінець минулого місяця</p>
                                     </div>
                                 `;
                             } else {
                                 attendanceHTML = `
                                     <div class="attendance-info">
                                         <p>Інформація про відвідування недоступна.</p>
-                                        <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
+                                        <p class="payment-note">${previousMonthDebt}грн - борг на кінець минулого місяця</p>
                                     </div>
                                 `;
                             }
@@ -1403,7 +1403,7 @@ const setupSettingsModal = async () => {
                             attendanceHTML = `
                                 <div class="attendance-info">
                                     <p>Інформація про відвідування недоступна.</p>
-                                    <p class="payment-note">${previousMonthDebt} - борг на кінець минулого місяця</p>
+                                    <p class="payment-note">${previousMonthDebt}грн - борг на кінець минулого місяця</p>
                                 </div>
                             `;
                         }
