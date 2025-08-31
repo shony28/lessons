@@ -1963,56 +1963,57 @@ const handleMenuClick = async (event) => {
     // Завершение модуля
    
         const completeModule = async () => {
-            clearProgress();
-            cleanupUI();
+        // НЕ увеличиваем currentIndex здесь, так как он уже указывает на следующее задание
+        clearProgress();
+        cleanupUI();
 
-            const feedbackElement = document.getElementById('feedback');
-            feedbackElement.innerText = 'Завантаження прогресу...';
-            feedbackElement.classList.remove('hidden');
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.innerText = 'Завантаження прогресу...';
+        feedbackElement.classList.remove('hidden');
 
-            // Отправляем результаты в Google Sheets
-            await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+        // Отправляем результаты в Google Sheets
+        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
 
-            // Обновляем данные пользователя (points и user-name)
-            await updateUserData();
+        // Обновляем данные пользователя (points и user-name)
+        await updateUserData();
 
-            feedbackElement.innerText = '🎉Ви виконали всі завдання.';
+        feedbackElement.innerText = '🎉Ви виконали всі завдання.';
 
-            if (isTaskList) {
-                // Проверяем, есть ли следующий лист с заданиями
-                if (currentTaskListIndex + 1 < taskListSheets.length) {
-                    const nextButton = document.createElement('button');
-                    nextButton.innerText = 'Завантажити наступні завдання';
-                    nextButton.className = 'styled-button';
-                    nextButton.onclick = async () => {
-                        cleanupUI(); // Очищаем UI перед загрузкой новых заданий
-                        currentTaskListIndex++;
-                        sheetName = taskListSheets[currentTaskListIndex];
-                        currentIndex = 0;
-                        correctAnswers = 0;
-                        incorrectAnswers = 0;
-                        correctAfterIncorrect = 0;
-                        previousIncorrect = false;
-                        feedbackElement.classList.add('hidden');
-                        nextButton.remove();
-                        await fetchData(sheetName);
-                    };
-                    feedbackElement.appendChild(document.createElement('br'));
-                    feedbackElement.appendChild(nextButton);
-                }
+        if (isTaskList) {
+            // Проверяем, есть ли следующий лист с заданиями
+            if (currentTaskListIndex + 1 < taskListSheets.length) {
+                const nextButton = document.createElement('button');
+                nextButton.innerText = 'Завантажити наступні завдання';
+                nextButton.className = 'styled-button';
+                nextButton.onclick = async () => {
+                    cleanupUI(); // Очищаем UI перед загрузкой новых заданий
+                    currentTaskListIndex++;
+                    sheetName = taskListSheets[currentTaskListIndex];
+                    currentIndex = 0;
+                    correctAnswers = 0;
+                    incorrectAnswers = 0;
+                    correctAfterIncorrect = 0;
+                    previousIncorrect = false;
+                    feedbackElement.classList.add('hidden');
+                    nextButton.remove();
+                    await fetchData(sheetName);
+                };
+                feedbackElement.appendChild(document.createElement('br'));
+                feedbackElement.appendChild(nextButton);
             }
+        }
 
-            document.getElementById('stats-container').classList.remove('hidden');
+        document.getElementById('stats-container').classList.remove('hidden');
 
-            const weeklyProgressContainer = document.createElement('div');
-            weeklyProgressContainer.id = 'weekly-progress-container';
-            document.getElementById('stats-container').after(weeklyProgressContainer);
+        const weeklyProgressContainer = document.createElement('div');
+        weeklyProgressContainer.id = 'weekly-progress-container';
+        document.getElementById('stats-container').after(weeklyProgressContainer);
 
-            const root = ReactDOM.createRoot(weeklyProgressContainer);
-            root.render(React.createElement(WeeklyProgress));
+        const root = ReactDOM.createRoot(weeklyProgressContainer);
+        root.render(React.createElement(WeeklyProgress));
 
-            updateStats();
-        };
+        updateStats();
+    };
 
     // Отправка результатов в Google Sheets
     const sendResultsToGoogleSheets = async (userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName) => {
@@ -2128,6 +2129,7 @@ class TaskModule {
         this.resetClickedWords();
         // Не сбрасываем errorCount, чтобы сохранить количество ошибок
         // this.errorCount = 0; // Удаляем сброс счетчика
+        this.hintTextElem.classList.remove('with-emoji'); // Добавляем удаление класса
         this.hintTextElem.classList.remove('hidden'); // Показываем элемент подсказки, если он уже был показан
     }
 
@@ -2783,11 +2785,19 @@ const fetchData = async (sheetName) => {
                 previousIncorrect = false;
                 loadQuestion(currentIndex, sheetName);
             } else {
-                currentIndex = progress.currentIndex || 0;
+                // Устанавливаем currentIndex как следующий после сохранённого
+                currentIndex = (progress.currentIndex || 0) + 1; // ИСПРАВЛЕНИЕ: добавляем +1
                 correctAnswers = progress.correctAnswers || 0;
                 incorrectAnswers = progress.incorrectAnswers || 0;
                 correctAfterIncorrect = progress.correctAfterIncorrect || 0;
                 previousIncorrect = progress.previousIncorrect || false;
+                
+                // Проверяем, не превышает ли currentIndex количество заданий
+                if (currentIndex >= values.length) {
+                    completeModule();
+                    return;
+                }
+                
                 loadQuestion(currentIndex, sheetName);
                 updateStats();
             }
@@ -3217,6 +3227,5 @@ const fetchData = async (sheetName) => {
 
 </body>
 </html>
-
 
 
