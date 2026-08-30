@@ -976,6 +976,164 @@ input:checked + .slider:before {
     margin-right: 5px;
 }
 
+/* Плавна поява кожного нового речення */
+.exercise-enter {
+    animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.feedback-pop {
+    animation: feedbackPop 480ms cubic-bezier(.2, 1.2, .3, 1) both;
+}
+
+.word {
+    transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.word:hover {
+    transform: translateY(-3px) rotate(-1deg);
+    box-shadow: 0 7px 14px rgba(51, 92, 157, .16);
+}
+
+.word.clicked {
+    animation: wordPick 260ms ease;
+}
+
+.progress-bar {
+    transition: width 500ms cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes exerciseEnter {
+    from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(3px); }
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes feedbackPop {
+    0% { opacity: 0; transform: scale(.8); }
+    65% { transform: scale(1.08); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes wordPick {
+    50% { transform: scale(1.12) rotate(2deg); }
+}
+
+/* Заставка завершення уроку */
+#completion-celebration {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 18px;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 238, 124, .95), transparent 30%),
+        radial-gradient(circle at 80% 15%, rgba(130, 224, 255, .9), transparent 32%),
+        linear-gradient(145deg, #7067ff, #42c9a5);
+}
+
+#completion-celebration.hidden { display: none; }
+
+.celebration-card {
+    position: relative;
+    z-index: 2;
+    width: min(520px, 92vw);
+    padding: 28px 22px;
+    border: 3px solid rgba(255,255,255,.68);
+    border-radius: 28px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 24px 70px rgba(27, 31, 92, .28);
+    text-align: center;
+    animation: celebrationCardIn 650ms cubic-bezier(.2, 1.2, .3, 1) both;
+}
+
+.celebration-mascot {
+    font-size: clamp(70px, 18vw, 108px);
+    line-height: 1;
+    filter: drop-shadow(0 9px 6px rgba(30, 53, 100, .2));
+    animation: mascotFloat 1.5s ease-in-out infinite;
+}
+
+.celebration-card h2 {
+    margin: 12px 0 6px;
+    color: #34316d;
+    font-size: clamp(28px, 7vw, 42px);
+}
+
+.celebration-phrase {
+    min-height: 48px;
+    margin: 0 auto 18px;
+    color: #4b5682;
+    font-size: clamp(17px, 4.5vw, 22px);
+    font-weight: 700;
+}
+
+.celebration-status {
+    color: #47516c;
+    font-size: 16px;
+}
+
+.celebration-loader {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin: 18px 0 12px;
+}
+
+.celebration-loader span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #7067ff;
+    animation: loaderBounce 900ms ease-in-out infinite;
+}
+
+.celebration-loader span:nth-child(2) { animation-delay: 150ms; background: #ff6f91; }
+.celebration-loader span:nth-child(3) { animation-delay: 300ms; background: #35bf9b; }
+
+.confetti-piece {
+    --x: 50vw;
+    --delay: 0s;
+    --duration: 3s;
+    position: absolute;
+    z-index: 1;
+    top: -24px;
+    left: var(--x);
+    width: 11px;
+    height: 19px;
+    border-radius: 3px;
+    background: var(--color, #ffd84d);
+    animation: confettiFall var(--duration) linear var(--delay) infinite;
+}
+
+@keyframes celebrationCardIn {
+    from { opacity: 0; transform: translateY(30px) scale(.82) rotate(-2deg); }
+    to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes mascotFloat {
+    50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes loaderBounce {
+    0%, 100% { transform: translateY(0) scale(.8); opacity: .55; }
+    50% { transform: translateY(-9px) scale(1.15); opacity: 1; }
+}
+
+@keyframes confettiFall {
+    from { transform: translate3d(0, -5vh, 0) rotate(0); }
+    to { transform: translate3d(35px, 110vh, 0) rotate(720deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .exercise-enter, .feedback-pop, .word.clicked, .celebration-card,
+    .celebration-mascot, .celebration-loader span, .confetti-piece {
+        animation: none !important;
+    }
+    .word, .progress-bar { transition: none !important; }
+    .confetti-piece { display: none; }
+}
+
     </style>
 </head>
 
@@ -1112,6 +1270,18 @@ input:checked + .slider:before {
     <!-- Оверлей -->
     <div class="overlay"></div>
 
+    <!-- Святкова заставка після завершення уроку -->
+    <div id="completion-celebration" class="hidden" role="status" aria-live="polite" aria-label="Урок завершено">
+        <div id="confetti-container" aria-hidden="true"></div>
+        <div class="celebration-card">
+            <div id="celebration-mascot" class="celebration-mascot" aria-hidden="true">🚀</div>
+            <h2 id="celebration-title">Чудова робота!</h2>
+            <div id="celebration-phrase" class="celebration-phrase"></div>
+            <div class="celebration-loader" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div id="celebration-status" class="celebration-status">Зберігаємо твій результат…</div>
+        </div>
+    </div>
+
     <script>
     // Константы для настройки приложения
     const AUDIO_RATE = 0.8;
@@ -1162,6 +1332,62 @@ input:checked + .slider:before {
             return window.crypto.randomUUID().replace(/-/g, '_');
         }
         return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    };
+
+    const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+    const celebrationMessages = [
+        { mascot: '🚀', title: 'Місію виконано!', phrase: 'Your English is taking off! — Твоя англійська злітає!' },
+        { mascot: '🦉', title: 'Суперрозумник!', phrase: 'You learn more with every sentence! — З кожним реченням ти знаєш більше!' },
+        { mascot: '🏆', title: 'Чемпіон уроку!', phrase: 'Practice makes progress! — Практика веде до успіху!' },
+        { mascot: '🧙‍♂️', title: 'Магія англійської!', phrase: 'New words, new superpowers! — Нові слова — нові суперсили!' },
+        { mascot: '🌟', title: 'Зіркова робота!', phrase: 'Keep shining and keep learning! — Продовжуй сяяти й навчатися!' }
+    ];
+
+    const animateExerciseContainer = element => {
+        if (!element) return;
+        element.classList.remove('exercise-enter');
+        void element.offsetWidth;
+        element.classList.add('exercise-enter');
+    };
+
+    const createConfetti = () => {
+        const container = document.getElementById('confetti-container');
+        if (!container || container.childElementCount) return;
+        const colors = ['#ffd84d', '#ff6f91', '#53d7ba', '#70a1ff', '#ffffff', '#b56cff'];
+        for (let index = 0; index < 30; index++) {
+            const piece = document.createElement('span');
+            piece.className = 'confetti-piece';
+            piece.style.setProperty('--x', `${Math.round(Math.random() * 100)}vw`);
+            piece.style.setProperty('--delay', `${(Math.random() * -3).toFixed(2)}s`);
+            piece.style.setProperty('--duration', `${(2.4 + Math.random() * 2).toFixed(2)}s`);
+            piece.style.setProperty('--color', colors[index % colors.length]);
+            container.appendChild(piece);
+        }
+    };
+
+    const showCompletionCelebration = () => {
+        const overlay = document.getElementById('completion-celebration');
+        const message = incorrectAnswers === 0
+            ? { mascot: '👑', title: 'Ідеальний результат!', phrase: 'Perfect score! — Жодної помилки, неймовірно!' }
+            : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+
+        document.getElementById('celebration-mascot').textContent = message.mascot;
+        document.getElementById('celebration-title').textContent = message.title;
+        document.getElementById('celebration-phrase').textContent = message.phrase;
+        document.getElementById('celebration-status').textContent = 'Зберігаємо твій результат…';
+        createConfetti();
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const updateCelebrationStatus = text => {
+        document.getElementById('celebration-status').textContent = text;
+    };
+
+    const hideCompletionCelebration = () => {
+        document.getElementById('completion-celebration').classList.add('hidden');
+        document.body.style.overflow = '';
     };
 
 // Функция для получения настройки голоса из кэша
@@ -1782,6 +2008,12 @@ const handleMenuClick = async (event) => {
         correctAnswerElement.innerText = correctAnswer;
         correctAnswerElement.classList.remove('hidden');
 
+        feedbackElement.classList.remove('feedback-pop');
+        correctAnswerElement.classList.remove('feedback-pop');
+        void feedbackElement.offsetWidth;
+        feedbackElement.classList.add('feedback-pop');
+        if (correctAnswer) correctAnswerElement.classList.add('feedback-pop');
+
         if (isCorrect) {
             feedbackElement.classList.remove('incorrect');
             feedbackElement.classList.add('correct-feedback');
@@ -1950,6 +2182,7 @@ const handleMenuClick = async (event) => {
         saveProgress(values.length);
         // НЕ увеличиваем currentIndex здесь, так как он уже указывает на следующее задание
         cleanupUI();
+        showCompletionCelebration();
 
         const feedbackElement = document.getElementById('feedback');
         feedbackElement.innerText = 'Завантаження прогресу...';
@@ -1958,6 +2191,7 @@ const handleMenuClick = async (event) => {
         // Отправляем результаты в Google Sheets
         const resultsSaved = await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
         if (!resultsSaved) {
+            hideCompletionCelebration();
             feedbackElement.innerText = 'Не вдалося зберегти результат. Перевірте інтернет і спробуйте ще раз.';
             const retryButton = document.createElement('button');
             retryButton.className = 'styled-button';
@@ -1973,7 +2207,8 @@ const handleMenuClick = async (event) => {
         clearProgress();
 
         // Обновляем данные пользователя (points и user-name)
-        await updateUserData();
+        updateCelebrationStatus('Додаємо монетки та оновлюємо твій прогрес…');
+        await Promise.all([updateUserData(), delay(1500)]);
 
         feedbackElement.innerText = '🎉Ви виконали всі завдання.';
 
@@ -2005,6 +2240,7 @@ const handleMenuClick = async (event) => {
         }
 
         document.getElementById('stats-container').classList.remove('hidden');
+        updateCelebrationStatus('Готуємо твій прогрес і рейтинг…');
 
         const weeklyProgressContainer = document.createElement('div');
         weeklyProgressContainer.id = 'weekly-progress-container';
@@ -2014,6 +2250,10 @@ const handleMenuClick = async (event) => {
         root.render(React.createElement(WeeklyProgress));
 
         updateStats();
+        await delay(900);
+        updateCelebrationStatus('Готово! Так тримати! 🌟');
+        await delay(500);
+        hideCompletionCelebration();
     };
 
     // Отправка результатов в Google Sheets
@@ -2622,27 +2862,33 @@ class TaskModule {
         loadingTask.classList.add('hidden');
     }
 
+    let activeExerciseContainer = null;
     if (sheetName.startsWith("translate_")) {
         if (translateTaskModule) {
             translateTaskModule.loadQuestion(ukrSentence, correctAnswer, distractors.join(' '));
-            document.getElementById('translate-task-module').classList.remove('hidden');
+            activeExerciseContainer = document.getElementById('translate-task-module');
+            activeExerciseContainer.classList.remove('hidden');
         }
     } else if (sheetName.startsWith("listen-select_")) {
         if (listenSelectTaskModule) {
             listenSelectTaskModule.loadQuestion(ukrSentence, correctAnswer, distractors);
-            document.getElementById('listen-select-module').classList.remove('hidden');
+            activeExerciseContainer = document.getElementById('listen-select-module');
+            activeExerciseContainer.classList.remove('hidden');
         }
     } else if (sheetName.startsWith("listen_")) {
         if (listenTaskModule) {
             listenTaskModule.loadQuestion(ukrSentence, correctAnswer);
-            document.getElementById('listen-task-module').classList.remove('hidden');
+            activeExerciseContainer = document.getElementById('listen-task-module');
+            activeExerciseContainer.classList.remove('hidden');
         }
     } else {
         if (taskModule) {
             taskModule.loadQuestion(ukrSentence, correctAnswer, distractors, hintImageUrl);
-            document.getElementById('task-module-container').classList.remove('hidden');
+            activeExerciseContainer = document.getElementById('task-module-container');
+            activeExerciseContainer.classList.remove('hidden');
         }
     }
+    animateExerciseContainer(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
