@@ -272,20 +272,28 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 95%;
-            height: 95%;
-            max-width: 600px;
+            z-index: 1200;
+            inset: 0;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
             overflow: auto;
-            background-color: #fefefe;
-            padding: 100%;
+            background-color: rgba(0, 0, 0, .65);
+            padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
         }
 
         #modal-body {
-            padding-top: 50px;
+            padding: 28px 18px 20px;
+        }
+
+        .modal > .modal-content {
+            box-sizing: border-box;
+            width: min(600px, 100%);
+            min-height: 0;
+            margin: auto;
+            border-radius: 14px;
+            box-shadow: 0 18px 55px rgba(0, 0, 0, .3);
         }
 
         /* Стили для модального окна подсказки */
@@ -976,6 +984,233 @@ input:checked + .slider:before {
     margin-right: 5px;
 }
 
+/* Вибір теми в налаштуваннях */
+.theme-setting {
+    display: block;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #dfe5ea;
+}
+
+.theme-setting > span {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.theme-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.theme-option {
+    min-height: 92px;
+    padding: 10px 7px;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #26324b;
+    font: inherit;
+    font-weight: 800;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.theme-option:hover { transform: translateY(-2px); }
+.theme-option.selected { border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,.18); }
+.theme-option-standard { background: linear-gradient(145deg, #e7f8ff, #fff4bd); }
+.theme-option-minecraft {
+    border-radius: 0;
+    color: #fff;
+    text-shadow: 2px 2px #213b17;
+    background:
+        linear-gradient(to bottom, #76c7ff 0 46%, #5bad36 46% 59%, #79502f 59% 100%);
+    image-rendering: pixelated;
+}
+
+.theme-option-icon { display: block; margin-bottom: 6px; font-size: 32px; }
+.theme-option-label { display: block; font-size: 14px; }
+
+/* Яскрава блокова Minecraft-тема */
+body.theme-minecraft {
+    min-height: 100vh;
+    color: #20271d;
+    font-family: "Courier New", Courier, monospace;
+    background-color: #75c8ff;
+    background-image:
+        linear-gradient(to bottom, rgba(117,200,255,.94) 0 62%, rgba(92,171,55,.96) 62% 69%, rgba(121,80,47,.97) 69% 100%),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(0,0,0,.1) 31px 33px),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(0,0,0,.1) 31px 33px);
+    background-attachment: fixed;
+    background-blend-mode: normal, multiply, multiply;
+}
+
+body.theme-minecraft h1,
+body.theme-minecraft #ukr-sentence,
+body.theme-minecraft .task-text {
+    color: #203918;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 900;
+    text-shadow: 2px 2px 0 rgba(255,255,255,.55);
+}
+
+body.theme-minecraft .header {
+    padding: 8px;
+    border: 3px solid #2a1d13;
+    background: rgba(255,255,255,.84);
+    box-shadow: 0 5px 0 #59402a;
+}
+
+body.theme-minecraft #task-module-container,
+body.theme-minecraft #listen-task-module,
+body.theme-minecraft #listen-select-module,
+body.theme-minecraft #translate-task-module,
+body.theme-minecraft #stats-container,
+body.theme-minecraft #feedback,
+body.theme-minecraft #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 4px solid #2b2117;
+    border-radius: 0;
+    background: rgba(255,255,255,.93);
+    box-shadow: 0 7px 0 #5c4028, inset 0 0 0 3px #d8c6a4;
+}
+
+body.theme-minecraft .word {
+    border: 3px solid #272727;
+    border-radius: 0;
+    color: #171717;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.3) 0 18%, transparent 18% 78%, rgba(0,0,0,.12) 78%),
+        #b6b6b6;
+    box-shadow: 0 5px 0 #5f5f5f;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 900;
+}
+
+body.theme-minecraft .word.clicked {
+    border-color: #183c13;
+    color: #fff;
+    background: #56a933;
+    box-shadow: 0 5px 0 #285e22;
+    text-shadow: 2px 2px #22491d;
+}
+
+body.theme-minecraft .styled-button,
+body.theme-minecraft #start-btn,
+body.theme-minecraft #check-btn,
+body.theme-minecraft #reset-btn,
+body.theme-minecraft #hint-btn {
+    border: 3px solid #183c13;
+    border-radius: 0;
+    color: #fff;
+    background: linear-gradient(#72c94b, #43952c);
+    box-shadow: 0 5px 0 #245c1d, inset 0 0 0 2px rgba(255,255,255,.25);
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 900;
+    text-shadow: 2px 2px #245c1d;
+}
+
+body.theme-minecraft .styled-button:active,
+body.theme-minecraft #start-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #245c1d;
+}
+
+body.theme-minecraft input,
+body.theme-minecraft textarea,
+body.theme-minecraft select {
+    border: 3px solid #3d2b1d !important;
+    border-radius: 0 !important;
+    background: #fffdf2;
+    font-family: "Courier New", Courier, monospace;
+}
+
+body.theme-minecraft .separator { border-bottom: 8px solid #6b472c; }
+body.theme-minecraft .progress-bar {
+    bottom: -8px;
+    height: 8px;
+    background: repeating-linear-gradient(90deg, #80e14d 0 18px, #56ae32 18px 22px);
+    box-shadow: 0 -2px 0 #214f1b;
+}
+
+body.theme-minecraft .burger-icon span { background: #26391f; border-radius: 0; }
+body.theme-minecraft .side-panel {
+    border-right: 5px solid #202020;
+    color: #fff;
+    background: #292929;
+    box-shadow: inset -7px 0 #111;
+}
+body.theme-minecraft .side-panel ul li {
+    border-bottom: 3px solid #111;
+    color: #fff;
+    background: #3e3e3e;
+    text-shadow: 2px 2px #111;
+}
+body.theme-minecraft .side-panel ul li:hover { color: #fff; background: #559c38; }
+body.theme-minecraft .side-panel .close-btn { color: #fff; }
+
+body.theme-minecraft .modal-content {
+    border: 5px solid #272019;
+    border-radius: 0;
+    background: #fffdf2;
+    box-shadow: 0 8px 0 #62462e;
+}
+
+body.theme-minecraft #points-container {
+    border: 2px solid #5a3c0d;
+    border-radius: 0;
+    background-color: #ffd84a;
+    image-rendering: pixelated;
+}
+
+body.theme-minecraft #completion-celebration {
+    background:
+        linear-gradient(to bottom, #70c7ff 0 63%, #55a834 63% 70%, #77502f 70% 100%);
+}
+
+body.theme-minecraft .celebration-card {
+    border: 5px solid #202020;
+    border-radius: 0;
+    color: #fff;
+    background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 28px, rgba(0,0,0,.08) 28px 31px),
+        #765033;
+    box-shadow: 0 10px 0 #352417, inset 0 0 0 4px #9b724d;
+}
+
+body.theme-minecraft .celebration-card h2,
+body.theme-minecraft .celebration-phrase,
+body.theme-minecraft .celebration-status {
+    color: #fff;
+    font-family: "Courier New", Courier, monospace;
+    text-shadow: 3px 3px #24170f;
+}
+
+body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6be044; }
+
+@media (max-width: 480px) {
+    .theme-picker { grid-template-columns: 1fr 1fr; }
+    .theme-option { min-height: 82px; }
+
+    body.theme-minecraft #task-module-container,
+    body.theme-minecraft #listen-task-module,
+    body.theme-minecraft #listen-select-module,
+    body.theme-minecraft #translate-task-module {
+        padding: 11px;
+        border-width: 3px;
+    }
+
+    body.theme-minecraft .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+}
+
 /* Плавна поява кожного нового речення */
 .exercise-enter {
     animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
@@ -1425,9 +1660,14 @@ input:checked + .slider:before {
 
     const showCompletionCelebration = () => {
         const overlay = document.getElementById('completion-celebration');
-        const message = incorrectAnswers === 0
-            ? { mascot: '👑', title: 'Ідеальний результат!', phrase: 'Perfect score! — Жодної помилки, неймовірно!' }
-            : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+        const minecraftTheme = document.body.classList.contains('theme-minecraft');
+        const message = minecraftTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '💎', title: 'Діамантовий результат!', phrase: 'Achievement unlocked! — Жодної помилки!' }
+                : { mascot: '⛏️', title: 'Рівень пройдено!', phrase: 'Great crafting! — Ти збудував ще один рівень англійської!' })
+            : (incorrectAnswers === 0
+                ? { mascot: '👑', title: 'Ідеальний результат!', phrase: 'Perfect score! — Жодної помилки, неймовірно!' }
+                : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         document.getElementById('celebration-mascot').textContent = message.mascot;
         document.getElementById('celebration-title').textContent = message.title;
@@ -1445,6 +1685,39 @@ input:checked + .slider:before {
     const hideCompletionCelebration = () => {
         document.getElementById('completion-celebration').classList.add('hidden');
         document.body.style.overflow = '';
+    };
+
+    const normalizeTheme = theme => theme === 'minecraft' ? 'minecraft' : 'standard';
+
+    const getSavedTheme = name => {
+        try {
+            return normalizeTheme(localStorage.getItem(`themeSetting_${name || 'guest'}`));
+        } catch (error) {
+            return 'standard';
+        }
+    };
+
+    const updateThemePicker = theme => {
+        document.querySelectorAll('.theme-option').forEach(button => {
+            const selected = button.dataset.theme === theme;
+            button.classList.toggle('selected', selected);
+            button.setAttribute('aria-checked', String(selected));
+        });
+    };
+
+    const applyTheme = (theme, save = false) => {
+        const selectedTheme = normalizeTheme(theme);
+        document.body.classList.toggle('theme-minecraft', selectedTheme === 'minecraft');
+        document.body.dataset.theme = selectedTheme;
+        updateThemePicker(selectedTheme);
+
+        if (save) {
+            try {
+                localStorage.setItem(`themeSetting_${userName || 'guest'}`, selectedTheme);
+            } catch (error) {
+                console.error('Не вдалося зберегти тему:', error);
+            }
+        }
     };
 
 // Функция для получения настройки голоса из кэша
@@ -1493,9 +1766,23 @@ const setupSettingsModal = async () => {
     const voiceSelect = document.getElementById('voice-select');
     const isEnabled = await isUserSpeakEnabled(userName);
     const selectedVoice = await getUserVoiceSetting(userName); // Получаем сохранённое значение голоса
+    const selectedTheme = getSavedTheme(userName);
 
     // Устанавливаем значение переключателя озвучки
     speakToggle.checked = isEnabled;
+    updateThemePicker(selectedTheme);
+
+    document.querySelectorAll('.theme-option').forEach(button => {
+        button.addEventListener('click', () => {
+            applyTheme(button.dataset.theme, true);
+            if (typeof button.animate === 'function') {
+                button.animate(
+                    [{ transform: 'scale(.94)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
+                    { duration: 300, easing: 'ease-out' }
+                );
+            }
+        });
+    });
 
     // Функция для заполнения выпадающего списка голосами
     const populateVoiceSelect = (voices) => {
@@ -1813,6 +2100,19 @@ const handleMenuClick = async (event) => {
                 </div>
                 <div class="setting-item">
                     <button id="test-voice-btn" class="styled-button">Перевірити голос</button>
+                </div>
+                <div class="setting-item theme-setting">
+                    <span>🎨 Тема оформлення</span>
+                    <div class="theme-picker" role="radiogroup" aria-label="Тема оформлення">
+                        <button type="button" class="theme-option theme-option-standard" data-theme="standard" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">🌈</span>
+                            <span class="theme-option-label">Стандартна</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-minecraft" data-theme="minecraft" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">⛏️</span>
+                            <span class="theme-option-label">Minecraft</span>
+                        </button>
+                    </div>
                 </div>
             `;
             break;
@@ -3247,6 +3547,7 @@ const fetchData = async (sheetName) => {
     userName = inputValue.trim().replace(/\s+/g, ' '); // Удаляем лишние пробелы
     if (userName) {
         localStorage.setItem('userName', userName);
+        applyTheme(getSavedTheme(userName));
         document.getElementById('user-name').innerText = `${userName}`;
         document.querySelector('.user-info').classList.remove('hidden');
         document.getElementById('name-input-container').style.display = 'none';
@@ -3560,6 +3861,7 @@ const fetchData = async (sheetName) => {
             const savedUserName = localStorage.getItem('userName');
             if (savedUserName) {
                 userName = savedUserName;
+                applyTheme(getSavedTheme(userName));
                 document.querySelector('.user-info').classList.remove('hidden');
                 document.querySelector('.burger-menu').classList.remove('hidden');
                 document.getElementById('name-input-container').style.display = 'none';
