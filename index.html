@@ -1012,10 +1012,10 @@ input:checked + .slider:before {
         <!-- Информация о пользователе -->
         <div class="user-info hidden">
             <span id="points-container">
-                <span id="points"></span>
+                <span id="points-badge"></span>
             </span>
             <span id="user-name"></span>
-            <button class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="logout-btn" type="button" aria-label="Вийти"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></button>
         </div>
     </div>
     <!-- Разделитель -->
@@ -1025,8 +1025,9 @@ input:checked + .slider:before {
     <!-- Контейнер для ввода имени -->
     <div id="name-input-container">
         <label for="name-input">Введіть ваше ім'я: </label>
-        <input type="text" id="name-input">
-        <button id="start-btn">Почати</button>
+        <label for="name-input" class="hidden">Ім'я учня</label>
+        <input type="text" id="name-input" placeholder="Введіть ім'я" autocomplete="off" maxlength="100">
+        <button id="start-btn" type="button">Почати</button>
     </div>
     <div class="separator hidden"></div>
 
@@ -1039,7 +1040,7 @@ input:checked + .slider:before {
         <div id="user-answer" class="hidden"></div>
         <button id="check-btn" class="hidden styled-button">Перевірити</button>
         <button id="reset-btn" class="hidden styled-button"><i class="fas fa-redo"></i> Ще раз</button>
-        <button id="hint-btn" class="hidden styled-button"><i class="fas fa-question"></i></button>
+        <button id="hint-btn" class="hidden styled-button" aria-label="Показати підказку"><i class="fas fa-question" aria-hidden="true"></i></button>
     </div>
 
     <!-- Контейнер для модуля заданий на прослушивание -->
@@ -1150,6 +1151,19 @@ input:checked + .slider:before {
     // переменную для хранения динамических пунктов меню
     let dynamicMenuItems = [];
     let userVoiceCache = null; // Cache for voice setting
+    let answerTransitionInProgress = false;
+    let moduleCompletionInProgress = false;
+    let resultSubmissionId = '';
+
+    const getProgressKey = (name = userName, taskSheet = sheetName) =>
+        `englishProgress:${name || 'anonymous'}:${taskSheet || 'unknown'}`;
+
+    const createSubmissionId = () => {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID().replace(/-/g, '_');
+        }
+        return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    };
 
 // Функция для получения настройки голоса из кэша
 const getUserVoiceSetting = async (userName) => {
@@ -1371,7 +1385,7 @@ const setupSettingsModal = async () => {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(data)
                 });
@@ -1413,10 +1427,26 @@ const fetchMenuContent = async (menuItemName) => {
 
 
     // Функция для отображения модального окна с соответствующим содержимым
+const sanitizeHtml = (content) => {
+    const template = document.createElement('template');
+    template.innerHTML = String(content || '');
+    template.content.querySelectorAll('script, iframe, object, embed, style').forEach(node => node.remove());
+    template.content.querySelectorAll('*').forEach(node => {
+        [...node.attributes].forEach(attribute => {
+            const name = attribute.name.toLowerCase();
+            const value = attribute.value.trim().toLowerCase();
+            if (name.startsWith('on') || ((name === 'href' || name === 'src') && value.startsWith('javascript:'))) {
+                node.removeAttribute(attribute.name);
+            }
+        });
+    });
+    return template.innerHTML;
+};
+
 const showModal = (content) => {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modal-body');
-    modalBody.innerHTML = content;
+    modalBody.innerHTML = sanitizeHtml(content);
     modal.style.display = 'block';
     // Принудительно обновляем DOM
     modalBody.offsetHeight; // Это триггерит reflow
@@ -1450,7 +1480,7 @@ const updateBurgerMenu = (menuItems) => {
         // Используем название пункта как data-section для динамических пунктов
         const section = standardMenuItems[item] || item;
         a.setAttribute('data-section', section);
-        a.innerHTML = item; // Используем innerHTML для поддержки эмодзи
+        a.textContent = item;
         li.appendChild(a);
         sidePanel.appendChild(li);
     });
@@ -1540,12 +1570,12 @@ const handleMenuClick = async (event) => {
     });
 
     // Закрытие модального окна при клике вне его содержимого
-    window.onclick = (event) => {
+    window.addEventListener('click', (event) => {
         const modal = document.getElementById('modal');
         if (event.target === modal) {
             closeModal();
         }
-    };
+    });
 
     
     // Функция для вычисления расстояния Левенштейна между строками
@@ -1747,6 +1777,8 @@ const handleMenuClick = async (event) => {
 
     // Глобальная функция озвучки текста
     const speakText = async (text) => {
+    if (!text || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = AUDIO_RATE;
 
@@ -1847,20 +1879,24 @@ const handleMenuClick = async (event) => {
     };
 
     // Сохранение прогресса
-    const saveProgress = () => {
+    const saveProgress = (resumeIndex = currentIndex) => {
         const progress = {
-            currentIndex,
+            userName,
+            sheetName,
+            currentIndex: resumeIndex,
             correctAnswers,
             incorrectAnswers,
             correctAfterIncorrect,
             previousIncorrect,
-            completed: currentIndex >= values.length
+            submissionId: resultSubmissionId,
+            completed: resumeIndex >= values.length
         };
-        localStorage.setItem('progress', JSON.stringify(progress));
+        localStorage.setItem(getProgressKey(), JSON.stringify(progress));
     };
 
     // Очистка прогресса
     const clearProgress = () => {
+        localStorage.removeItem(getProgressKey());
         localStorage.removeItem('progress');
     };
 
@@ -1875,7 +1911,7 @@ const handleMenuClick = async (event) => {
             if (user) {
                 // Обновляем очки
                 points = user[12] || 0;
-                document.getElementById('points').innerText = `${points}`;
+                document.getElementById('points-badge').innerText = `${points}`;
                 document.getElementById('points-container').style.display = user[12] ? 'flex' : 'none';
 
                 // Обновляем имя пользователя с учетом customGreeting
@@ -1892,8 +1928,11 @@ const handleMenuClick = async (event) => {
     // Завершение модуля
    
         const completeModule = async () => {
+        if (moduleCompletionInProgress) return;
+        moduleCompletionInProgress = true;
+        if (!resultSubmissionId) resultSubmissionId = createSubmissionId();
+        saveProgress(values.length);
         // НЕ увеличиваем currentIndex здесь, так как он уже указывает на следующее задание
-        clearProgress();
         cleanupUI();
 
         const feedbackElement = document.getElementById('feedback');
@@ -1901,7 +1940,21 @@ const handleMenuClick = async (event) => {
         feedbackElement.classList.remove('hidden');
 
         // Отправляем результаты в Google Sheets
-        await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+        const resultsSaved = await sendResultsToGoogleSheets(userName, correctAnswers, incorrectAnswers, correctAfterIncorrect, sheetName);
+        if (!resultsSaved) {
+            feedbackElement.innerText = 'Не вдалося зберегти результат. Перевірте інтернет і спробуйте ще раз.';
+            const retryButton = document.createElement('button');
+            retryButton.className = 'styled-button';
+            retryButton.innerText = 'Повторити';
+            retryButton.onclick = () => {
+                moduleCompletionInProgress = false;
+                completeModule();
+            };
+            feedbackElement.appendChild(document.createElement('br'));
+            feedbackElement.appendChild(retryButton);
+            return;
+        }
+        clearProgress();
 
         // Обновляем данные пользователя (points и user-name)
         await updateUserData();
@@ -1923,6 +1976,9 @@ const handleMenuClick = async (event) => {
                     incorrectAnswers = 0;
                     correctAfterIncorrect = 0;
                     previousIncorrect = false;
+                    answerTransitionInProgress = false;
+                    moduleCompletionInProgress = false;
+                    resultSubmissionId = '';
                     feedbackElement.classList.add('hidden');
                     nextButton.remove();
                     await fetchData(sheetName);
@@ -1953,19 +2009,22 @@ const handleMenuClick = async (event) => {
                 incorrect: incorrectAnswers,
                 afterIncorrect: correctAfterIncorrect
             },
-            sheetName
+            sheetName,
+            submissionId: resultSubmissionId || createSubmissionId()
         };
 
-        await fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        console.log('Запит до Google Sheets успішно надіслано');
+        try {
+            await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(data)
+            });
+            return true;
+        } catch (error) {
+            console.error('Не вдалося зберегти результат:', error);
+            return false;
+        }
     };
 
    
@@ -2329,10 +2388,13 @@ class TaskModule {
 
         // Проверка ответа
         async checkAnswer() {
+            if (answerTransitionInProgress) return;
             const userAnswer = this.userInput.value;
             const similarity = this.calculateSimilarity(userAnswer, this.correctAnswer);
+            const isCorrect = similarity >= TRANSLATION_SIMILARITY_THRESHOLD;
 
-            if (similarity >= TRANSLATION_SIMILARITY_THRESHOLD) {
+            if (isCorrect) {
+                answerTransitionInProgress = true;
                 if (previousIncorrect) {
                     correctAfterIncorrect++;
                     previousIncorrect = false;
@@ -2361,7 +2423,7 @@ class TaskModule {
             }
             updateProgressBar();
             updateStats();
-            saveProgress();
+            saveProgress(isCorrect ? currentIndex + 1 : currentIndex);
         }
     }
 
@@ -2394,7 +2456,10 @@ class TaskModule {
             };
 
             this.checkBtn.onclick = async () => {
-                if (this.checkAnswer()) {
+                if (answerTransitionInProgress) return;
+                const isCorrect = this.checkAnswer();
+                if (isCorrect) {
+                    answerTransitionInProgress = true;
                     if (previousIncorrect) {
                         correctAfterIncorrect++;
                         previousIncorrect = false;
@@ -2424,7 +2489,7 @@ class TaskModule {
                 }
                 updateProgressBar();
                 updateStats();
-                saveProgress();
+                saveProgress(isCorrect ? currentIndex + 1 : currentIndex);
             };
         }
 
@@ -2516,6 +2581,13 @@ class TaskModule {
 
     // Загрузка вопроса
     const loadQuestion = async (index, sheetName) => {
+    answerTransitionInProgress = false;
+    if (!Array.isArray(values[index]) || !values[index][0] || !values[index][1]) {
+        console.error('Некоректне завдання:', index, values[index]);
+        currentIndex++;
+        if (currentIndex < values.length) return loadQuestion(currentIndex, sheetName);
+        return completeModule();
+    }
     const ukrSentence = values[index][0];
     const correctAnswer = values[index][1];
     const distractors = values[index][2] ? values[index][2].split(' ') : [];
@@ -2603,9 +2675,13 @@ const fetchData = async (sheetName) => {
         taskContainer.classList.remove('hidden');
         loadingTask.classList.remove('hidden');
         const response = await fetch(url);
+        if (!response.ok) throw new Error(`Google Sheets: HTTP ${response.status}`);
         const data = await response.json();
-        if (data.values.length > 1) {
-            values = data.values.slice(1);
+        const loadedRows = Array.isArray(data.values)
+            ? data.values.slice(1).filter(row => row && row[0] && row[1])
+            : [];
+        if (loadedRows.length > 0) {
+            values = loadedRows;
             fetchHintImageUrl(sheetName);
             loadProgressOrQuestion(sheetName);
         } else {
@@ -2631,8 +2707,9 @@ const fetchData = async (sheetName) => {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}`;
     try {
         const response = await fetch(url);
+        if (!response.ok) throw new Error(`Google Sheets: HTTP ${response.status}`);
         const data = await response.json();
-        const users = data.values.slice(1);
+        const users = Array.isArray(data.values) ? data.values.slice(1) : [];
         const user = users.find(row => row[0] === userName);
         if (user) {
             let userSheet = user[1] ? user[1] : "day_off";
@@ -2679,7 +2756,7 @@ const fetchData = async (sheetName) => {
                 if (!presentsData.error) {
                     // Только если лист подарков существует, показываем points
                     document.getElementById('points-container').style.display = 'flex';
-                    document.getElementById('points').innerText = `${points}`;
+                    document.getElementById('points-badge').innerText = `${points}`;
                 }
             } catch (err) {
                 console.error('Помилка отримання даних present:', err);
@@ -2694,6 +2771,10 @@ const fetchData = async (sheetName) => {
         }
     } catch (err) {
         console.error('Помилка отримання даних користувача:', err);
+        cleanupUI();
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.innerText = 'Не вдалося завантажити дані. Перевірте інтернет і оновіть сторінку.';
+        feedbackElement.classList.remove('hidden');
         // Скрываем бургер-меню в случае ошибки
         document.querySelector('.burger-menu').classList.add('hidden');
     }
@@ -2701,25 +2782,33 @@ const fetchData = async (sheetName) => {
 
     // Загрузка прогресса или вопроса
     const loadProgressOrQuestion = (sheetName) => {
-        const savedProgress = localStorage.getItem('progress');
+        const savedProgress = localStorage.getItem(getProgressKey(userName, sheetName));
 
         if (savedProgress) {
-            const progress = JSON.parse(savedProgress);
-            if (progress.completed) {
-                clearProgress();
-                currentIndex = 0;
-                correctAnswers = 0;
-                incorrectAnswers = 0;
-                correctAfterIncorrect = 0;
-                previousIncorrect = false;
+            let progress;
+            try {
+                progress = JSON.parse(savedProgress);
+            } catch (error) {
+                localStorage.removeItem(getProgressKey(userName, sheetName));
                 loadQuestion(currentIndex, sheetName);
+                return;
+            }
+            if (progress.completed) {
+                currentIndex = values.length;
+                correctAnswers = Number(progress.correctAnswers) || 0;
+                incorrectAnswers = Number(progress.incorrectAnswers) || 0;
+                correctAfterIncorrect = Number(progress.correctAfterIncorrect) || 0;
+                previousIncorrect = Boolean(progress.previousIncorrect);
+                resultSubmissionId = String(progress.submissionId || '');
+                completeModule();
             } else {
-                // Устанавливаем currentIndex как следующий после сохранённого
-                currentIndex = (progress.currentIndex || 0) + 1; // ИСПРАВЛЕНИЕ: добавляем +1
+                // Відновлюємо саме те завдання, яке ще не було завершене.
+                currentIndex = Math.max(0, Number(progress.currentIndex) || 0);
                 correctAnswers = progress.correctAnswers || 0;
                 incorrectAnswers = progress.incorrectAnswers || 0;
                 correctAfterIncorrect = progress.correctAfterIncorrect || 0;
                 previousIncorrect = progress.previousIncorrect || false;
+                resultSubmissionId = String(progress.submissionId || '');
                 
                 // Проверяем, не превышает ли currentIndex количество заданий
                 if (currentIndex >= values.length) {
@@ -2782,11 +2871,14 @@ const fetchData = async (sheetName) => {
                 data.values.slice(1).forEach(present => {
                     const giftItem = document.createElement('div');
                     giftItem.className = 'gift-item';
-                    giftItem.innerHTML = `
-                        <img src="${present[2]}" alt="${present[0]}">
-                        <div>${present[0]}</div>
-                        <div>${present[1]} coins</div>
-                    `;
+                    const image = document.createElement('img');
+                    image.src = String(present[2] || '');
+                    image.alt = String(present[0] || 'Подарунок');
+                    const title = document.createElement('div');
+                    title.textContent = String(present[0] || '');
+                    const price = document.createElement('div');
+                    price.textContent = `${present[1] || 0} coins`;
+                    giftItem.append(image, title, price);
                     giftsContainer.appendChild(giftItem);
                 });
                 pointsModal.classList.remove('hidden');
@@ -2817,7 +2909,7 @@ const fetchData = async (sheetName) => {
     });
 
     // Обработчик клика на окно
-    window.onclick = (event) => {
+    window.addEventListener('click', (event) => {
         const hintModal = document.getElementById('hint-modal');
         const pointsModal = document.getElementById('points-modal');
         if (event.target === hintModal) {
@@ -2826,7 +2918,7 @@ const fetchData = async (sheetName) => {
         if (event.target === pointsModal) {
             closePointsModal();
         }
-    };
+    });
 
     // Обработчик клика на кнопку начала
     document.getElementById('start-btn').onclick = () => {
@@ -2884,7 +2976,13 @@ const fetchData = async (sheetName) => {
     const showNotification = (message) => {
         const overlay = document.querySelector('.overlay');
         const notification = document.getElementById('user-notification');
-        notification.innerHTML = `${message} <span class="notification-close-btn">&times;</span>`;
+        notification.textContent = String(message || '');
+        const closeButton = document.createElement('span');
+        closeButton.className = 'notification-close-btn';
+        closeButton.setAttribute('role', 'button');
+        closeButton.setAttribute('aria-label', 'Закрити повідомлення');
+        closeButton.textContent = '×';
+        notification.append(' ', closeButton);
         overlay.style.display = 'block';
         notification.style.display = 'block';
 
@@ -2907,7 +3005,7 @@ const fetchData = async (sheetName) => {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(data)
                 });
@@ -2993,6 +3091,11 @@ const fetchData = async (sheetName) => {
     document.addEventListener('DOMContentLoaded', () => {
         const inputField = document.getElementById('speak-user-input');
         const clearBtn = document.getElementById('clear-btn');
+        const nameInput = document.getElementById('name-input');
+
+        nameInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') document.getElementById('start-btn').click();
+        });
 
         // Показать крестик, если поле заполнено
         if (inputField) {
@@ -3049,7 +3152,10 @@ const fetchData = async (sheetName) => {
 
                         if (document.getElementById('check-btn')) {
             document.getElementById('check-btn').onclick = async () => {
-                if (taskModule && taskModule.checkAnswer()) {
+                if (answerTransitionInProgress || !taskModule) return;
+                const isCorrect = taskModule.checkAnswer();
+                if (isCorrect) {
+                    answerTransitionInProgress = true;
                     if (previousIncorrect) {
                         correctAfterIncorrect++;
                         previousIncorrect = false;
@@ -3061,7 +3167,7 @@ const fetchData = async (sheetName) => {
                     document.getElementById('task-module-container').classList.add('hidden');
                     // Добавляем обновление статистики
                     updateStats();
-                    saveProgress();
+                    saveProgress(currentIndex + 1);
                     setTimeout(async () => {
                         currentIndex++;
                         if (currentIndex < values.length) {
@@ -3084,14 +3190,17 @@ const fetchData = async (sheetName) => {
                     }
                     updateProgressBar();
                     updateStats();
-                    saveProgress();
+                    saveProgress(currentIndex);
                 }
             };
         }
 
         if (document.getElementById('listen-check-btn')) {
             document.getElementById('listen-check-btn').onclick = async () => {
-                if (listenTaskModule && listenTaskModule.checkAnswer()) {
+                if (answerTransitionInProgress || !listenTaskModule) return;
+                const isCorrect = listenTaskModule.checkAnswer();
+                if (isCorrect) {
+                    answerTransitionInProgress = true;
                     if (previousIncorrect) {
                         correctAfterIncorrect++;
                         previousIncorrect = false;
@@ -3120,7 +3229,7 @@ const fetchData = async (sheetName) => {
                 }
                 updateProgressBar();
                 updateStats();
-                saveProgress();
+                saveProgress(isCorrect ? currentIndex + 1 : currentIndex);
             };
         }
 
