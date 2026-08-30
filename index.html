@@ -1190,6 +1190,54 @@ body.theme-minecraft .celebration-status {
 
 body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6be044; }
 
+.minecraft-character-stage { display: none; }
+
+body.theme-minecraft .minecraft-character-stage {
+    display: grid;
+    justify-items: center;
+    min-height: 116px;
+    margin: -4px auto 7px;
+    pointer-events: none;
+}
+
+.minecraft-character-stage svg,
+body.theme-minecraft .celebration-mascot svg {
+    width: 92px;
+    height: 105px;
+    overflow: visible;
+    image-rendering: pixelated;
+    filter: drop-shadow(7px 8px 0 rgba(30, 24, 18, .28));
+    animation: minecraftCharacterIn 480ms steps(5, end) both, minecraftCharacterFloat 1.8s ease-in-out 500ms infinite;
+}
+
+.minecraft-character-name {
+    margin-top: 2px;
+    padding: 3px 8px;
+    border: 2px solid #1f1f1f;
+    color: #fff;
+    background: rgba(32,32,32,.9);
+    font-size: 12px;
+    font-weight: 900;
+    text-shadow: 1px 1px #000;
+}
+
+body.theme-minecraft .celebration-mascot {
+    display: grid;
+    place-items: center;
+    min-height: 112px;
+}
+
+body.theme-minecraft .celebration-mascot svg { width: 104px; height: 116px; }
+
+@keyframes minecraftCharacterIn {
+    from { opacity: 0; transform: translateY(-22px) scale(.5) rotate(-6deg); }
+    to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes minecraftCharacterFloat {
+    50% { transform: translateY(-7px) rotate(2deg); }
+}
+
 @media (max-width: 480px) {
     .theme-picker { grid-template-columns: 1fr 1fr; }
     .theme-option { min-height: 82px; }
@@ -1209,6 +1257,14 @@ body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6
         font-size: clamp(19px, 7vw, 27px);
         overflow-wrap: anywhere;
     }
+
+    body.theme-minecraft .minecraft-character-stage {
+        min-height: 102px;
+        margin-bottom: 3px;
+    }
+
+    .minecraft-character-stage svg { width: 76px; height: 88px; }
+    .minecraft-character-name { font-size: 11px; }
 }
 
 /* Плавна поява кожного нового речення */
@@ -1419,7 +1475,8 @@ body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6
 
 @media (prefers-reduced-motion: reduce) {
     .exercise-enter, .feedback-pop, .word.clicked, .celebration-card,
-    .celebration-mascot, .celebration-loader span, .confetti-piece {
+    .celebration-mascot, .celebration-loader span, .confetti-piece,
+    .minecraft-character-stage svg, body.theme-minecraft .celebration-mascot svg {
         animation: none !important;
     }
     .word, .progress-bar { transition: none !important; }
@@ -1636,6 +1693,61 @@ body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6
         { mascot: '🌟', title: 'Зіркова робота!', phrase: 'Keep shining and keep learning! — Продовжуй сяяти й навчатися!' }
     ];
 
+    // Легкі вбудовані SVG-персонажі: не потребують окремих файлів або інтернету.
+    const minecraftCharacters = [
+        {
+            name: 'Стів',
+            svg: `<svg viewBox="0 0 80 100" aria-hidden="true"><rect x="20" y="2" width="40" height="30" fill="#b77b55"/><rect x="20" y="2" width="40" height="9" fill="#3b2418"/><rect x="20" y="9" width="7" height="12" fill="#3b2418"/><rect x="30" y="15" width="5" height="5" fill="#fff"/><rect x="45" y="15" width="5" height="5" fill="#fff"/><rect x="32" y="16" width="3" height="3" fill="#4b7fb0"/><rect x="45" y="16" width="3" height="3" fill="#4b7fb0"/><rect x="34" y="25" width="12" height="3" fill="#5c3324"/><rect x="20" y="32" width="40" height="35" fill="#29aeb3"/><rect x="9" y="34" width="11" height="34" fill="#b77b55"/><rect x="60" y="34" width="11" height="34" fill="#b77b55"/><rect x="21" y="67" width="18" height="31" fill="#304a8d"/><rect x="41" y="67" width="18" height="31" fill="#304a8d"/><rect x="18" y="94" width="22" height="5" fill="#292929"/><rect x="40" y="94" width="22" height="5" fill="#292929"/></svg>`
+        },
+        {
+            name: 'Алекс',
+            svg: `<svg viewBox="0 0 80 100" aria-hidden="true"><rect x="20" y="2" width="40" height="30" fill="#e1a06f"/><rect x="20" y="2" width="40" height="10" fill="#d86d2f"/><rect x="20" y="8" width="8" height="31" fill="#d86d2f"/><rect x="52" y="8" width="8" height="31" fill="#d86d2f"/><rect x="30" y="15" width="5" height="5" fill="#fff"/><rect x="45" y="15" width="5" height="5" fill="#fff"/><rect x="32" y="16" width="3" height="3" fill="#3d895c"/><rect x="45" y="16" width="3" height="3" fill="#3d895c"/><rect x="34" y="25" width="12" height="3" fill="#9f4f3c"/><rect x="20" y="32" width="40" height="35" fill="#56a85b"/><rect x="10" y="35" width="10" height="32" fill="#e1a06f"/><rect x="60" y="35" width="10" height="32" fill="#e1a06f"/><rect x="22" y="67" width="17" height="31" fill="#684b35"/><rect x="41" y="67" width="17" height="31" fill="#684b35"/><rect x="19" y="94" width="21" height="5" fill="#303030"/><rect x="40" y="94" width="21" height="5" fill="#303030"/></svg>`
+        },
+        {
+            name: 'Кріпер',
+            svg: `<svg viewBox="0 0 80 100" aria-hidden="true"><rect x="15" y="3" width="50" height="43" fill="#5fbd45"/><rect x="20" y="8" width="8" height="8" fill="#79d85a"/><rect x="50" y="24" width="10" height="10" fill="#448f35"/><rect x="24" y="18" width="9" height="9" fill="#17251a"/><rect x="47" y="18" width="9" height="9" fill="#17251a"/><rect x="34" y="27" width="12" height="9" fill="#17251a"/><rect x="28" y="34" width="9" height="8" fill="#17251a"/><rect x="43" y="34" width="9" height="8" fill="#17251a"/><rect x="25" y="46" width="30" height="35" fill="#58ae42"/><rect x="15" y="78" width="22" height="20" fill="#4f9d3b"/><rect x="43" y="78" width="22" height="20" fill="#4f9d3b"/></svg>`
+        },
+        {
+            name: 'Ендермен',
+            svg: `<svg viewBox="0 0 80 100" aria-hidden="true"><rect x="20" y="2" width="40" height="30" fill="#17131c"/><rect x="27" y="14" width="11" height="4" fill="#bd54ff"/><rect x="43" y="14" width="11" height="4" fill="#bd54ff"/><rect x="27" y="32" width="26" height="39" fill="#1b1721"/><rect x="13" y="32" width="8" height="55" fill="#17131c"/><rect x="59" y="32" width="8" height="55" fill="#17131c"/><rect x="28" y="70" width="9" height="30" fill="#17131c"/><rect x="43" y="70" width="9" height="30" fill="#17131c"/><rect x="7" y="47" width="4" height="4" fill="#a84bff"/><rect x="68" y="62" width="4" height="4" fill="#d092ff"/></svg>`
+        },
+        {
+            name: 'Свинка',
+            svg: `<svg viewBox="0 0 100 80" aria-hidden="true"><rect x="18" y="20" width="57" height="38" fill="#ef8fa5"/><rect x="67" y="12" width="29" height="35" fill="#f4a0b2"/><rect x="70" y="7" width="9" height="10" fill="#e77f99"/><rect x="86" y="7" width="8" height="10" fill="#e77f99"/><rect x="77" y="21" width="5" height="5" fill="#242424"/><rect x="89" y="21" width="5" height="5" fill="#242424"/><rect x="79" y="31" width="17" height="10" fill="#d86f8b"/><rect x="82" y="34" width="3" height="4" fill="#6c3f4a"/><rect x="90" y="34" width="3" height="4" fill="#6c3f4a"/><rect x="22" y="56" width="11" height="20" fill="#d97791"/><rect x="57" y="56" width="11" height="20" fill="#d97791"/><rect x="10" y="25" width="9" height="5" fill="#ef8fa5"/></svg>`
+        },
+        {
+            name: 'Бджола',
+            svg: `<svg viewBox="0 0 100 80" aria-hidden="true"><rect x="24" y="23" width="54" height="34" fill="#f5c62f"/><rect x="38" y="23" width="9" height="34" fill="#3a3022"/><rect x="61" y="23" width="9" height="34" fill="#3a3022"/><rect x="77" y="28" width="14" height="24" fill="#f2b92b"/><rect x="82" y="33" width="5" height="5" fill="#222"/><rect x="14" y="29" width="11" height="21" fill="#f0b728"/><rect x="31" y="8" width="22" height="16" fill="#d9f6ff" opacity=".85"/><rect x="53" y="8" width="22" height="16" fill="#d9f6ff" opacity=".85"/><rect x="37" y="57" width="7" height="8" fill="#3a3022"/><rect x="61" y="57" width="7" height="8" fill="#3a3022"/></svg>`
+        }
+    ];
+
+    let lastMinecraftCharacterIndex = -1;
+
+    const pickMinecraftCharacter = () => {
+        let index = Math.floor(Math.random() * minecraftCharacters.length);
+        if (minecraftCharacters.length > 1 && index === lastMinecraftCharacterIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (minecraftCharacters.length - 1))) % minecraftCharacters.length;
+        }
+        lastMinecraftCharacterIndex = index;
+        return minecraftCharacters[index];
+    };
+
+    const showRandomMinecraftCharacter = container => {
+        document.querySelectorAll('.minecraft-character-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-minecraft')) return;
+
+        const character = pickMinecraftCharacter();
+        const stage = document.createElement('div');
+        stage.className = 'minecraft-character-stage';
+        stage.setAttribute('aria-label', character.name);
+        stage.innerHTML = character.svg;
+        const name = document.createElement('span');
+        name.className = 'minecraft-character-name';
+        name.textContent = character.name;
+        stage.appendChild(name);
+        container.prepend(stage);
+    };
+
     const animateExerciseContainer = element => {
         if (!element) return;
         element.classList.remove('exercise-enter');
@@ -1669,7 +1781,17 @@ body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6
                 ? { mascot: '👑', title: 'Ідеальний результат!', phrase: 'Perfect score! — Жодної помилки, неймовірно!' }
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
-        document.getElementById('celebration-mascot').textContent = message.mascot;
+        const mascotElement = document.getElementById('celebration-mascot');
+        if (minecraftTheme) {
+            const character = pickMinecraftCharacter();
+            mascotElement.innerHTML = character.svg;
+            mascotElement.removeAttribute('aria-hidden');
+            mascotElement.setAttribute('aria-label', character.name);
+        } else {
+            mascotElement.textContent = message.mascot;
+            mascotElement.setAttribute('aria-hidden', 'true');
+            mascotElement.removeAttribute('aria-label');
+        }
         document.getElementById('celebration-title').textContent = message.title;
         document.getElementById('celebration-phrase').textContent = message.phrase;
         document.getElementById('celebration-status').textContent = 'Зберігаємо твій результат…';
@@ -1710,6 +1832,14 @@ body.theme-minecraft .celebration-loader span { border-radius: 0; background: #6
         document.body.classList.toggle('theme-minecraft', selectedTheme === 'minecraft');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
+
+        const activeExercise = [
+            'task-module-container',
+            'listen-task-module',
+            'listen-select-module',
+            'translate-task-module'
+        ].map(id => document.getElementById(id)).find(element => element && !element.classList.contains('hidden'));
+        showRandomMinecraftCharacter(activeExercise);
 
         if (save) {
             try {
@@ -2226,6 +2356,7 @@ const handleMenuClick = async (event) => {
 
     // Приховуємо вміст попередньої вправи, залишаючи окремо індикатор завантаження.
     const hidePreviousExercise = () => {
+        document.querySelectorAll('.minecraft-character-stage').forEach(stage => stage.remove());
         [
             'ukr-sentence',
             'hint-text',
@@ -3246,6 +3377,7 @@ class TaskModule {
         }
     }
     animateExerciseContainer(activeExerciseContainer);
+    showRandomMinecraftCharacter(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
