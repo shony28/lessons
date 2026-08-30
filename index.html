@@ -1025,7 +1025,6 @@ input:checked + .slider:before {
     <!-- Контейнер для ввода имени -->
     <div id="name-input-container">
         <label for="name-input">Введіть ваше ім'я: </label>
-        <label for="name-input" class="hidden">Ім'я учня</label>
         <input type="text" id="name-input" placeholder="Введіть ім'я" autocomplete="off" maxlength="100">
         <button id="start-btn" type="button">Почати</button>
     </div>
@@ -1642,10 +1641,27 @@ const handleMenuClick = async (event) => {
         }
     };
 
+    // Приховуємо вміст попередньої вправи, залишаючи окремо індикатор завантаження.
+    const hidePreviousExercise = () => {
+        [
+            'ukr-sentence',
+            'hint-text',
+            'english-words-container',
+            'user-answer',
+            'check-btn',
+            'reset-btn',
+            'hint-btn'
+        ].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+        document.getElementById('listen-task-module')?.classList.add('hidden');
+        document.getElementById('listen-select-module')?.classList.add('hidden');
+        document.getElementById('translate-task-module')?.classList.add('hidden');
+    };
+
     // Очистка интерфейса
     const cleanupUI = () => {
+        hidePreviousExercise();
         document.getElementById('task-module-container').classList.add('hidden');
-        document.getElementById('listen-task-module').classList.add('hidden');
         document.getElementById('feedback').classList.add('hidden');
         document.getElementById('correct-answer').classList.add('hidden');
         document.getElementById('stats-container').classList.add('hidden');
@@ -2672,6 +2688,7 @@ const fetchData = async (sheetName) => {
         // Показываем task-module-container и loading-task
         const taskContainer = document.getElementById('task-module-container');
         const loadingTask = document.getElementById('loading-task');
+        hidePreviousExercise();
         taskContainer.classList.remove('hidden');
         loadingTask.classList.remove('hidden');
         const response = await fetch(url);
