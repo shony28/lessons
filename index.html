@@ -1441,19 +1441,6 @@ body.theme-roblox .celebration-mascot img {
     animation: robloxImageIn 520ms cubic-bezier(.2,1.15,.3,1) both;
 }
 
-.roblox-character-name {
-    margin-top: -14px;
-    z-index: 1;
-    padding: 5px 11px;
-    border: 2px solid #fff;
-    border-radius: 999px;
-    color: #fff;
-    background: linear-gradient(90deg, #6c49e9, #e72e5b);
-    box-shadow: 0 5px 12px rgba(31,17,91,.25);
-    font-size: 12px;
-    font-weight: 900;
-}
-
 body.theme-roblox .celebration-mascot {
     display: grid;
     place-items: center;
@@ -1996,10 +1983,7 @@ body.theme-roblox .celebration-mascot img { width: min(380px, 100%); }
         image.src = artwork.src;
         image.alt = artwork.name;
         image.decoding = 'async';
-        const name = document.createElement('span');
-        name.className = 'roblox-character-name';
-        name.textContent = artwork.name;
-        stage.append(image, name);
+        stage.appendChild(image);
         container.prepend(stage);
     };
 
