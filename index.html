@@ -566,6 +566,7 @@
             margin: 20px auto;
             max-width: 600px;
             padding: 15px;
+            color: #1f2937;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -647,6 +648,19 @@
         .rating-table td {
             padding: 12px;
             border: 1px solid #e5e7eb;
+            color: #25324a;
+        }
+
+        /* Явний світлий фон не дає тексту зливатися з фоном кольорових тем. */
+        .rating-table {
+            color: #25324a;
+            background-color: #ffffff;
+            box-shadow: 0 6px 18px rgba(24, 34, 68, .14);
+        }
+
+        .rating-table tbody tr {
+            color: #25324a;
+            background-color: #ffffff;
         }
 
         /* Стили для строк таблицы */
@@ -869,6 +883,7 @@ input:checked + .slider:before {
     background-color: #f8f9fa;
     border-radius: 8px;
     border: 1px solid #e9ecef;
+    color: #263238;
 }
 
 .attendance-info table {
@@ -912,6 +927,7 @@ input:checked + .slider:before {
     border-bottom: 1px solid #dee2e6;
     font-size: 14px;
     text-align: center;
+    color: #263238;
 }
 
 .attendance-info td:first-child {
@@ -1046,10 +1062,71 @@ input:checked + .slider:before {
         linear-gradient(145deg, #111845, #522ba8 58%, #0878b9);
 }
 
+.theme-option-london {
+    color: #fff;
+    text-shadow: 1px 2px rgba(0,0,0,.7);
+    background:
+        linear-gradient(34deg, transparent 42%, rgba(255,255,255,.92) 43% 48%, #d91f32 49% 53%, rgba(255,255,255,.92) 54% 59%, transparent 60%),
+        linear-gradient(-34deg, transparent 42%, rgba(255,255,255,.92) 43% 48%, #d91f32 49% 53%, rgba(255,255,255,.92) 54% 59%, transparent 60%),
+        linear-gradient(90deg, transparent 39%, #fff 40% 45%, #d91f32 46% 54%, #fff 55% 60%, transparent 61%),
+        linear-gradient(#17366f, #102752);
+}
+
 .theme-option-icon { display: block; margin-bottom: 6px; font-size: 32px; }
 .theme-option-label { display: block; font-size: 14px; }
 .theme-source { display: block; margin-top: 9px; color: #687188; font-size: 11px; line-height: 1.3; }
 .theme-source a { color: inherit; }
+
+/* Блок рейтингу, який з'являється після завершення вправи, завжди контрастний. */
+#weekly-progress-container .mt-8 {
+    box-sizing: border-box;
+    width: min(700px, 100%);
+    margin: 20px auto;
+    padding: 16px;
+    color: #1d2942;
+    background: rgba(255,255,255,.98);
+    border: 2px solid #dce4ee;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(20,32,64,.2);
+}
+
+#weekly-progress-container .mt-8 h3 { color: #17213a; }
+#weekly-progress-container .rating-table td { color: #25324a; }
+
+body.theme-minecraft #weekly-progress-container .mt-8 {
+    border: 4px solid #5f4028;
+    border-radius: 0;
+    background: #fff9df;
+    box-shadow: 8px 8px 0 rgba(35,54,29,.34);
+}
+body.theme-minecraft #weekly-progress-container .mt-8 h3 { color: #26391f; }
+body.theme-minecraft .rating-table th { color: #fff; background: #427b32; border-color: #315c26; }
+
+body.theme-roblox #weekly-progress-container .mt-8 {
+    border-color: #8065ef;
+    background: #fbfaff;
+    box-shadow: 0 0 22px rgba(123,85,239,.34), 0 12px 28px rgba(25,13,78,.3);
+}
+body.theme-roblox #weekly-progress-container .mt-8 h3 { color: #2b2059; }
+body.theme-roblox .rating-table th { color: #fff; background: #5c40c7; border-color: #4831a3; }
+
+body.theme-space #weekly-progress-container .mt-8 {
+    border-color: #78dfff;
+    background: #f8fbff;
+    box-shadow: 0 0 25px rgba(82,218,255,.46), 0 14px 32px rgba(0,0,31,.4);
+}
+body.theme-space #weekly-progress-container .mt-8 h3 { color: #18245c; }
+body.theme-space .rating-table th { color: #fff; background: #303eaa; border-color: #242f86; }
+body.theme-space .rating-table td { color: #202b49; }
+
+body.theme-london #weekly-progress-container .mt-8 {
+    border-color: #c6263c;
+    background: #fffdf7;
+    box-shadow: 0 0 0 4px rgba(24,52,103,.16), 0 13px 30px rgba(20,34,64,.3);
+}
+body.theme-london #weekly-progress-container .mt-8 h3 { color: #193668; }
+body.theme-london .rating-table th { color: #fff; background: #17376d; border-color: #102750; }
+body.theme-london .rating-table td { color: #252d3b; }
 
 /* Яскрава блокова Minecraft-тема */
 body.theme-minecraft {
@@ -1643,6 +1720,174 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
     body.theme-space .space-scene-stage { border-radius: 14px; }
 }
 
+/* Лондонська тема: класичні британські кольори та міська атмосфера */
+body.theme-london {
+    min-height: 100vh;
+    color: #202a3c;
+    font-family: Georgia, "Times New Roman", serif;
+    background-color: #183563;
+    background-image:
+        linear-gradient(135deg, transparent 0 44%, rgba(255,255,255,.07) 45% 48%, rgba(196,30,52,.1) 49% 52%, rgba(255,255,255,.07) 53% 56%, transparent 57%),
+        linear-gradient(45deg, transparent 0 44%, rgba(255,255,255,.07) 45% 48%, rgba(196,30,52,.1) 49% 52%, rgba(255,255,255,.07) 53% 56%, transparent 57%),
+        linear-gradient(160deg, #203f77, #142b55 56%, #681d32);
+    background-size: 150px 150px, 150px 150px, auto;
+    background-attachment: fixed;
+}
+
+body.theme-london h1,
+body.theme-london #ukr-sentence,
+body.theme-london .task-text {
+    color: #162e59;
+    font-weight: 900;
+}
+
+body.theme-london .header {
+    box-sizing: border-box;
+    padding: 9px;
+    border: 3px solid #c5293f;
+    border-radius: 14px;
+    background: rgba(255,253,246,.97);
+    box-shadow: 0 0 0 4px rgba(255,255,255,.42), 0 12px 28px rgba(7,18,41,.38);
+}
+
+body.theme-london #task-module-container,
+body.theme-london #listen-task-module,
+body.theme-london #listen-select-module,
+body.theme-london #translate-task-module,
+body.theme-london #stats-container,
+body.theme-london #feedback,
+body.theme-london #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 3px solid #17386e;
+    border-radius: 16px;
+    background: rgba(255,253,247,.97);
+    box-shadow: 0 0 0 3px rgba(197,39,60,.48), 0 15px 34px rgba(8,18,41,.4);
+}
+
+body.theme-london .word {
+    border: 2px solid #fff;
+    border-radius: 10px;
+    color: #fff;
+    background: linear-gradient(145deg, #244c8c, #142f62);
+    box-shadow: 0 5px 0 #0b1d42, 0 8px 16px rgba(10,27,60,.26);
+    font-family: Arial, sans-serif;
+    font-weight: 800;
+}
+
+body.theme-london .word.clicked {
+    border-color: #ffe3a2;
+    background: linear-gradient(145deg, #df3348, #a91931);
+    box-shadow: 0 5px 0 #711122;
+}
+
+body.theme-london .styled-button,
+body.theme-london #start-btn,
+body.theme-london #check-btn,
+body.theme-london #reset-btn,
+body.theme-london #hint-btn {
+    border: 2px solid #fff;
+    border-radius: 10px;
+    color: #fff;
+    background: linear-gradient(145deg, #d62d43, #a71830);
+    box-shadow: 0 5px 0 #711020, 0 9px 18px rgba(95,10,27,.25);
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+}
+
+body.theme-london input,
+body.theme-london textarea,
+body.theme-london select {
+    border: 2px solid #1f427d !important;
+    border-radius: 9px !important;
+    color: #1d2939;
+    background: #fff;
+}
+
+body.theme-london .separator { border-bottom: 7px solid rgba(255,255,255,.7); }
+body.theme-london .progress-bar {
+    bottom: -7px;
+    height: 7px;
+    border-radius: 0;
+    background: linear-gradient(90deg, #183a74 0 38%, #fff 38% 43%, #c91f39 43% 57%, #fff 57% 62%, #183a74 62%);
+    box-shadow: 0 0 12px rgba(255,255,255,.48);
+}
+
+body.theme-london .burger-icon span { background: #c3243c; }
+body.theme-london .side-panel {
+    border-right: 4px solid #c9253d;
+    color: #fff;
+    background: linear-gradient(#102a58, #183b75 62%, #6f182b);
+}
+body.theme-london .side-panel ul li { border-bottom: 1px solid rgba(255,255,255,.25); color: #fff; }
+body.theme-london .side-panel ul li:hover { color: #172b50; background: #fff7e8; }
+body.theme-london .side-panel .close-btn { color: #fff; }
+body.theme-london .modal-content {
+    border: 3px solid #c72940;
+    color: #202a3c;
+    background: #fffdf7;
+    box-shadow: 0 16px 45px rgba(8,18,41,.45);
+}
+
+body.theme-london #completion-celebration {
+    background:
+        linear-gradient(135deg, transparent 0 43%, rgba(255,255,255,.13) 44% 48%, rgba(211,31,54,.2) 49% 53%, rgba(255,255,255,.13) 54% 58%, transparent 59%),
+        linear-gradient(145deg, #10264f, #1d427c 58%, #72192d);
+}
+body.theme-london .celebration-card {
+    border: 4px solid #c82b42;
+    color: #17284a;
+    background: rgba(255,253,246,.98);
+    box-shadow: 0 0 0 5px rgba(255,255,255,.36), 0 24px 65px rgba(5,14,35,.55);
+}
+body.theme-london .celebration-loader span { background: #173b78; }
+body.theme-london .celebration-loader span:nth-child(2) { background: #fff; border: 1px solid #aeb8c9; }
+body.theme-london .celebration-loader span:nth-child(3) { background: #cc2941; }
+
+.london-scene-stage { display: none; }
+body.theme-london .london-scene-stage {
+    display: grid;
+    place-items: center;
+    width: min(500px, 100%);
+    margin: -3px auto 12px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 16px;
+    background: #dce9f3;
+    box-shadow: 0 0 0 3px #c82840, 0 12px 27px rgba(7,19,43,.42);
+    pointer-events: none;
+}
+.london-scene-stage svg,
+body.theme-london .celebration-mascot svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: londonSceneIn 600ms cubic-bezier(.2,1.12,.3,1) both;
+}
+body.theme-london .celebration-mascot { display: grid; place-items: center; min-height: 0; }
+body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radius: 14px; }
+
+@keyframes londonSceneIn {
+    from { opacity: 0; transform: translateX(-24px) scale(.9); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    body.theme-london #task-module-container,
+    body.theme-london #listen-task-module,
+    body.theme-london #listen-select-module,
+    body.theme-london #translate-task-module { padding: 11px; }
+    body.theme-london .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+    body.theme-london .london-scene-stage { border-radius: 11px; }
+}
+
 /* Плавна поява кожного нового речення */
 .exercise-enter {
     animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
@@ -1854,7 +2099,8 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
     .celebration-mascot, .celebration-loader span, .confetti-piece,
     .minecraft-character-stage svg, body.theme-minecraft .celebration-mascot svg,
     .roblox-character-stage img, body.theme-roblox .celebration-mascot img,
-    .space-scene-stage svg, body.theme-space .celebration-mascot svg {
+    .space-scene-stage svg, body.theme-space .celebration-mascot svg,
+    .london-scene-stage svg, body.theme-london .celebration-mascot svg {
         animation: none !important;
     }
     .word, .progress-bar { transition: none !important; }
@@ -2204,6 +2450,50 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
         container.prepend(stage);
     };
 
+    // Авторські вбудовані лондонські сцени: упізнавані символи без зовнішніх файлів.
+    const londonScenes = [
+        {
+            name: 'Біг-Бен, Вестмінстерський міст і червоний автобус',
+            svg: `<svg viewBox="0 0 520 190" aria-hidden="true"><rect width="520" height="190" fill="#cfe8f6"/><circle cx="452" cy="35" r="24" fill="#ffe7a1"/><path d="M0 129Q120 113 245 130T520 123V190H0Z" fill="#60b4d0"/><path d="M0 142H520V153H0Z" fill="#9aa8ad"/><path d="M0 135H520V142H0Z" fill="#e9d1a1"/><path d="M0 151H520" stroke="#4e6170" stroke-width="5" stroke-dasharray="32 13"/><g transform="translate(284 10)"><rect x="24" y="38" width="67" height="102" fill="#d6b36c" stroke="#6d5534" stroke-width="3"/><path d="M34 38L58 2L82 38Z" fill="#4f5964"/><rect x="53" y="0" width="10" height="17" fill="#323d48"/><circle cx="58" cy="69" r="22" fill="#f7f1d7" stroke="#6d5534" stroke-width="4"/><path d="M58 69L58 54M58 69L70 76" stroke="#27354a" stroke-width="3" stroke-linecap="round"/><rect x="39" y="99" width="13" height="20" fill="#283f65"/><rect x="64" y="99" width="13" height="20" fill="#283f65"/><path d="M13 140H103" stroke="#876b3d" stroke-width="9"/><rect x="0" y="73" width="25" height="67" fill="#c7a55e"/><rect x="91" y="73" width="30" height="67" fill="#c7a55e"/></g><g transform="translate(63 87)"><rect width="150" height="65" rx="9" fill="#c91832" stroke="#821122" stroke-width="4"/><rect x="9" y="8" width="132" height="21" rx="2" fill="#d8eff8"/><path d="M42 8V29M77 8V29M112 8V29" stroke="#812033" stroke-width="3"/><rect x="10" y="36" width="28" height="19" fill="#d8eff8"/><rect x="47" y="36" width="28" height="19" fill="#d8eff8"/><rect x="84" y="36" width="28" height="19" fill="#d8eff8"/><rect x="121" y="35" width="20" height="30" fill="#64101e"/><circle cx="33" cy="67" r="12" fill="#202738" stroke="#d9d9d9" stroke-width="4"/><circle cx="119" cy="67" r="12" fill="#202738" stroke="#d9d9d9" stroke-width="4"/></g></svg>`
+        },
+        {
+            name: 'Тауерський міст над Темзою',
+            svg: `<svg viewBox="0 0 520 190" aria-hidden="true"><rect width="520" height="190" fill="#c8e8f5"/><circle cx="69" cy="36" r="25" fill="#ffe89b"/><path d="M0 130Q120 114 246 132T520 124V190H0Z" fill="#56abc8"/><g fill="#e7dfc8" stroke="#53667c" stroke-width="3"><rect x="90" y="45" width="72" height="95"/><rect x="358" y="45" width="72" height="95"/><path d="M82 45L126 15L170 45Z"/><path d="M350 45L394 15L438 45Z"/></g><g fill="#37618a"><rect x="101" y="61" width="15" height="25"/><rect x="137" y="61" width="15" height="25"/><rect x="369" y="61" width="15" height="25"/><rect x="405" y="61" width="15" height="25"/></g><path d="M0 111H90M162 111H358M430 111H520" stroke="#e7dfc8" stroke-width="20"/><path d="M0 108H90M162 108H358M430 108H520" stroke="#486f96" stroke-width="5"/><path d="M126 45C190 93 330 93 394 45M126 54C190 105 330 105 394 54" fill="none" stroke="#557aa1" stroke-width="5"/><path d="M126 45V111M394 45V111" stroke="#557aa1" stroke-width="5"/><g transform="translate(219 137)"><path d="M0 14H85L72 36H16Z" fill="#fff" stroke="#304d70" stroke-width="3"/><rect x="25" y="0" width="38" height="17" fill="#d3243d"/><path d="M31 0V-13M56 0V-13" stroke="#304d70" stroke-width="3"/><path d="M31 -13H56" stroke="#304d70" stroke-width="3"/></g></svg>`
+        },
+        {
+            name: 'Червона телефонна будка та знак лондонського метро',
+            svg: `<svg viewBox="0 0 520 190" aria-hidden="true"><rect width="520" height="190" fill="#e5edf2"/><path d="M0 142H520V190H0Z" fill="#68747d"/><path d="M0 153H520" stroke="#fff" stroke-width="4" stroke-dasharray="28 15"/><g transform="translate(53 30)"><path d="M0 25Q8 0 39 0Q70 0 78 25Z" fill="#c91c35" stroke="#841126" stroke-width="4"/><rect x="2" y="23" width="74" height="124" rx="3" fill="#c91c35" stroke="#841126" stroke-width="4"/><rect x="14" y="39" width="50" height="18" fill="#f7eac4"/><text x="39" y="52" text-anchor="middle" font-size="11" font-family="Arial" font-weight="700" fill="#1e293b">TELEPHONE</text><g fill="#b9d9e8" stroke="#811224" stroke-width="3"><rect x="13" y="65" width="23" height="31"/><rect x="41" y="65" width="23" height="31"/><rect x="13" y="101" width="23" height="31"/><rect x="41" y="101" width="23" height="31"/></g><circle cx="55" cy="137" r="3" fill="#f5d15c"/></g><g transform="translate(193 35)"><circle cx="80" cy="48" r="45" fill="#d5223a"/><circle cx="80" cy="48" r="24" fill="#e5edf2"/><rect x="8" y="33" width="144" height="31" rx="3" fill="#17386e"/><text x="80" y="54" text-anchor="middle" font-size="18" font-family="Arial" font-weight="800" fill="#fff">UNDERGROUND</text><rect x="76" y="92" width="8" height="55" fill="#313b47"/></g><g transform="translate(364 103)"><path d="M7 22L22 3H96L111 22L119 25V56H0V29Z" fill="#171b22" stroke="#080a0d" stroke-width="4"/><rect x="27" y="9" width="29" height="16" fill="#a9d1e2"/><rect x="61" y="9" width="28" height="16" fill="#a9d1e2"/><rect x="44" y="-5" width="32" height="10" rx="4" fill="#f3c84e"/><circle cx="25" cy="58" r="12" fill="#202630" stroke="#aaa" stroke-width="4"/><circle cx="94" cy="58" r="12" fill="#202630" stroke="#aaa" stroke-width="4"/></g></svg>`
+        },
+        {
+            name: 'Королівський гвардієць, чорне таксі та британське чаювання',
+            svg: `<svg viewBox="0 0 520 190" aria-hidden="true"><rect width="520" height="190" fill="#d9e8f1"/><path d="M0 139H520V190H0Z" fill="#7a858c"/><path d="M0 151H520" stroke="#f3f3f3" stroke-width="4" stroke-dasharray="28 14"/><g transform="translate(57 18)"><rect x="13" y="47" width="48" height="75" rx="10" fill="#c9233c"/><rect x="23" y="74" width="28" height="13" fill="#f3d6a7"/><circle cx="37" cy="65" r="18" fill="#f0c395"/><rect x="12" y="10" width="50" height="47" rx="21" fill="#17181d"/><path d="M22 58H52" stroke="#17181d" stroke-width="5"/><rect x="19" y="118" width="15" height="42" fill="#18294c"/><rect x="41" y="118" width="15" height="42" fill="#18294c"/><path d="M15 160H35M39 160H59" stroke="#111" stroke-width="8"/></g><g transform="translate(156 96)"><path d="M7 23L25 3H112L131 23L141 28V59H0V30Z" fill="#15191f" stroke="#07090c" stroke-width="4"/><rect x="31" y="9" width="34" height="18" fill="#acd4e4"/><rect x="71" y="9" width="34" height="18" fill="#acd4e4"/><rect x="51" y="-5" width="38" height="11" rx="4" fill="#f0c94e"/><circle cx="29" cy="61" r="13" fill="#212731" stroke="#b4b4b4" stroke-width="4"/><circle cx="111" cy="61" r="13" fill="#212731" stroke="#b4b4b4" stroke-width="4"/></g><g transform="translate(344 60)"><ellipse cx="70" cy="94" rx="71" ry="12" fill="#d3bd94"/><path d="M19 35H87V75Q87 100 53 100Q19 100 19 75Z" fill="#fff8e8" stroke="#24467b" stroke-width="4"/><path d="M87 45Q115 44 110 69Q106 86 88 79" fill="none" stroke="#24467b" stroke-width="7"/><path d="M36 22Q43 8 50 22M58 22Q65 6 72 22" fill="none" stroke="#9ca8b4" stroke-width="4" stroke-linecap="round"/><ellipse cx="53" cy="35" rx="34" ry="9" fill="#f2e6cf" stroke="#24467b" stroke-width="4"/><path d="M126 66Q143 44 161 66Q145 79 126 66Z" fill="#fff8e8" stroke="#24467b" stroke-width="3"/><circle cx="143" cy="53" r="9" fill="#d82940"/></g></svg>`
+        }
+    ];
+
+    let lastLondonSceneIndex = -1;
+
+    const pickLondonScene = () => {
+        let index = Math.floor(Math.random() * londonScenes.length);
+        if (londonScenes.length > 1 && index === lastLondonSceneIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (londonScenes.length - 1))) % londonScenes.length;
+        }
+        lastLondonSceneIndex = index;
+        return londonScenes[index];
+    };
+
+    const showRandomLondonScene = container => {
+        document.querySelectorAll('.london-scene-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-london')) return;
+
+        const scene = pickLondonScene();
+        const stage = document.createElement('div');
+        stage.className = 'london-scene-stage';
+        stage.setAttribute('role', 'img');
+        stage.setAttribute('aria-label', scene.name);
+        stage.innerHTML = scene.svg;
+        container.prepend(stage);
+    };
+
     const animateExerciseContainer = element => {
         if (!element) return;
         element.classList.remove('exercise-enter');
@@ -2231,7 +2521,12 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
         const minecraftTheme = document.body.classList.contains('theme-minecraft');
         const robloxTheme = document.body.classList.contains('theme-roblox');
         const spaceTheme = document.body.classList.contains('theme-space');
-        const message = spaceTheme
+        const londonTheme = document.body.classList.contains('theme-london');
+        const message = londonTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '👑', title: 'Brilliant!', phrase: 'A perfect London adventure! — Ідеальна лондонська пригода без помилок!' }
+                : { mascot: '🚌', title: 'Чудова подорож!', phrase: 'Well done! — Твоя англійська впевнено рухається вперед!' })
+            : spaceTheme
             ? (incorrectAnswers === 0
                 ? { mascot: '🌟', title: 'Зірковий результат!', phrase: 'Mission accomplished! — Місію виконано без жодної помилки!' }
                 : { mascot: '🚀', title: 'Місію виконано!', phrase: 'Great flight! — Твоя англійська вийшла на нову орбіту!' })
@@ -2248,7 +2543,12 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         const mascotElement = document.getElementById('celebration-mascot');
-        if (spaceTheme) {
+        if (londonTheme) {
+            const scene = pickLondonScene();
+            mascotElement.innerHTML = scene.svg;
+            mascotElement.removeAttribute('aria-hidden');
+            mascotElement.setAttribute('aria-label', scene.name);
+        } else if (spaceTheme) {
             const scene = pickSpaceScene();
             mascotElement.innerHTML = scene.svg;
             mascotElement.removeAttribute('aria-hidden');
@@ -2289,7 +2589,7 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
         document.body.style.overflow = '';
     };
 
-    const normalizeTheme = theme => ['minecraft', 'roblox', 'space'].includes(theme) ? theme : 'standard';
+    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london'].includes(theme) ? theme : 'standard';
 
     const getSavedTheme = name => {
         try {
@@ -2312,6 +2612,7 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
         document.body.classList.toggle('theme-minecraft', selectedTheme === 'minecraft');
         document.body.classList.toggle('theme-roblox', selectedTheme === 'roblox');
         document.body.classList.toggle('theme-space', selectedTheme === 'space');
+        document.body.classList.toggle('theme-london', selectedTheme === 'london');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
 
@@ -2324,6 +2625,7 @@ body.theme-space .celebration-mascot svg { width: min(360px, 100%); border-radiu
         showRandomMinecraftCharacter(activeExercise);
         showRandomRobloxImage(activeExercise);
         showRandomSpaceScene(activeExercise);
+        showRandomLondonScene(activeExercise);
 
         if (save) {
             try {
@@ -2733,6 +3035,10 @@ const handleMenuClick = async (event) => {
                         <button type="button" class="theme-option theme-option-space" data-theme="space" role="radio">
                             <span class="theme-option-icon" aria-hidden="true">🚀</span>
                             <span class="theme-option-label">Космос</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-london" data-theme="london" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">🇬🇧</span>
+                            <span class="theme-option-label">Лондон</span>
                         </button>
                     </div>
                     <small class="theme-source">Зображення для Roblox-теми: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">офіційний Roblox Press Kit</a>.</small>
@@ -3874,6 +4180,7 @@ class TaskModule {
     showRandomMinecraftCharacter(activeExerciseContainer);
     showRandomRobloxImage(activeExerciseContainer);
     showRandomSpaceScene(activeExerciseContainer);
+    showRandomLondonScene(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
