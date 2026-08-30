@@ -1021,6 +1021,7 @@ input:checked + .slider:before {
 }
 
 .theme-option {
+    position: relative;
     min-height: 92px;
     padding: 10px 7px;
     border: 3px solid transparent;
@@ -1034,6 +1035,57 @@ input:checked + .slider:before {
 
 .theme-option:hover { transform: translateY(-2px); }
 .theme-option.selected { border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,.18); }
+.theme-option.locked {
+    border-color: rgba(30,41,59,.35);
+    filter: saturate(.72);
+}
+.theme-option.locked::after {
+    content: "🔒";
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(16,24,40,.78);
+    box-shadow: 0 3px 8px rgba(0,0,0,.28);
+    font-size: 14px;
+    text-shadow: none;
+}
+.theme-option.purchasing { pointer-events: none; opacity: .66; }
+.theme-option-status {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(18,29,55,.76);
+    font: 800 11px/1.2 Arial, sans-serif;
+    text-shadow: none;
+}
+.theme-option.unlocked .theme-option-status { background: rgba(20,116,67,.88); }
+.theme-shop-balance {
+    margin: 10px 0 4px;
+    padding: 9px 12px;
+    border: 2px solid #f1c84b;
+    border-radius: 12px;
+    color: #29334a;
+    background: #fff8d8;
+    font-weight: 800;
+    text-align: center;
+}
+.theme-shop-message {
+    min-height: 20px;
+    margin-top: 9px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+.theme-shop-message.error { color: #b42318; }
+.theme-shop-message.success { color: #067647; }
 .theme-option-standard { background: linear-gradient(145deg, #e7f8ff, #fff4bd); }
 .theme-option-minecraft {
     border-radius: 0;
@@ -2263,11 +2315,19 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     const TRANSLATION_SIMILARITY_THRESHOLD = 70;
     const SPREADSHEET_ID = '1t4-Ds_1nlvX8ereG8xGfZ7khkocq5KkfyF5Em608h8U';
     const RANGE = 'Граматика!A:D';
-    const USERS_RANGE = 'users!A:Q';
+    const USERS_RANGE = 'users!A:S';
     const ADMIN_RANGE = 'admin!B1:B4';
     const PRESENTS_RANGE = 'present!A:C';
     const API_KEY = 'AIzaSyD-VNZ85_c09OXV9rPkBhHXbtDwXqsNZnM';
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5rnFstVmmRh__J41HxE0qS0savLkmO5U4PHFbsvJ0D6qqh98KYhhKz9hLoJ-s9OeQQA/exec';
+    // Ціни для відображення в магазині. Такі самі ціни задані на сервері в THEME_PRICES.
+    const THEME_CATALOG = Object.freeze({
+        standard: { label: 'Стандартна', price: 0 },
+        minecraft: { label: 'Minecraft', price: 15 },
+        roblox: { label: 'Roblox', price: 20 },
+        space: { label: 'Космос', price: 12 },
+        london: { label: 'Лондон', price: 18 }
+    });
 
     // Переменные для отслеживания состояния приложения
     let previousIncorrect = false;
@@ -2280,6 +2340,8 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     let hintImageUrl = '';
     let userName = '';
     let points = 0;
+    let unlockedThemes = new Set(['standard']);
+    let themePurchaseInProgress = false;
 
     // Переменные для модулей заданий
     let taskModule, listenTaskModule, listenSelectTaskModule, translateTaskModule;
@@ -2599,6 +2661,148 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         }
     };
 
+    const setUnlockedThemesFromCell = value => {
+        const aliases = {
+            'стандарт': 'standard',
+            'стандартна': 'standard',
+            'космос': 'space',
+            'лондон': 'london'
+        };
+        const nextThemes = new Set(['standard']);
+        String(value || '').split(';').forEach(item => {
+            const rawTheme = item.trim().toLowerCase();
+            const theme = aliases[rawTheme] || rawTheme;
+            if (Object.prototype.hasOwnProperty.call(THEME_CATALOG, theme)) nextThemes.add(theme);
+        });
+        unlockedThemes = nextThemes;
+    };
+
+    const isThemeUnlocked = theme => normalizeTheme(theme) === 'standard' || unlockedThemes.has(normalizeTheme(theme));
+
+    const setThemeShopMessage = (message = '', type = '') => {
+        const element = document.getElementById('theme-shop-message');
+        if (!element) return;
+        element.textContent = message;
+        element.className = `theme-shop-message${type ? ` ${type}` : ''}`;
+    };
+
+    const updateThemeShopBalance = () => {
+        const balance = document.getElementById('theme-shop-balance');
+        if (balance) balance.textContent = `Твій баланс: ${Number(points) || 0} Coins`;
+        const badge = document.getElementById('points-badge');
+        if (badge) badge.textContent = String(Number(points) || 0);
+    };
+
+    const updateThemeAccessUI = () => {
+        document.querySelectorAll('.theme-option').forEach(button => {
+            const theme = normalizeTheme(button.dataset.theme);
+            const catalogItem = THEME_CATALOG[theme];
+            const unlocked = isThemeUnlocked(theme);
+            button.classList.toggle('locked', !unlocked);
+            button.classList.toggle('unlocked', unlocked);
+            button.setAttribute('aria-label', unlocked
+                ? `${catalogItem.label}: доступна тема`
+                : `${catalogItem.label}: відкрити за ${catalogItem.price} Coins`);
+            button.title = unlocked ? 'Тема доступна' : `Відкрити за ${catalogItem.price} Coins`;
+
+            let status = button.querySelector('.theme-option-status');
+            if (!status) {
+                status = document.createElement('span');
+                status.className = 'theme-option-status';
+                button.appendChild(status);
+            }
+            status.textContent = theme === 'standard' ? 'Безкоштовно' : unlocked ? 'Придбано' : `${catalogItem.price} Coins`;
+        });
+        updateThemeShopBalance();
+    };
+
+    const fetchThemeAccountState = async () => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${USERS_RANGE}?key=${API_KEY}&_=${Date.now()}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Google Sheets: HTTP ${response.status}`);
+        const data = await response.json();
+        const rows = Array.isArray(data.values) ? data.values.slice(1) : [];
+        const user = rows.find(row => row[0] === userName);
+        if (!user) throw new Error('Користувача не знайдено');
+        points = Number(user[12]) || 0;
+        setUnlockedThemesFromCell(user[18]);
+        updateThemeAccessUI();
+        return { coins: points, unlockedThemes: new Set(unlockedThemes) };
+    };
+
+    const restoreAllowedSavedTheme = () => {
+        const savedTheme = getSavedTheme(userName);
+        if (isThemeUnlocked(savedTheme)) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('standard', true);
+        }
+    };
+
+    const purchaseTheme = async (theme, button) => {
+        const selectedTheme = normalizeTheme(theme);
+        const item = THEME_CATALOG[selectedTheme];
+        if (!item || selectedTheme === 'standard' || themePurchaseInProgress) return;
+
+        if (isThemeUnlocked(selectedTheme)) {
+            applyTheme(selectedTheme, true);
+            return;
+        }
+
+        const currentCoins = Number(points) || 0;
+        if (currentCoins < item.price) {
+            const missing = item.price - currentCoins;
+            setThemeShopMessage(`Ще потрібно назбирати ${missing} Coins для теми «${item.label}».`, 'error');
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Відкрити тему «${item.label}» за ${item.price} Coins?\n\n` +
+            `Баланс: ${currentCoins} Coins\nПісля покупки залишиться: ${currentCoins - item.price} Coins.`
+        );
+        if (!confirmed) return;
+
+        themePurchaseInProgress = true;
+        button.classList.add('purchasing');
+        setThemeShopMessage('Відкриваємо тему та перевіряємо оплату…');
+
+        try {
+            await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'purchaseTheme', userName, theme: selectedTheme })
+            });
+
+            let state = null;
+            for (let attempt = 0; attempt < 10; attempt++) {
+                await delay(attempt === 0 ? 450 : 850);
+                state = await fetchThemeAccountState();
+                if (state.unlockedThemes.has(selectedTheme)) break;
+            }
+
+            if (state && state.unlockedThemes.has(selectedTheme)) {
+                applyTheme(selectedTheme, true);
+                setThemeShopMessage(`Тему «${item.label}» відкрито! 🎉`, 'success');
+            } else {
+                const missing = Math.max(0, item.price - (state ? state.coins : Number(points) || 0));
+                setThemeShopMessage(
+                    missing > 0
+                        ? `Покупку не виконано. Ще потрібно назбирати ${missing} Coins.`
+                        : 'Не вдалося підтвердити покупку. Спробуй ще раз за кілька секунд.',
+                    'error'
+                );
+            }
+        } catch (error) {
+            console.error('Не вдалося придбати тему:', error);
+            setThemeShopMessage('Не вдалося придбати тему. Перевір інтернет і спробуй ще раз.', 'error');
+        } finally {
+            themePurchaseInProgress = false;
+            button.classList.remove('purchasing');
+            updateThemeAccessUI();
+        }
+    };
+
     const updateThemePicker = theme => {
         document.querySelectorAll('.theme-option').forEach(button => {
             const selected = button.dataset.theme === theme;
@@ -2608,13 +2812,15 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     };
 
     const applyTheme = (theme, save = false) => {
-        const selectedTheme = normalizeTheme(theme);
+        const requestedTheme = normalizeTheme(theme);
+        const selectedTheme = isThemeUnlocked(requestedTheme) ? requestedTheme : 'standard';
         document.body.classList.toggle('theme-minecraft', selectedTheme === 'minecraft');
         document.body.classList.toggle('theme-roblox', selectedTheme === 'roblox');
         document.body.classList.toggle('theme-space', selectedTheme === 'space');
         document.body.classList.toggle('theme-london', selectedTheme === 'london');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
+        updateThemeAccessUI();
 
         const activeExercise = [
             'task-module-container',
@@ -2682,15 +2888,31 @@ const setupSettingsModal = async () => {
     const voiceSelect = document.getElementById('voice-select');
     const isEnabled = await isUserSpeakEnabled(userName);
     const selectedVoice = await getUserVoiceSetting(userName); // Получаем сохранённое значение голоса
-    const selectedTheme = getSavedTheme(userName);
+    let themeStateLoaded = true;
+    try {
+        await fetchThemeAccountState();
+    } catch (error) {
+        themeStateLoaded = false;
+        console.error('Не вдалося оновити баланс і доступні теми:', error);
+    }
+    const savedTheme = getSavedTheme(userName);
+    const selectedTheme = isThemeUnlocked(savedTheme) ? savedTheme : 'standard';
 
     // Устанавливаем значение переключателя озвучки
     speakToggle.checked = isEnabled;
     updateThemePicker(selectedTheme);
+    updateThemeAccessUI();
+    if (!themeStateLoaded) setThemeShopMessage('Не вдалося оновити баланс. Перевір інтернет.', 'error');
 
     document.querySelectorAll('.theme-option').forEach(button => {
-        button.addEventListener('click', () => {
-            applyTheme(button.dataset.theme, true);
+        button.addEventListener('click', async () => {
+            const theme = normalizeTheme(button.dataset.theme);
+            if (isThemeUnlocked(theme)) {
+                applyTheme(theme, true);
+                setThemeShopMessage('');
+            } else {
+                await purchaseTheme(theme, button);
+            }
             if (typeof button.animate === 'function') {
                 button.animate(
                     [{ transform: 'scale(.94)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
@@ -3041,6 +3263,8 @@ const handleMenuClick = async (event) => {
                             <span class="theme-option-label">Лондон</span>
                         </button>
                     </div>
+                    <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
+                    <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
                     <small class="theme-source">Зображення для Roblox-теми: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">офіційний Roblox Press Kit</a>.</small>
                 </div>
             `;
@@ -3446,9 +3670,11 @@ const handleMenuClick = async (event) => {
             const user = users.find(row => row[0] === userName);
             if (user) {
                 // Обновляем очки
-                points = user[12] || 0;
+                points = Number(user[12]) || 0;
+                setUnlockedThemesFromCell(user[18]);
+                updateThemeAccessUI();
                 document.getElementById('points-badge').innerText = `${points}`;
-                document.getElementById('points-container').style.display = user[12] ? 'flex' : 'none';
+                document.getElementById('points-container').style.display = 'flex';
 
                 // Обновляем имя пользователя с учетом customGreeting
                 const customGreeting = user[3] ? user[3] + " " : "";
@@ -4268,9 +4494,14 @@ const fetchData = async (sheetName) => {
         const user = users.find(row => row[0] === userName);
         if (user) {
             let userSheet = user[1] ? user[1] : "day_off";
-            points = user[12];
+            points = Number(user[12]) || 0;
+            setUnlockedThemesFromCell(user[18]);
+            restoreAllowedSavedTheme();
+            updateThemeAccessUI();
             const customGreeting = user[3] ? user[3] + " " : "";
             document.getElementById('user-name').innerText = `${customGreeting}${userName}`;
+            document.getElementById('points-container').style.display = 'flex';
+            document.getElementById('points-badge').innerText = `${points}`;
 
             // Получаем пункты бургер-меню из столбца Q
             const menuItems = user[16] ? user[16].split(';').map(item => item.trim()) : [];
@@ -4482,7 +4713,8 @@ const fetchData = async (sheetName) => {
     userName = inputValue.trim().replace(/\s+/g, ' '); // Удаляем лишние пробелы
     if (userName) {
         localStorage.setItem('userName', userName);
-        applyTheme(getSavedTheme(userName));
+        unlockedThemes = new Set(['standard']);
+        applyTheme('standard');
         document.getElementById('user-name').innerText = `${userName}`;
         document.querySelector('.user-info').classList.remove('hidden');
         document.getElementById('name-input-container').style.display = 'none';
@@ -4796,7 +5028,8 @@ const fetchData = async (sheetName) => {
             const savedUserName = localStorage.getItem('userName');
             if (savedUserName) {
                 userName = savedUserName;
-                applyTheme(getSavedTheme(userName));
+                unlockedThemes = new Set(['standard']);
+                applyTheme('standard');
                 document.querySelector('.user-info').classList.remove('hidden');
                 document.querySelector('.burger-menu').classList.remove('hidden');
                 document.getElementById('name-input-container').style.display = 'none';
