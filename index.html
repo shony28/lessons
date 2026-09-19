@@ -1133,6 +1133,17 @@ input:checked + .slider:before {
         linear-gradient(145deg, #43a047, #176b35 72%, #0f4927);
 }
 
+.theme-option-animals {
+    color: #fff;
+    text-shadow: 1px 2px rgba(0,0,0,.72);
+    background:
+        radial-gradient(circle at 23% 25%, rgba(255,255,255,.88) 0 5px, transparent 6px),
+        radial-gradient(circle at 17% 36%, rgba(255,255,255,.88) 0 7px, transparent 8px),
+        radial-gradient(circle at 29% 36%, rgba(255,255,255,.88) 0 7px, transparent 8px),
+        radial-gradient(ellipse at 23% 48%, rgba(255,255,255,.88) 0 11px, transparent 12px),
+        linear-gradient(145deg, #7eb34e, #397746 58%, #224c3a);
+}
+
 .theme-option-icon { display: block; margin-bottom: 6px; font-size: 32px; }
 .theme-option-label { display: block; font-size: 14px; }
 .theme-source { display: block; margin-top: 9px; color: #687188; font-size: 11px; line-height: 1.3; }
@@ -1197,6 +1208,15 @@ body.theme-football #weekly-progress-container .mt-8 {
 body.theme-football #weekly-progress-container .mt-8 h3 { color: #124b2b; }
 body.theme-football .rating-table th { color: #fff; background: #16713a; border-color: #0c5429; }
 body.theme-football .rating-table td { color: #173b27; }
+
+body.theme-animals #weekly-progress-container .mt-8 {
+    border-color: #5c863d;
+    background: #fffdf4;
+    box-shadow: 0 0 0 4px rgba(255,246,206,.58), 0 14px 32px rgba(49,70,31,.31);
+}
+body.theme-animals #weekly-progress-container .mt-8 h3 { color: #365527; }
+body.theme-animals .rating-table th { color: #fff; background: #527d39; border-color: #365a29; }
+body.theme-animals .rating-table td { color: #35452d; }
 
 /* Яскрава блокова Minecraft-тема */
 body.theme-minecraft {
@@ -2154,6 +2174,284 @@ body.theme-football .celebration-mascot img {
     body.theme-football .football-photo-stage { border-radius: 12px; }
 }
 
+/* Animals: тепла природна тема з випадковими фотографіями тварин */
+body.theme-animals {
+    min-height: 100vh;
+    color: #33422b;
+    font-family: Inter, Arial, sans-serif;
+    background-color: #d8d09b;
+    background-image:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.28) 0 2px, transparent 3px),
+        radial-gradient(circle at 83% 13%, rgba(255,246,190,.34) 0 4px, transparent 5px),
+        linear-gradient(155deg, #d8c984, #85a75d 48%, #477355 76%, #294f42);
+    background-attachment: fixed;
+}
+
+body.theme-animals::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: .25;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 8% 92%, #163c31 0 7%, transparent 7.5%),
+        radial-gradient(ellipse at 92% 88%, #214a38 0 9%, transparent 9.5%),
+        radial-gradient(ellipse at 76% 7%, #f8edb0 0 5%, transparent 5.5%);
+}
+
+body.theme-animals h1,
+body.theme-animals #ukr-sentence,
+body.theme-animals .task-text { color: #355126; font-weight: 900; }
+
+body.theme-animals .header {
+    box-sizing: border-box;
+    padding: 9px;
+    border: 3px solid #e9d98d;
+    border-radius: 18px;
+    background: rgba(255,253,239,.96);
+    box-shadow: 0 0 0 4px rgba(54,91,45,.34), 0 12px 28px rgba(29,58,38,.32);
+}
+
+body.theme-animals #task-module-container,
+body.theme-animals #listen-task-module,
+body.theme-animals #listen-select-module,
+body.theme-animals #translate-task-module,
+body.theme-animals #stats-container,
+body.theme-animals #feedback,
+body.theme-animals #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 3px solid #557d3e;
+    border-radius: 22px;
+    background: rgba(255,253,239,.97);
+    box-shadow: 0 0 0 3px rgba(237,216,139,.64), 0 15px 34px rgba(28,62,39,.34);
+}
+
+body.theme-animals .word {
+    border: 2px solid #fff5c9;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(145deg, #6e9c48, #386b42);
+    box-shadow: 0 5px 0 #285035, 0 8px 16px rgba(35,76,46,.27);
+    font-weight: 900;
+}
+
+body.theme-animals .word.clicked {
+    border-color: #fff7c8;
+    color: #4b3718;
+    background: linear-gradient(145deg, #ffd971, #e8a83d);
+    box-shadow: 0 5px 0 #a66b26;
+}
+
+body.theme-animals .styled-button,
+body.theme-animals #start-btn,
+body.theme-animals #check-btn,
+body.theme-animals #reset-btn,
+body.theme-animals #hint-btn {
+    border: 2px solid #fff1b1;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(145deg, #5b8742, #315e3b);
+    box-shadow: 0 5px 0 #23472e, 0 9px 18px rgba(33,70,43,.25);
+    font-weight: 900;
+}
+
+body.theme-animals input,
+body.theme-animals textarea,
+body.theme-animals select {
+    border: 2px solid #5b8443 !important;
+    border-radius: 12px !important;
+    color: #35452d;
+    background: #fffef7;
+}
+
+body.theme-animals .separator { border-bottom: 7px solid rgba(255,245,194,.76); }
+body.theme-animals .progress-bar {
+    bottom: -7px;
+    height: 7px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #f2c85b, #8fc65a 48%, #386f45);
+    box-shadow: 0 0 12px rgba(236,211,104,.65);
+}
+
+body.theme-animals .burger-icon span { background: #426b38; }
+body.theme-animals .side-panel {
+    border-right: 4px solid #e8d27b;
+    color: #fff;
+    background: linear-gradient(#234836, #3c7047 58%, #254f3a);
+}
+body.theme-animals .side-panel ul li { border-bottom: 1px solid rgba(255,247,205,.24); color: #fff; }
+body.theme-animals .side-panel ul li:hover { color: #3d3a1d; background: #f4d66c; }
+body.theme-animals .side-panel .close-btn { color: #fff; }
+body.theme-animals .modal-content {
+    border: 3px solid #628947;
+    color: #35452d;
+    background: #fffdf2;
+    box-shadow: 0 16px 45px rgba(25,58,36,.42);
+}
+
+body.theme-animals #completion-celebration {
+    background:
+        radial-gradient(circle at 16% 18%, rgba(255,238,148,.36), transparent 24%),
+        radial-gradient(circle at 87% 84%, rgba(35,90,57,.55), transparent 30%),
+        linear-gradient(145deg, #d4bd64, #6f9c52 50%, #2d6145);
+}
+body.theme-animals .celebration-card {
+    border: 4px solid #f0dc87;
+    color: #35452d;
+    background: rgba(255,253,239,.98);
+    box-shadow: 0 0 0 5px rgba(61,105,57,.5), 0 24px 65px rgba(25,54,35,.52);
+}
+body.theme-animals .celebration-loader span { background: #5a8844; }
+body.theme-animals .celebration-loader span:nth-child(2) { background: #efc75a; }
+body.theme-animals .celebration-loader span:nth-child(3) { background: #376c47; }
+
+.animals-photo-stage { display: none; }
+body.theme-animals .animals-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(500px, 100%);
+    margin: -3px auto 12px;
+    overflow: hidden;
+    border: 4px solid #fff2b5;
+    border-radius: 22px;
+    background: #3d6d46;
+    box-shadow: 0 0 0 3px #527d41, 0 12px 27px rgba(27,61,38,.4);
+    pointer-events: none;
+}
+.animals-photo-stage img,
+body.theme-animals .celebration-mascot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: animalsPhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+.animals-photo-stage::after {
+    content: "🐾 ANIMALS";
+    position: absolute;
+    right: 9px;
+    bottom: 8px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(33,69,43,.8);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+body.theme-animals .celebration-mascot { display: grid; place-items: center; min-height: 0; }
+body.theme-animals .celebration-mascot img {
+    width: min(380px, 100%);
+    border: 4px solid #fff0ad;
+    border-radius: 19px;
+    box-shadow: 0 10px 25px rgba(31,67,41,.32);
+}
+
+@keyframes animalsPhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    body.theme-animals #task-module-container,
+    body.theme-animals #listen-task-module,
+    body.theme-animals #listen-select-module,
+    body.theme-animals #translate-task-module { padding: 11px; }
+    body.theme-animals .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+    body.theme-animals .animals-photo-stage { border-radius: 14px; }
+}
+
+/* Велика онлайн-галерея для всіх тем. Фото приходять із Wikimedia Commons. */
+.remote-theme-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(520px, 100%);
+    margin: -3px auto 13px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 18px;
+    background: #25344a;
+    box-shadow: 0 12px 28px rgba(12,26,47,.32);
+}
+
+.remote-theme-photo-stage img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: remoteThemePhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+
+.remote-theme-photo-credit {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100% - 16px);
+    padding: 5px 9px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(10,18,29,.76);
+    font: 800 10px/1.2 Arial, sans-serif;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remote-theme-photo-credit:hover,
+.remote-theme-photo-credit:focus { background: rgba(10,18,29,.95); text-decoration: underline; }
+
+body.theme-minecraft .remote-theme-photo-stage { border-radius: 0; border-color: #29231c; box-shadow: 7px 7px 0 #59402a; }
+body.theme-roblox .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #7357ef, 0 12px 27px rgba(31,17,91,.42); }
+body.theme-space .remote-theme-photo-stage { border-color: #8de7ff; box-shadow: 0 0 20px rgba(82,218,255,.55), 0 12px 27px rgba(0,0,31,.42); }
+body.theme-london .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #c82840, 0 12px 27px rgba(7,19,43,.42); }
+body.theme-football .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #0b5629, 0 12px 27px rgba(1,39,17,.44); }
+body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-radius: 22px; box-shadow: 0 0 0 3px #527d41, 0 12px 27px rgba(27,61,38,.4); }
+
+.remote-celebration-photo {
+    position: relative;
+    display: block;
+    width: min(390px, 100%);
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(9,24,42,.32);
+}
+
+.remote-celebration-photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.remote-celebration-photo .remote-theme-photo-credit { font-size: 9px; }
+
+@keyframes remoteThemePhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.91); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    .remote-theme-photo-stage { border-width: 3px; border-radius: 13px; }
+    body.theme-minecraft .remote-theme-photo-stage { border-radius: 0; }
+    body.theme-animals .remote-theme-photo-stage { border-radius: 14px; }
+}
+
 /* Плавна поява кожного нового речення */
 .exercise-enter {
     animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
@@ -2367,7 +2665,9 @@ body.theme-football .celebration-mascot img {
     .roblox-character-stage img, body.theme-roblox .celebration-mascot img,
     .space-scene-stage svg, body.theme-space .celebration-mascot svg,
     .london-scene-stage svg, body.theme-london .celebration-mascot svg,
-    .football-photo-stage img, body.theme-football .celebration-mascot img {
+    .football-photo-stage img, body.theme-football .celebration-mascot img,
+    .animals-photo-stage img, body.theme-animals .celebration-mascot img,
+    .remote-theme-photo-stage img {
         animation: none !important;
     }
     .word, .progress-bar { transition: none !important; }
@@ -2542,7 +2842,8 @@ body.theme-football .celebration-mascot img {
         roblox: { label: 'Roblox', price: 50 },
         space: { label: 'Космос', price: 25 },
         london: { label: 'Лондон', price: 25 },
-        football: { label: 'Футбол', price: 25 }
+        football: { label: 'Футбол', price: 25 },
+        animals: { label: 'Animals', price: 25 }
     });
 
     // Переменные для отслеживания состояния приложения
@@ -2817,6 +3118,264 @@ body.theme-football .celebration-mascot img {
         container.prepend(stage);
     };
 
+    const animalsPhotos = [
+        { name: 'Лисиця в природі', src: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Слон у дикій природі', src: 'https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Мавпа серед зелені', src: 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Леопард у природі', src: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Собака на прогулянці', src: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Олень у лісі', src: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=960&q=78' }
+    ];
+
+    let lastAnimalsPhotoIndex = -1;
+
+    const pickAnimalsPhoto = () => {
+        let index = Math.floor(Math.random() * animalsPhotos.length);
+        if (animalsPhotos.length > 1 && index === lastAnimalsPhotoIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (animalsPhotos.length - 1))) % animalsPhotos.length;
+        }
+        lastAnimalsPhotoIndex = index;
+        return animalsPhotos[index];
+    };
+
+    const createAnimalsImage = photo => {
+        const image = document.createElement('img');
+        image.src = photo.src;
+        image.alt = photo.name;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('error', () => image.closest('.animals-photo-stage')?.remove(), { once: true });
+        return image;
+    };
+
+    const showRandomAnimalsPhoto = container => {
+        document.querySelectorAll('.animals-photo-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-animals')) return;
+
+        const photo = pickAnimalsPhoto();
+        const stage = document.createElement('div');
+        stage.className = 'animals-photo-stage';
+        stage.setAttribute('role', 'img');
+        stage.setAttribute('aria-label', photo.name);
+        stage.appendChild(createAnimalsImage(photo));
+        container.prepend(stage);
+    };
+
+    // До 50 різних фото для кожної теми. Результати кешуються на добу,
+    // а черга перемішується без повторів, доки не буде показано весь набір.
+    const THEME_PHOTO_SEARCHES = Object.freeze({
+        minecraft: 'Minecraft OR Minetest OR voxel',
+        roblox: 'Roblox OR game avatar',
+        space: 'space astronomy OR NASA',
+        london: 'London landmark',
+        football: 'association football',
+        animals: 'wildlife animal'
+    });
+    const REMOTE_PHOTO_CACHE_TTL = 24 * 60 * 60 * 1000;
+    const remoteThemePhotoStates = new Map();
+    const remoteThemePhotoPromises = new Map();
+    let remoteThemePhotoRequestId = 0;
+    let remoteCelebrationPhotoRequestId = 0;
+
+    const shufflePhotoList = items => {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+        }
+        return shuffled;
+    };
+
+    const readThemePhotosFromCache = theme => {
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(`themePhotosV2_${theme}`) || 'null');
+            if (!cached || Date.now() - Number(cached.savedAt) > REMOTE_PHOTO_CACHE_TTL) return [];
+            return Array.isArray(cached.photos) ? cached.photos : [];
+        } catch (error) {
+            return [];
+        }
+    };
+
+    const saveThemePhotosToCache = (theme, photos) => {
+        try {
+            sessionStorage.setItem(`themePhotosV2_${theme}`, JSON.stringify({ savedAt: Date.now(), photos }));
+        } catch (error) {
+            console.warn('Не вдалося кешувати фотографії теми:', error);
+        }
+    };
+
+    const fetchThemePhotos = async theme => {
+        if (!Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return [];
+        if (remoteThemePhotoStates.has(theme)) return remoteThemePhotoStates.get(theme).photos;
+        if (remoteThemePhotoPromises.has(theme)) return remoteThemePhotoPromises.get(theme);
+
+        const request = (async () => {
+            let photos = readThemePhotosFromCache(theme);
+            if (!photos.length) {
+                const params = new URLSearchParams({
+                    action: 'query',
+                    generator: 'search',
+                    gsrsearch: `${THEME_PHOTO_SEARCHES[theme]} filetype:bitmap`,
+                    gsrnamespace: '6',
+                    gsrlimit: '50',
+                    gsrsort: 'random',
+                    prop: 'imageinfo',
+                    iiprop: 'url|mime|extmetadata',
+                    iiurlwidth: '1200',
+                    format: 'json',
+                    formatversion: '2',
+                    origin: '*'
+                });
+                const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`, {
+                    mode: 'cors',
+                    cache: 'force-cache'
+                });
+                if (!response.ok) throw new Error(`Wikimedia HTTP ${response.status}`);
+                const data = await response.json();
+                const pagesValue = data?.query?.pages || [];
+                const pages = Array.isArray(pagesValue) ? pagesValue : Object.values(pagesValue);
+                const uniqueUrls = new Set();
+                photos = pages.map(page => {
+                    const info = page?.imageinfo?.[0];
+                    if (!info || !/^image\/(jpeg|png|webp)$/i.test(String(info.mime || ''))) return null;
+                    const src = info.thumburl || info.url;
+                    if (!src || uniqueUrls.has(src)) return null;
+                    uniqueUrls.add(src);
+                    const decodeMetadata = value => {
+                        const element = document.createElement('div');
+                        element.innerHTML = String(value || '');
+                        return element.textContent.replace(/\s+/g, ' ').trim();
+                    };
+                    const artist = decodeMetadata(info.extmetadata?.Artist?.value);
+                    const license = decodeMetadata(info.extmetadata?.LicenseShortName?.value);
+                    return {
+                        name: String(page.title || 'Фото').replace(/^File:/i, ''),
+                        src,
+                        pageUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/${encodeURIComponent(String(page.title || '').replace(/ /g, '_'))}`,
+                        credit: [artist, license].filter(Boolean).join(' · ')
+                    };
+                }).filter(Boolean);
+                if (photos.length) saveThemePhotosToCache(theme, photos);
+            }
+
+            remoteThemePhotoStates.set(theme, { photos, queue: [], lastSrc: '' });
+            return photos;
+        })().catch(error => {
+            console.warn(`Не вдалося завантажити велику галерею для теми ${theme}:`, error);
+            remoteThemePhotoStates.set(theme, { photos: [], queue: [], lastSrc: '' });
+            return [];
+        }).finally(() => remoteThemePhotoPromises.delete(theme));
+
+        remoteThemePhotoPromises.set(theme, request);
+        return request;
+    };
+
+    const takeThemePhoto = async theme => {
+        const photos = await fetchThemePhotos(theme);
+        if (!photos.length) return null;
+        const state = remoteThemePhotoStates.get(theme);
+        if (!state.queue.length) {
+            state.queue = shufflePhotoList(state.photos);
+            if (state.queue.length > 1 && state.queue[state.queue.length - 1].src === state.lastSrc) {
+                [state.queue[0], state.queue[state.queue.length - 1]] = [state.queue[state.queue.length - 1], state.queue[0]];
+            }
+        }
+        const photo = state.queue.pop();
+        state.lastSrc = photo.src;
+        return photo;
+    };
+
+    const loadRemoteThemeImage = photo => new Promise((resolve, reject) => {
+        const image = new Image();
+        image.alt = photo.name;
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('load', () => resolve(image), { once: true });
+        image.addEventListener('error', reject, { once: true });
+        image.src = photo.src;
+    });
+
+    const createRemotePhotoCredit = photo => {
+        const credit = document.createElement('a');
+        credit.className = 'remote-theme-photo-credit';
+        credit.href = photo.pageUrl;
+        credit.target = '_blank';
+        credit.rel = 'noopener noreferrer';
+        credit.textContent = photo.credit ? `Wikimedia Commons · ${photo.credit}` : 'Фото: Wikimedia Commons';
+        credit.title = `Відкрити джерело: ${photo.name}`;
+        return credit;
+    };
+
+    const clearLegacyThemePictures = () => {
+        [
+            '.minecraft-character-stage',
+            '.roblox-character-stage',
+            '.space-scene-stage',
+            '.london-scene-stage',
+            '.football-photo-stage',
+            '.animals-photo-stage',
+            '.remote-theme-photo-stage'
+        ].forEach(selector => document.querySelectorAll(selector).forEach(element => element.remove()));
+    };
+
+    const showRandomInternetThemePhoto = async container => {
+        const theme = document.body.dataset.theme || 'standard';
+        const requestId = ++remoteThemePhotoRequestId;
+        if (!container || !Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return;
+
+        for (let attempt = 0; attempt < 4; attempt++) {
+            const photo = await takeThemePhoto(theme);
+            if (!photo) return; // Старий малюнок залишається резервом.
+            let image;
+            try {
+                image = await loadRemoteThemeImage(photo);
+            } catch (error) {
+                continue;
+            }
+            if (requestId !== remoteThemePhotoRequestId || !container.isConnected || document.body.dataset.theme !== theme) return;
+
+            clearLegacyThemePictures();
+            const stage = document.createElement('div');
+            stage.className = 'remote-theme-photo-stage';
+            stage.setAttribute('role', 'group');
+            stage.setAttribute('aria-label', photo.name);
+            stage.append(image, createRemotePhotoCredit(photo));
+            container.prepend(stage);
+            return;
+        }
+    };
+
+    const showRandomInternetCelebrationPhoto = async (theme, mascotElement) => {
+        const requestId = ++remoteCelebrationPhotoRequestId;
+        if (!Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return;
+
+        for (let attempt = 0; attempt < 4; attempt++) {
+            const photo = await takeThemePhoto(theme);
+            if (!photo) return;
+            let image;
+            try {
+                image = await loadRemoteThemeImage(photo);
+            } catch (error) {
+                continue;
+            }
+            const overlay = document.getElementById('completion-celebration');
+            if (requestId !== remoteCelebrationPhotoRequestId || overlay.classList.contains('hidden') || document.body.dataset.theme !== theme) return;
+
+            const link = document.createElement('a');
+            link.className = 'remote-celebration-photo';
+            link.href = photo.pageUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.append(image, createRemotePhotoCredit(photo));
+            mascotElement.innerHTML = '';
+            mascotElement.appendChild(link);
+            mascotElement.removeAttribute('aria-hidden');
+            mascotElement.setAttribute('aria-label', photo.name);
+            return;
+        }
+    };
+
     const animateExerciseContainer = element => {
         if (!element) return;
         element.classList.remove('exercise-enter');
@@ -2846,7 +3405,12 @@ body.theme-football .celebration-mascot img {
         const spaceTheme = document.body.classList.contains('theme-space');
         const londonTheme = document.body.classList.contains('theme-london');
         const footballTheme = document.body.classList.contains('theme-football');
-        const message = footballTheme
+        const animalsTheme = document.body.classList.contains('theme-animals');
+        const message = animalsTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🦁', title: 'Дикий успіх!', phrase: 'Perfect adventure! — Ти пройшов пригоду без жодної помилки!' }
+                : { mascot: '🐾', title: 'Чудова пригода!', phrase: 'Great job! — Твоя англійська стає сильнішою з кожним кроком!' })
+            : footballTheme
             ? (incorrectAnswers === 0
                 ? { mascot: '🏆', title: 'Хет-трик знань!', phrase: 'Perfect match! — Ти завершив матч без жодної помилки!' }
                 : { mascot: '⚽', title: 'Переможний матч!', phrase: 'Great game! — Ще один крок до чемпіонської англійської!' })
@@ -2871,7 +3435,13 @@ body.theme-football .celebration-mascot img {
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         const mascotElement = document.getElementById('celebration-mascot');
-        if (footballTheme) {
+        if (animalsTheme) {
+            const photo = pickAnimalsPhoto();
+            mascotElement.innerHTML = '';
+            mascotElement.appendChild(createAnimalsImage(photo));
+            mascotElement.removeAttribute('aria-hidden');
+            mascotElement.setAttribute('aria-label', photo.name);
+        } else if (footballTheme) {
             const photo = pickFootballPhoto();
             mascotElement.innerHTML = '';
             mascotElement.appendChild(createFootballImage(photo));
@@ -2912,6 +3482,7 @@ body.theme-football .celebration-mascot img {
         createConfetti();
         overlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        showRandomInternetCelebrationPhoto(document.body.dataset.theme || 'standard', mascotElement);
     };
 
     const updateCelebrationStatus = text => {
@@ -2919,11 +3490,12 @@ body.theme-football .celebration-mascot img {
     };
 
     const hideCompletionCelebration = () => {
+        remoteCelebrationPhotoRequestId++;
         document.getElementById('completion-celebration').classList.add('hidden');
         document.body.style.overflow = '';
     };
 
-    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london', 'football'].includes(theme) ? theme : 'standard';
+    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london', 'football', 'animals'].includes(theme) ? theme : 'standard';
 
     const getSavedTheme = name => {
         try {
@@ -2939,7 +3511,8 @@ body.theme-football .celebration-mascot img {
             'стандартна': 'standard',
             'космос': 'space',
             'лондон': 'london',
-            'футбол': 'football'
+            'футбол': 'football',
+            'тварини': 'animals'
         };
         const nextThemes = new Set(['standard']);
         String(value || '').split(';').forEach(item => {
@@ -3092,6 +3665,7 @@ body.theme-football .celebration-mascot img {
         document.body.classList.toggle('theme-space', selectedTheme === 'space');
         document.body.classList.toggle('theme-london', selectedTheme === 'london');
         document.body.classList.toggle('theme-football', selectedTheme === 'football');
+        document.body.classList.toggle('theme-animals', selectedTheme === 'animals');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
         updateThemeAccessUI();
@@ -3107,6 +3681,8 @@ body.theme-football .celebration-mascot img {
         showRandomSpaceScene(activeExercise);
         showRandomLondonScene(activeExercise);
         showRandomFootballPhoto(activeExercise);
+        showRandomAnimalsPhoto(activeExercise);
+        showRandomInternetThemePhoto(activeExercise);
 
         if (save) {
             try {
@@ -3541,10 +4117,14 @@ const handleMenuClick = async (event) => {
                             <span class="theme-option-icon" aria-hidden="true">⚽</span>
                             <span class="theme-option-label">Футбол</span>
                         </button>
+                        <button type="button" class="theme-option theme-option-animals" data-theme="animals" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">🦁</span>
+                            <span class="theme-option-label">Animals</span>
+                        </button>
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
                     <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
-                    <small class="theme-source">Джерела зображень: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a> та <a href="https://unsplash.com/s/photos/football" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
+                    <small class="theme-source">Велика галерея для всіх тем: <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>. Резервні зображення: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a> та <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
                 </div>
             `;
             break;
@@ -3663,6 +4243,9 @@ const handleMenuClick = async (event) => {
         document.querySelectorAll('.space-scene-stage').forEach(stage => stage.remove());
         document.querySelectorAll('.london-scene-stage').forEach(stage => stage.remove());
         document.querySelectorAll('.football-photo-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.animals-photo-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.remote-theme-photo-stage').forEach(stage => stage.remove());
+        remoteThemePhotoRequestId++;
         [
             'ukr-sentence',
             'hint-text',
@@ -4690,6 +5273,8 @@ class TaskModule {
     showRandomSpaceScene(activeExerciseContainer);
     showRandomLondonScene(activeExerciseContainer);
     showRandomFootballPhoto(activeExerciseContainer);
+    showRandomAnimalsPhoto(activeExerciseContainer);
+    showRandomInternetThemePhoto(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
