@@ -2372,6 +2372,136 @@ body.theme-animals .celebration-mascot img {
     body.theme-animals .animals-photo-stage { border-radius: 14px; }
 }
 
+/* Stitch: блакитний океан, рожеві акценти та світлі картки. */
+.theme-option-stich { color: #123b64; background: linear-gradient(135deg, #8cdfff, #e7bcf6); }
+body.theme-stich {
+    min-height: 100vh; color: #163853;
+    background: radial-gradient(circle at 85% 10%, #f5c7ef, transparent 35%),
+        linear-gradient(145deg, #a9e9fa, #61bce9 60%, #829ae0);
+    background-attachment: fixed;
+}
+body.theme-stich :is(h1, #ukr-sentence, .task-text) { color: #153e65; font-weight: 800; }
+body.theme-stich :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #84bce6; border-radius: 20px;
+    background: #f7fcff; box-shadow: 0 8px 24px #24548c30;
+}
+body.theme-stich .word {
+    color: #fff; background: #2866a1; border: 2px solid #bdeaff;
+    border-radius: 14px; box-shadow: 0 4px 0 #16446f;
+}
+body.theme-stich .word.clicked { color: #372243; background: #eab5de; border-color: #fff; }
+body.theme-stich :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #285e99; border: 2px solid #bbdef6;
+    border-radius: 14px; font-weight: 800;
+}
+body.theme-stich :is(input, textarea, select) {
+    color: #173d61; background: #fff; border: 2px solid #78b5df; border-radius: 10px;
+}
+body.theme-stich .burger-icon span { background: #285e99; }
+body.theme-stich .side-panel { color: #fff; background: #1b416c; }
+body.theme-stich .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-stich .side-panel li:hover { color: #153653; background: #c7eafa; }
+body.theme-stich .modal-content { color: #173d61; background: #f7fcff; border: 3px solid #7fb4df; }
+body.theme-stich .progress-bar { background: linear-gradient(90deg, #226bac, #e1a1d1); height: 5px; }
+body.theme-stich .rating-table th { color: #fff; background: #285e99; }
+body.theme-stich #weekly-progress-container .mt-8 { background: #f7fcff; border-color: #78b5df; }
+body.theme-stich #completion-celebration { background: linear-gradient(145deg, #74cdeb, #7c94d9, #dba8d1); }
+body.theme-stich .celebration-card { color: #173d61; background: #f7fcff; border: 4px solid #a6ddf6; }
+body.theme-stich .celebration-loader span { background: #2866a1; }
+body.theme-stich .celebration-loader span:nth-child(2) { background: #d990c3; }
+@media (max-width: 480px) {
+    body.theme-stich .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
+/* Kuromi: бузковий фон, темні акценти та контрастні світлі картки. */
+.theme-option-kuromi { color: #fff; background: linear-gradient(135deg, #282238, #8860ac 65%, #e2a1cf); }
+body.theme-kuromi {
+    min-height: 100vh; color: #352444;
+    background: radial-gradient(circle at 85% 12%, #efbfdc, transparent 34%),
+        linear-gradient(145deg, #d3bee8, #a589c5 60%, #5c4775);
+    background-attachment: fixed;
+}
+body.theme-kuromi :is(h1, #ukr-sentence, .task-text) { color: #47305d; font-weight: 800; }
+body.theme-kuromi :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #a888c1; border-radius: 20px;
+    background: #fffbff; box-shadow: 0 8px 24px #39234e35;
+}
+body.theme-kuromi .word {
+    color: #fff; background: #49335f; border: 2px solid #d9b5e7;
+    border-radius: 14px; box-shadow: 0 4px 0 #291c38;
+}
+body.theme-kuromi .word.clicked { color: #3e2347; background: #edb7d9; border-color: #fff; }
+body.theme-kuromi :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #583c72; border: 2px solid #d9b5e7; border-radius: 14px; font-weight: 800;
+}
+body.theme-kuromi :is(input, textarea, select) {
+    color: #352444; background: #fff; border: 2px solid #a888c1; border-radius: 10px;
+}
+body.theme-kuromi .burger-icon span { background: #49335f; }
+body.theme-kuromi .side-panel { color: #fff; background: #292134; }
+body.theme-kuromi .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-kuromi .side-panel li:hover { color: #352444; background: #e5c7ec; }
+body.theme-kuromi .modal-content { color: #352444; background: #fffbff; border: 3px solid #a888c1; }
+body.theme-kuromi .progress-bar { background: linear-gradient(90deg, #755099, #edabd4); height: 5px; }
+body.theme-kuromi .rating-table th { color: #fff; background: #583c72; }
+body.theme-kuromi #weekly-progress-container .mt-8 { background: #fffbff; border-color: #a888c1; }
+body.theme-kuromi #completion-celebration { background: linear-gradient(145deg, #392747, #9470b6, #e5acd1); }
+body.theme-kuromi .celebration-card { color: #352444; background: #fffbff; border: 4px solid #dab7e9; }
+body.theme-kuromi .celebration-loader span { background: #583c72; }
+body.theme-kuromi .celebration-loader span:nth-child(2) { background: #e19bc8; }
+@media (max-width: 480px) {
+    body.theme-kuromi .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
+/* Battlegrounds: неонова арена, світлі читабельні картки. */
+.theme-option-battlegrounds {
+    color: #fff; background: linear-gradient(135deg, #142333, #255f80 65%, #dd8633);
+}
+.theme-option-label { overflow-wrap: anywhere; }
+body.theme-battlegrounds {
+    min-height: 100vh; color: #173247;
+    background: radial-gradient(circle at 15% 10%, #23778b, transparent 35%),
+        linear-gradient(145deg, #172b3f, #283753 65%, #54322b);
+    background-attachment: fixed;
+}
+body.theme-battlegrounds :is(h1, #ukr-sentence, .task-text) { color: #15384e; font-weight: 800; }
+body.theme-battlegrounds :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #65c3d3; border-radius: 14px;
+    background: #f4fbff; box-shadow: 0 8px 24px #081c3750;
+}
+body.theme-battlegrounds .word {
+    color: #fff; background: #24506c; border: 2px solid #85dce3;
+    border-radius: 9px; box-shadow: 0 4px 0 #123348;
+}
+body.theme-battlegrounds .word.clicked { color: #392709; background: #ffce83; border-color: #fff; }
+body.theme-battlegrounds :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #225771; border: 2px solid #90dbe3; border-radius: 9px; font-weight: 800;
+}
+body.theme-battlegrounds :is(input, textarea, select) {
+    color: #173247; background: #fff; border: 2px solid #63b2c5; border-radius: 9px;
+}
+body.theme-battlegrounds .burger-icon span { background: #24506c; }
+body.theme-battlegrounds .side-panel { color: #fff; background: #152636; }
+body.theme-battlegrounds .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-battlegrounds .side-panel li:hover { color: #183146; background: #a9e6ed; }
+body.theme-battlegrounds .modal-content { color: #173247; background: #f4fbff; border: 3px solid #63b2c5; }
+body.theme-battlegrounds .progress-bar { background: linear-gradient(90deg, #64e3e8, #ffb56c); height: 5px; }
+body.theme-battlegrounds .rating-table th { color: #fff; background: #24506c; }
+body.theme-battlegrounds #weekly-progress-container .mt-8 { background: #f4fbff; border-color: #63b2c5; }
+body.theme-battlegrounds #completion-celebration { background: linear-gradient(145deg, #152636, #245f75, #69432f); }
+body.theme-battlegrounds .celebration-card { color: #173247; background: #f4fbff; border: 4px solid #87dce5; }
+body.theme-battlegrounds .celebration-loader span { background: #24506c; }
+body.theme-battlegrounds .celebration-loader span:nth-child(2) { background: #e89847; }
+@media (max-width: 480px) {
+    body.theme-battlegrounds .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
 /* Фіксовані тематичні добірки: без автоматичного пошуку. */
 .remote-theme-photo-stage {
     position: relative;
@@ -2852,7 +2982,10 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         space: { label: 'Космос', price: 25 },
         london: { label: 'Лондон', price: 25 },
         football: { label: 'Футбол', price: 25 },
-        animals: { label: 'Animals', price: 25 }
+        animals: { label: 'Animals', price: 25 },
+        stich: { label: 'Stitch', price: 25 },
+        kuromi: { label: 'Kuromi', price: 25 },
+        battlegrounds: { label: 'Battlegrounds', price: 25 }
     });
 
     // Переменные для отслеживания состояния приложения
@@ -3221,6 +3354,88 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         blockAvatar('Блоковий аватар: мандрівник', '#779849', '<path d="M-33 24L-23 1H23L33 24M-47 24H47" fill="#b79262" stroke="#b79262" stroke-width="10"/>', '<path d="M60 99H108V153H60Z" fill="#f8eabd"/><path d="M74 105L84 124L98 117" fill="none" stroke="#62a59a" stroke-width="4"/>')
     ];
 
+    // Власні SVG-ілюстрації Stitch, без зовнішнього пошуку зображень.
+    const stitchDrawing = (name, background, scenery, accessory, tilt = 0) =>
+        themeDrawing(name, background, scenery +
+        '<g transform="translate(260 125) rotate(' + tilt + ')">' +
+        '<ellipse cy="70" rx="48" ry="40" fill="#368dc5"/><ellipse cy="76" rx="27" ry="29" fill="#a8ddec"/>' +
+        '<ellipse cx="-41" cy="100" rx="25" ry="13" fill="#236fa9"/><ellipse cx="41" cy="100" rx="25" ry="13" fill="#236fa9"/>' +
+        '<path d="M-44-28Q-91-103-132-94Q-121-12-53 18Z" fill="#3388c3"/>' +
+        '<path d="M44-28Q91-103 132-94Q121-12 53 18Z" fill="#3388c3"/>' +
+        '<path d="M-59-27Q-93-81-119-81Q-105-23-61 5Z" fill="#ce9cc8"/>' +
+        '<path d="M59-27Q93-81 119-81Q105-23 61 5Z" fill="#ce9cc8"/>' +
+        '<ellipse cy="0" rx="69" ry="57" fill="#4099ce"/>' +
+        '<path d="M-14-50L-7-68L3-51L15-62L16-48" fill="#4099ce"/>' +
+        '<ellipse cx="-32" cy="-3" rx="23" ry="30" fill="#b0e0ee"/><ellipse cx="32" cy="-3" rx="23" ry="30" fill="#b0e0ee"/>' +
+        '<ellipse cx="-30" cy="-5" rx="13" ry="20" fill="#102c50"/><ellipse cx="30" cy="-5" rx="13" ry="20" fill="#102c50"/>' +
+        '<circle cx="-26" cy="-12" r="5" fill="white"/><circle cx="34" cy="-12" r="5" fill="white"/>' +
+        '<ellipse cy="18" rx="21" ry="14" fill="#173e70"/>' +
+        '<path d="M-35 32Q0 64 35 32Q0 76-35 32Z" fill="#194571"/>' +
+        '<path d="M-25 39L-20 48L-15 42M15 42L20 48L25 39" fill="white"/>' +
+        '<ellipse cx="-49" cy="66" rx="14" ry="28" fill="#368dc5" transform="rotate(15 -49 66)"/>' +
+        '<ellipse cx="49" cy="66" rx="14" ry="28" fill="#368dc5" transform="rotate(-15 49 66)"/>' +
+        accessory + '</g>');
+    const stitchDrawings = [
+        stitchDrawing('Stitch на пляжі', '#bceaf5', '<path d="M0 150H520V240H0Z" fill="#ffe3a5"/><path d="M0 120Q120 95 260 120T520 120V158H0Z" fill="#6ac9df"/><circle cx="448" cy="43" r="26" fill="#ffe08b"/>', ''),
+        stitchDrawing('Stitch із сердечком', '#f4dcef', '<circle cx="91" cy="64" r="26" fill="#eab1d6"/><circle cx="436" cy="95" r="40" fill="#eab1d6"/>', '<path d="M0 107L-32 75C-56 47-15 30 0 56C15 30 56 47 32 75Z" fill="#e66ba6"/>'),
+        stitchDrawing('Stitch із серфінгом', '#c3ecf4', '<path d="M0 180Q80 140 150 180T300 180T520 180V240H0Z" fill="#59bed8"/><ellipse cx="405" cy="135" rx="29" ry="96" transform="rotate(15 405 135)" fill="#ffcc77"/><path d="M421 55L403 130L392 205" stroke="#f08289" stroke-width="12"/>', '', -6),
+        stitchDrawing('Stitch серед зірок', '#263c72', '<path d="M65 40L70 54L85 55L73 65L77 79L65 70L53 79L57 65L45 55L60 54ZM446 66L451 80L466 81L454 91L458 105L446 96L434 105L438 91L426 81L441 80Z" fill="#ffe58c"/><circle cx="385" cy="35" r="4" fill="white"/><circle cx="121" cy="180" r="4" fill="white"/>', ''),
+        stitchDrawing('Stitch з укулеле', '#e2f1da', '<path d="M0 200Q100 160 210 200T520 194V240H0Z" fill="#a5d7b4"/>', '<g transform="rotate(30 12 73)"><ellipse cx="8" cy="87" rx="27" ry="23" fill="#bf854e"/><ellipse cx="8" cy="64" rx="20" ry="18" fill="#bf854e"/><path d="M8 57V15" stroke="#95613d" stroke-width="12"/><circle cx="8" cy="75" r="9" fill="#5d4235"/><path d="M5 20V97M10 20V97" stroke="#ffe7b6" stroke-width="1.5"/></g>'),
+        stitchDrawing('Stitch святкує', '#d8e8fc', '<path d="M74 38L90 62M435 30L416 52M108 152L87 169M418 171L444 182" stroke="#e8a4d5" stroke-width="9"/><circle cx="161" cy="31" r="7" fill="#ffd580"/><circle cx="450" cy="115" r="8" fill="#ffd580"/>', '<path d="M-32-49L0-112L32-49Z" fill="#f9c55f"/><path d="M-19-77H19M-27-59H27" stroke="#e48bbd" stroke-width="8"/><circle cy="-111" r="8" fill="#f6a4d4"/>', 5)
+    ];
+
+    // Власні SVG-ілюстрації Kuromi; фото користувача додаються через images.
+    const kuromiDrawing = (name, background, scenery, accessory, tilt = 0) =>
+        themeDrawing(name, background, scenery +
+        '<g transform="translate(260 126) rotate(' + tilt + ')">' +
+        '<path d="M32 85Q88 107 89 67L77 74L92 50L105 73L94 71" fill="none" stroke="#302637" stroke-width="6" stroke-linejoin="round"/>' +
+        '<ellipse cy="70" rx="35" ry="37" fill="#fffcff"/>' +
+        '<ellipse cx="-23" cy="99" rx="20" ry="11" fill="#fffcff"/><ellipse cx="23" cy="99" rx="20" ry="11" fill="#fffcff"/>' +
+        '<path d="M-48-22L-84-98L-14-50M48-22L84-98L14-50" fill="#302637"/>' +
+        '<circle cx="-84" cy="-98" r="10" fill="#302637"/><circle cx="84" cy="-98" r="10" fill="#302637"/>' +
+        '<ellipse cy="-4" rx="70" ry="64" fill="#302637"/>' +
+        '<path d="M-54-7Q-34-26-16-12Q0 0 16-12Q34-26 54-7Q67 50 0 52Q-67 50-54-7Z" fill="#fffcff"/>' +
+        '<ellipse cx="-25" cy="10" rx="6" ry="10" fill="#302637"/><ellipse cx="25" cy="10" rx="6" ry="10" fill="#302637"/>' +
+        '<path d="M-31 2L-37-2M31 2L37-2" stroke="#302637" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cy="24" rx="5" ry="3" fill="#e09aba"/><path d="M-10 33Q0 44 10 33" fill="none" stroke="#302637" stroke-width="3"/>' +
+        '<ellipse cx="-40" cy="27" rx="10" ry="5" fill="#f4c2da"/><ellipse cx="40" cy="27" rx="10" ry="5" fill="#f4c2da"/>' +
+        '<g transform="translate(0 -38)"><path d="M-17 0A17 15 0 1 1 17 0L9 9V16H-9V9Z" fill="#f0a8d0"/><ellipse cx="-7" cy="-3" rx="4" ry="5" fill="#302637"/><ellipse cx="7" cy="-3" rx="4" ry="5" fill="#302637"/><path d="M-3 11V16M3 11V16" stroke="#302637" stroke-width="2"/></g>' +
+        '<path d="M-35 51L-20 69L0 59L20 69L35 51" fill="#9b73b6"/>' +
+        '<ellipse cx="-39" cy="72" rx="12" ry="19" fill="#fffcff"/><ellipse cx="39" cy="72" rx="12" ry="19" fill="#fffcff"/>' +
+        accessory + '</g>');
+    const kuromiDrawings = [
+        kuromiDrawing('Kuromi із сердечком', '#f5e1f0', '<circle cx="104" cy="59" r="28" fill="#e3c2ed"/><circle cx="422" cy="171" r="42" fill="#e3c2ed"/>', '<path d="M0 103L-26 78C-44 54-10 43 0 62C10 43 44 54 26 78Z" fill="#d980b5"/>'),
+        kuromiDrawing('Kuromi під місяцем', '#443253', '<path d="M106 29A35 35 0 1 0 140 78A31 31 0 0 1 106 29Z" fill="#ffe5a1"/><path d="M409 47L413 59L426 60L416 68L420 81L409 73L398 81L402 68L392 60L405 59Z" fill="#ecd1fa"/>', ''),
+        kuromiDrawing('Kuromi читає книжку', '#e8e0f6', '<rect x="77" y="146" width="65" height="12" rx="3" fill="#b995d3"/><rect x="83" y="160" width="65" height="12" rx="3" fill="#e6a1c9"/>', '<path d="M0 67Q-20 53-48 58V98Q-20 94 0 108Q20 94 48 98V58Q20 53 0 67Z" fill="#b38bc9" stroke="#694c80" stroke-width="3"/><path d="M0 69V106" stroke="#ffefff" stroke-width="3"/>'),
+        kuromiDrawing('Kuromi з подарунком', '#fae3ef', '<path d="M83 60L100 80M425 36L409 60M431 156L450 169" stroke="#c89edf" stroke-width="8"/>', '<rect x="-35" y="63" width="70" height="43" rx="3" fill="#b291d2"/><path d="M0 63V106M-35 77H35" stroke="#f7b8da" stroke-width="9"/><path d="M0 62Q-40 25-26 58Q-9 64 0 62Q40 25 26 58Q9 64 0 62" fill="none" stroke="#ee9dcb" stroke-width="6"/>'),
+        kuromiDrawing('Kuromi з музикою', '#e6dcf5', '<path d="M106 47V108M106 47L144 38V99" fill="none" stroke="#9970b6" stroke-width="7"/><ellipse cx="95" cy="108" rx="14" ry="10" fill="#9970b6"/><ellipse cx="133" cy="99" rx="14" ry="10" fill="#9970b6"/><path d="M425 91V153M425 91L450 101" stroke="#d284b2" stroke-width="7"/><ellipse cx="414" cy="153" rx="14" ry="10" fill="#d284b2"/>', '', -5),
+        kuromiDrawing('Kuromi з морозивом', '#f6e7f3', '<circle cx="107" cy="66" r="29" fill="#e1c4ec"/><circle cx="423" cy="174" r="33" fill="#e1c4ec"/>', '<path d="M-21 79L0 113L21 79Z" fill="#e3bb86"/><circle cy="68" r="23" fill="#dda9d3"/><circle cy="45" r="8" fill="#d17da8"/>', 4)
+    ];
+
+    // Авторські ілюстрації ігрових арен; не скриншоти конкретної гри.
+    const arenaHero = (x, y, color, pose = 0) =>
+        '<g transform="translate(' + x + ' ' + y + ')">' +
+        '<rect x="-19" y="-47" width="38" height="35" rx="5" fill="#f5d6ae"/>' +
+        '<path d="M-20-39V-50L-9-59L-5-52L7-61L12-52L21-49V-39Z" fill="#233442"/>' +
+        '<path d="M-9-30H-4M5-30H10" stroke="#20313f" stroke-width="3"/>' +
+        '<rect x="-25" y="-8" width="50" height="48" rx="4" fill="' + color + '"/>' +
+        '<path d="M-12 40L-18 78M12 40L24 78" stroke="#263c54" stroke-width="17"/>' +
+        '<path d="' + (pose ? 'M-26 1L-52-26M26 1L51-26' : 'M-26 1L-44 32M26 1L47 18') +
+        '" fill="none" stroke="' + color + '" stroke-width="16" stroke-linecap="round"/>' +
+        '<path d="M-29 81H-8M14 81H35" stroke="#b6d9e7" stroke-width="9"/>' +
+        '</g>';
+    const arenaDrawing = (name, scene) => themeDrawing(name, '#192e46',
+        '<path d="M0 176L260 115L520 176V240H0Z" fill="#35516a"/>' +
+        '<path d="M0 207H520M80 240L214 127M440 240L306 127M260 123V240" stroke="#527894" stroke-width="2"/>' + scene);
+    const battlegroundsDrawings = [
+        arenaDrawing('Battlegrounds: вихід на арену', '<ellipse cx="260" cy="193" rx="127" ry="27" fill="none" stroke="#74e7eb" stroke-width="6"/><path d="M50 146V46H140V124M380 124V46H470V146" fill="none" stroke="#4e8da9" stroke-width="9"/>' + arenaHero(260, 107, '#ec9c4c')),
+        arenaDrawing('Battlegrounds: енергетичний ривок', '<path d="M50 82H190M27 112H164M65 144H180" stroke="#73e7e7" stroke-width="7" stroke-linecap="round"/><path d="M315 78L369 54L346 105L403 99L334 164" fill="none" stroke="#ffe087" stroke-width="9"/>' + arenaHero(248, 117, '#55b7ce')),
+        arenaDrawing('Battlegrounds: команда героїв', '<path d="M90 45H430" stroke="#93cadb" stroke-width="4"/><circle cx="260" cy="37" r="17" fill="#f4cb76"/>' + arenaHero(152, 124, '#68b8cc') + arenaHero(260, 103, '#e3a053', 1) + arenaHero(371, 124, '#ae88d4')),
+        arenaDrawing('Battlegrounds: тренувальний майданчик', '<rect x="55" y="89" width="53" height="93" rx="8" fill="#d89159"/><path d="M81 80V191" stroke="#f8db94" stroke-width="7"/><circle cx="408" cy="102" r="40" fill="#2d4d65" stroke="#8bdcde" stroke-width="6"/><circle cx="408" cy="102" r="22" fill="none" stroke="#ffcb80" stroke-width="6"/>' + arenaHero(254, 122, '#8395d4')),
+        arenaDrawing('Battlegrounds: захисний щит', '<path d="M260 29L356 64V123Q348 192 260 218Q172 192 164 123V64Z" fill="#285777" stroke="#72e7e9" stroke-width="5"/><path d="M63 67L112 98M413 63L456 89" stroke="#ffce86" stroke-width="7"/>' + arenaHero(260, 113, '#70b9c7')),
+        arenaDrawing('Battlegrounds: перемога на арені', '<path d="M50 65L77 89M437 46L413 77M105 36L116 59M443 147L466 164" stroke="#7fe1e5" stroke-width="7"/><path d="M248 30H272V52Q260 68 248 52ZM252 62H268V75H252Z" fill="#ffdc85"/><path d="M248 33H236Q232 52 250 52M272 33H284Q288 52 270 52" fill="none" stroke="#ffdc85" stroke-width="5"/>' + arenaHero(260, 133, '#dd9849', 1))
+    ];
+
     // Тільки фіксовані тематичні набори. Пошук в інтернеті не виконується.
     // Нові зображення додаються до відповідного масиву після ручного перегляду.
     const THEME_GALLERIES = Object.freeze({
@@ -3229,11 +3444,14 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         space: spaceScenes,
         london: londonScenes,
         football: [...footballPhotos, ...footballDrawings],
-        animals: [...animalsPhotos, ...animalDrawings]
+        animals: [...animalsPhotos, ...animalDrawings],
+        stich: stitchDrawings,
+        kuromi: kuromiDrawings,
+        battlegrounds: battlegroundsDrawings
     });
     const THEME_GALLERY_EMOJI = Object.freeze({
         minecraft: '⛏️', roblox: '🎮', space: '🚀',
-        london: '🇬🇧', football: '⚽', animals: '🐾'
+        london: '🇬🇧', football: '⚽', animals: '🐾', stich: '💙', kuromi: '💜', battlegrounds: '⚡'
     });
     const themeGalleryQueues = new Map();
     const mixedThemeGalleries = { ...THEME_GALLERIES };
@@ -3251,7 +3469,8 @@ body[class] .celebration-mascot .curated-theme-artwork img {
             .map(([theme, photos]) => [theme, new Set(photos.filter(p => p.src).map(p => p.src))]));
         for (const row of rows) {
             if (!Array.isArray(row)) continue;
-            const theme = String(row[0] || '').trim().toLowerCase();
+            const rawTheme = String(row[0] || '').trim().toLowerCase();
+            const theme = rawTheme === 'stitch' ? 'stich' : rawTheme;
             if (!Object.prototype.hasOwnProperty.call(next, theme)) continue;
             let url;
             try { url = new URL(String(row[1] || '').trim()); } catch (_) { continue; }
@@ -3493,7 +3712,22 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         const londonTheme = document.body.classList.contains('theme-london');
         const footballTheme = document.body.classList.contains('theme-football');
         const animalsTheme = document.body.classList.contains('theme-animals');
-        const message = animalsTheme
+        const stitchTheme = document.body.classList.contains('theme-stich');
+        const kuromiTheme = document.body.classList.contains('theme-kuromi');
+        const battlegroundsTheme = document.body.classList.contains('theme-battlegrounds');
+        const message = battlegroundsTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🏆', title: 'Чемпіон арени знань!', phrase: 'Flawless victory! — Жодної помилки!' }
+                : { mascot: '⚡', title: 'Новий рівень сили!', phrase: 'Level up! — Твоя англійська стає сильнішою!' })
+            : kuromiTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '💜', title: 'Блискучий результат із Kuromi!', phrase: 'Perfect work! — Усі відповіді правильні!' }
+                : { mascot: '💜', title: 'Kuromi вітає тебе!', phrase: 'Well done! — Твоя англійська стає кращою!' })
+            : stitchTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '💙', title: 'Зіркова пригода зі Stitch!', phrase: 'Perfect work! — Жодної помилки! Чудова робота!' }
+                : { mascot: '💙', title: 'Stitch радіє разом із тобою!', phrase: 'Great job! — Ще одна пригода англійською позаду!' })
+            : animalsTheme
             ? (incorrectAnswers === 0
                 ? { mascot: '🦁', title: 'Дикий успіх!', phrase: 'Perfect adventure! — Ти пройшов пригоду без жодної помилки!' }
                 : { mascot: '🐾', title: 'Чудова пригода!', phrase: 'Great job! — Твоя англійська стає сильнішою з кожним кроком!' })
@@ -3544,7 +3778,8 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         document.body.style.overflow = '';
     };
 
-    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london', 'football', 'animals'].includes(theme) ? theme : 'standard';
+    const normalizeTheme = theme => theme === 'stitch' ? 'stich'
+        : ['minecraft', 'roblox', 'space', 'london', 'football', 'animals', 'stich', 'kuromi', 'battlegrounds'].includes(theme) ? theme : 'standard';
 
     const getSavedTheme = name => {
         try {
@@ -3561,7 +3796,9 @@ body[class] .celebration-mascot .curated-theme-artwork img {
             'космос': 'space',
             'лондон': 'london',
             'футбол': 'football',
-            'тварини': 'animals'
+            'тварини': 'animals',
+            'stitch': 'stich',
+            'стіч': 'stich'
         };
         const nextThemes = new Set(['standard']);
         String(value || '').split(';').forEach(item => {
@@ -3715,6 +3952,9 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         document.body.classList.toggle('theme-london', selectedTheme === 'london');
         document.body.classList.toggle('theme-football', selectedTheme === 'football');
         document.body.classList.toggle('theme-animals', selectedTheme === 'animals');
+        document.body.classList.toggle('theme-stich', selectedTheme === 'stich');
+        document.body.classList.toggle('theme-kuromi', selectedTheme === 'kuromi');
+        document.body.classList.toggle('theme-battlegrounds', selectedTheme === 'battlegrounds');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
         updateThemeAccessUI();
@@ -4163,6 +4403,18 @@ const handleMenuClick = async (event) => {
                         <button type="button" class="theme-option theme-option-animals" data-theme="animals" role="radio">
                             <span class="theme-option-icon" aria-hidden="true">🦁</span>
                             <span class="theme-option-label">Animals</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-stich" data-theme="stich" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">💙</span>
+                            <span class="theme-option-label">Stitch</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-kuromi" data-theme="kuromi" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">💜</span>
+                            <span class="theme-option-label">Kuromi</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-battlegrounds" data-theme="battlegrounds" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">⚡</span>
+                            <span class="theme-option-label">Battlegrounds</span>
                         </button>
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
