@@ -1124,6 +1124,15 @@ input:checked + .slider:before {
         linear-gradient(#17366f, #102752);
 }
 
+.theme-option-football {
+    color: #fff;
+    text-shadow: 1px 2px rgba(0,0,0,.72);
+    background:
+        radial-gradient(circle at 78% 24%, #fff 0 8px, #1f2937 9px 12px, #fff 13px 18px, transparent 19px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0 24px, transparent 24px 48px),
+        linear-gradient(145deg, #43a047, #176b35 72%, #0f4927);
+}
+
 .theme-option-icon { display: block; margin-bottom: 6px; font-size: 32px; }
 .theme-option-label { display: block; font-size: 14px; }
 .theme-source { display: block; margin-top: 9px; color: #687188; font-size: 11px; line-height: 1.3; }
@@ -1179,6 +1188,15 @@ body.theme-london #weekly-progress-container .mt-8 {
 body.theme-london #weekly-progress-container .mt-8 h3 { color: #193668; }
 body.theme-london .rating-table th { color: #fff; background: #17376d; border-color: #102750; }
 body.theme-london .rating-table td { color: #252d3b; }
+
+body.theme-football #weekly-progress-container .mt-8 {
+    border-color: #1f8d49;
+    background: #fbfff8;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.52), 0 14px 32px rgba(7,57,31,.34);
+}
+body.theme-football #weekly-progress-container .mt-8 h3 { color: #124b2b; }
+body.theme-football .rating-table th { color: #fff; background: #16713a; border-color: #0c5429; }
+body.theme-football .rating-table td { color: #173b27; }
 
 /* Яскрава блокова Minecraft-тема */
 body.theme-minecraft {
@@ -1940,6 +1958,202 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     body.theme-london .london-scene-stage { border-radius: 11px; }
 }
 
+/* Футбольна тема: поле, табло, контрастні картки та випадкові фото */
+body.theme-football {
+    min-height: 100vh;
+    color: #143422;
+    font-family: Inter, Arial, sans-serif;
+    background-color: #146b35;
+    background-image:
+        linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.22) 49.7% 50.3%, transparent 50.3%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 84px, rgba(0,0,0,.035) 84px 168px),
+        linear-gradient(155deg, #238f4b, #126432 58%, #0a4824);
+    background-attachment: fixed;
+}
+
+body.theme-football::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 79px, rgba(255,255,255,.14) 80px 83px, transparent 84px),
+        linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) center / 3px 100% no-repeat;
+}
+
+body.theme-football h1,
+body.theme-football #ukr-sentence,
+body.theme-football .task-text { color: #113c23; font-weight: 900; }
+
+body.theme-football .header {
+    box-sizing: border-box;
+    padding: 9px;
+    border: 3px solid #fff;
+    border-radius: 15px;
+    background: rgba(248,255,246,.96);
+    box-shadow: 0 0 0 4px rgba(7,65,31,.34), 0 12px 28px rgba(2,43,20,.35);
+}
+
+body.theme-football #task-module-container,
+body.theme-football #listen-task-module,
+body.theme-football #listen-select-module,
+body.theme-football #translate-task-module,
+body.theme-football #stats-container,
+body.theme-football #feedback,
+body.theme-football #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 3px solid #0c5d2d;
+    border-radius: 18px;
+    background: rgba(250,255,248,.97);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.62), 0 15px 34px rgba(2,48,22,.38);
+}
+
+body.theme-football .word {
+    border: 2px solid #fff;
+    border-radius: 12px;
+    color: #fff;
+    background: linear-gradient(145deg, #249d50, #10652f);
+    box-shadow: 0 5px 0 #08451f, 0 8px 16px rgba(5,61,26,.3);
+    font-weight: 900;
+}
+
+body.theme-football .word.clicked {
+    border-color: #fff1a8;
+    color: #172016;
+    background: linear-gradient(145deg, #ffe55a, #f7b928);
+    box-shadow: 0 5px 0 #b97a0a;
+}
+
+body.theme-football .styled-button,
+body.theme-football #start-btn,
+body.theme-football #check-btn,
+body.theme-football #reset-btn,
+body.theme-football #hint-btn {
+    border: 2px solid #fff;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(145deg, #202b38, #0d151e);
+    box-shadow: 0 5px 0 #05090d, 0 9px 18px rgba(0,0,0,.25);
+    font-weight: 900;
+}
+
+body.theme-football input,
+body.theme-football textarea,
+body.theme-football select {
+    border: 2px solid #16723a !important;
+    border-radius: 10px !important;
+    color: #173522;
+    background: #fff;
+}
+
+body.theme-football .separator { border-bottom: 7px solid rgba(255,255,255,.72); }
+body.theme-football .progress-bar {
+    bottom: -7px;
+    height: 7px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #f7d23c, #fff 48%, #f7d23c);
+    box-shadow: 0 0 12px rgba(255,231,89,.7);
+}
+
+body.theme-football .burger-icon span { background: #0e592b; }
+body.theme-football .side-panel {
+    border-right: 4px solid #fff;
+    color: #fff;
+    background: linear-gradient(#0b351d, #116233 58%, #0a4323);
+}
+body.theme-football .side-panel ul li { border-bottom: 1px solid rgba(255,255,255,.24); color: #fff; }
+body.theme-football .side-panel ul li:hover { color: #17321f; background: #f5d94a; }
+body.theme-football .side-panel .close-btn { color: #fff; }
+body.theme-football .modal-content {
+    border: 3px solid #16723a;
+    color: #173522;
+    background: #fbfff9;
+    box-shadow: 0 16px 45px rgba(2,44,20,.45);
+}
+
+body.theme-football #completion-celebration {
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 88px, rgba(255,255,255,.16) 89px 93px, transparent 94px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 90px, transparent 90px 180px),
+        linear-gradient(145deg, #0b4c25, #16823e 58%, #073718);
+}
+body.theme-football .celebration-card {
+    border: 4px solid #fff;
+    color: #153723;
+    background: rgba(250,255,247,.98);
+    box-shadow: 0 0 0 5px rgba(10,80,36,.55), 0 24px 65px rgba(0,30,12,.58);
+}
+body.theme-football .celebration-loader span { background: #16823e; }
+body.theme-football .celebration-loader span:nth-child(2) { background: #f4d53f; }
+body.theme-football .celebration-loader span:nth-child(3) { background: #202a36; }
+
+.football-photo-stage { display: none; }
+body.theme-football .football-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(500px, 100%);
+    margin: -3px auto 12px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 17px;
+    background: #0d592b;
+    box-shadow: 0 0 0 3px #0b5629, 0 12px 27px rgba(1,39,17,.44);
+    pointer-events: none;
+}
+.football-photo-stage img,
+body.theme-football .celebration-mascot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: footballPhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+.football-photo-stage::after {
+    content: "⚽ FOOTBALL";
+    position: absolute;
+    right: 9px;
+    bottom: 8px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(4,33,16,.78);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+body.theme-football .celebration-mascot { display: grid; place-items: center; min-height: 0; }
+body.theme-football .celebration-mascot img {
+    width: min(380px, 100%);
+    border: 4px solid #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(1,43,18,.34);
+}
+
+@keyframes footballPhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    body.theme-football #task-module-container,
+    body.theme-football #listen-task-module,
+    body.theme-football #listen-select-module,
+    body.theme-football #translate-task-module { padding: 11px; }
+    body.theme-football .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+    body.theme-football .football-photo-stage { border-radius: 12px; }
+}
+
 /* Плавна поява кожного нового речення */
 .exercise-enter {
     animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
@@ -2152,7 +2366,8 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     .minecraft-character-stage svg, body.theme-minecraft .celebration-mascot svg,
     .roblox-character-stage img, body.theme-roblox .celebration-mascot img,
     .space-scene-stage svg, body.theme-space .celebration-mascot svg,
-    .london-scene-stage svg, body.theme-london .celebration-mascot svg {
+    .london-scene-stage svg, body.theme-london .celebration-mascot svg,
+    .football-photo-stage img, body.theme-football .celebration-mascot img {
         animation: none !important;
     }
     .word, .progress-bar { transition: none !important; }
@@ -2326,7 +2541,8 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         minecraft: { label: 'Minecraft', price: 50 },
         roblox: { label: 'Roblox', price: 50 },
         space: { label: 'Космос', price: 25 },
-        london: { label: 'Лондон', price: 25 }
+        london: { label: 'Лондон', price: 25 },
+        football: { label: 'Футбол', price: 25 }
     });
 
     // Переменные для отслеживания состояния приложения
@@ -2556,6 +2772,51 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         container.prepend(stage);
     };
 
+    // Оптимізовані фото завантажуються з Unsplash лише коли активна футбольна тема.
+    const footballPhotos = [
+        { name: 'Футбольний матч на зеленому полі', src: 'https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольний м’яч на газоні', src: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Гравці під час футбольного матчу', src: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольний стадіон', src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольне тренування', src: 'https://images.unsplash.com/photo-1553778263-73a83bab9b0c?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбол на відкритому полі', src: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=960&q=78' }
+    ];
+
+    let lastFootballPhotoIndex = -1;
+
+    const pickFootballPhoto = () => {
+        let index = Math.floor(Math.random() * footballPhotos.length);
+        if (footballPhotos.length > 1 && index === lastFootballPhotoIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (footballPhotos.length - 1))) % footballPhotos.length;
+        }
+        lastFootballPhotoIndex = index;
+        return footballPhotos[index];
+    };
+
+    const createFootballImage = photo => {
+        const image = document.createElement('img');
+        image.src = photo.src;
+        image.alt = photo.name;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('error', () => image.closest('.football-photo-stage')?.remove(), { once: true });
+        return image;
+    };
+
+    const showRandomFootballPhoto = container => {
+        document.querySelectorAll('.football-photo-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-football')) return;
+
+        const photo = pickFootballPhoto();
+        const stage = document.createElement('div');
+        stage.className = 'football-photo-stage';
+        stage.setAttribute('role', 'img');
+        stage.setAttribute('aria-label', photo.name);
+        stage.appendChild(createFootballImage(photo));
+        container.prepend(stage);
+    };
+
     const animateExerciseContainer = element => {
         if (!element) return;
         element.classList.remove('exercise-enter');
@@ -2584,7 +2845,12 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         const robloxTheme = document.body.classList.contains('theme-roblox');
         const spaceTheme = document.body.classList.contains('theme-space');
         const londonTheme = document.body.classList.contains('theme-london');
-        const message = londonTheme
+        const footballTheme = document.body.classList.contains('theme-football');
+        const message = footballTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🏆', title: 'Хет-трик знань!', phrase: 'Perfect match! — Ти завершив матч без жодної помилки!' }
+                : { mascot: '⚽', title: 'Переможний матч!', phrase: 'Great game! — Ще один крок до чемпіонської англійської!' })
+            : londonTheme
             ? (incorrectAnswers === 0
                 ? { mascot: '👑', title: 'Brilliant!', phrase: 'A perfect London adventure! — Ідеальна лондонська пригода без помилок!' }
                 : { mascot: '🚌', title: 'Чудова подорож!', phrase: 'Well done! — Твоя англійська впевнено рухається вперед!' })
@@ -2605,7 +2871,13 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         const mascotElement = document.getElementById('celebration-mascot');
-        if (londonTheme) {
+        if (footballTheme) {
+            const photo = pickFootballPhoto();
+            mascotElement.innerHTML = '';
+            mascotElement.appendChild(createFootballImage(photo));
+            mascotElement.removeAttribute('aria-hidden');
+            mascotElement.setAttribute('aria-label', photo.name);
+        } else if (londonTheme) {
             const scene = pickLondonScene();
             mascotElement.innerHTML = scene.svg;
             mascotElement.removeAttribute('aria-hidden');
@@ -2651,7 +2923,7 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         document.body.style.overflow = '';
     };
 
-    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london'].includes(theme) ? theme : 'standard';
+    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london', 'football'].includes(theme) ? theme : 'standard';
 
     const getSavedTheme = name => {
         try {
@@ -2666,7 +2938,8 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
             'стандарт': 'standard',
             'стандартна': 'standard',
             'космос': 'space',
-            'лондон': 'london'
+            'лондон': 'london',
+            'футбол': 'football'
         };
         const nextThemes = new Set(['standard']);
         String(value || '').split(';').forEach(item => {
@@ -2818,6 +3091,7 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         document.body.classList.toggle('theme-roblox', selectedTheme === 'roblox');
         document.body.classList.toggle('theme-space', selectedTheme === 'space');
         document.body.classList.toggle('theme-london', selectedTheme === 'london');
+        document.body.classList.toggle('theme-football', selectedTheme === 'football');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
         updateThemeAccessUI();
@@ -2832,6 +3106,7 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         showRandomRobloxImage(activeExercise);
         showRandomSpaceScene(activeExercise);
         showRandomLondonScene(activeExercise);
+        showRandomFootballPhoto(activeExercise);
 
         if (save) {
             try {
@@ -3262,10 +3537,14 @@ const handleMenuClick = async (event) => {
                             <span class="theme-option-icon" aria-hidden="true">🇬🇧</span>
                             <span class="theme-option-label">Лондон</span>
                         </button>
+                        <button type="button" class="theme-option theme-option-football" data-theme="football" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">⚽</span>
+                            <span class="theme-option-label">Футбол</span>
+                        </button>
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
                     <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
-                    <small class="theme-source">Зображення для Roblox-теми: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">офіційний Roblox Press Kit</a>.</small>
+                    <small class="theme-source">Джерела зображень: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a> та <a href="https://unsplash.com/s/photos/football" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
                 </div>
             `;
             break;
@@ -3381,6 +3660,9 @@ const handleMenuClick = async (event) => {
     const hidePreviousExercise = () => {
         document.querySelectorAll('.minecraft-character-stage').forEach(stage => stage.remove());
         document.querySelectorAll('.roblox-character-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.space-scene-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.london-scene-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.football-photo-stage').forEach(stage => stage.remove());
         [
             'ukr-sentence',
             'hint-text',
@@ -4407,6 +4689,7 @@ class TaskModule {
     showRandomRobloxImage(activeExerciseContainer);
     showRandomSpaceScene(activeExerciseContainer);
     showRandomLondonScene(activeExerciseContainer);
+    showRandomFootballPhoto(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
