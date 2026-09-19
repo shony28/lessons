@@ -2372,7 +2372,7 @@ body.theme-animals .celebration-mascot img {
     body.theme-animals .animals-photo-stage { border-radius: 14px; }
 }
 
-/* Велика онлайн-галерея для всіх тем. Фото приходять із Wikimedia Commons. */
+/* Фіксовані тематичні добірки: без автоматичного пошуку. */
 .remote-theme-photo-stage {
     position: relative;
     display: grid;
@@ -2440,6 +2440,15 @@ body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-rad
 }
 
 .remote-celebration-photo .remote-theme-photo-credit { font-size: 9px; }
+
+.curated-theme-artwork { min-height: 120px; font-size: 64px; text-align: center; }
+.curated-theme-artwork svg { display: block; width: 100%; height: auto; max-height: 240px; }
+body[class] .celebration-mascot .curated-theme-artwork img {
+    width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain;
+    border: 0; border-radius: 0; box-shadow: none;
+}
+.curated-theme-artwork[data-art-theme="minecraft"] svg { height: 150px; width: auto; margin: auto; }
+.curated-theme-artwork img { object-fit: contain; }
 
 @keyframes remoteThemePhotoIn {
     from { opacity: 0; transform: translateY(-18px) scale(.91); }
@@ -3162,21 +3171,78 @@ body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-rad
         container.prepend(stage);
     };
 
-    // До 50 різних фото для кожної теми. Результати кешуються на добу,
-    // а черга перемішується без повторів, доки не буде показано весь набір.
-    const THEME_PHOTO_SEARCHES = Object.freeze({
-        minecraft: 'Minecraft OR Minetest OR voxel',
-        roblox: 'Roblox OR game avatar',
-        space: 'space astronomy OR NASA',
-        london: 'London landmark',
-        football: 'association football',
-        animals: 'wildlife animal'
+    // Власні легкі SVG-ілюстрації. Усі фрагменти статичні, без зовнішніх даних.
+    const themeDrawing = (name, background, content) => ({
+        name,
+        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 240" aria-hidden="true">' +
+            '<rect width="520" height="240" rx="16" fill="' + background + '"/>' + content + '</svg>'
     });
-    const REMOTE_PHOTO_CACHE_TTL = 24 * 60 * 60 * 1000;
-    const remoteThemePhotoStates = new Map();
-    const remoteThemePhotoPromises = new Map();
+    const animalDrawing = (name, color, face) => themeDrawing(name, '#def0d8',
+        '<path d="M0 192Q110 135 230 190T520 176V240H0Z" fill="#91c581"/>' +
+        '<circle cx="440" cy="48" r="25" fill="#ffe893"/>' +
+        '<g transform="translate(260 115)">' + face +
+        '<ellipse cy="26" rx="55" ry="62" fill="' + color + '"/>' +
+        '<circle cx="-20" cy="12" r="6" fill="#24383c"/><circle cx="20" cy="12" r="6" fill="#24383c"/>' +
+        '<ellipse cy="35" rx="10" ry="7" fill="#24383c"/><path d="M-15 49Q0 65 15 49" fill="none" stroke="#24383c" stroke-width="4"/>' +
+        '</g>');
+    const animalDrawings = [
+        animalDrawing('Малюнок: кіт', '#e9aa68', '<path d="M-54 0L-57-63L-13-29M54 0L57-63L13-29" fill="#e9aa68" stroke="#875a40" stroke-width="5"/>'),
+        animalDrawing('Малюнок: зайчик', '#fff8ef', '<ellipse cx="-27" cy="-55" rx="19" ry="64" fill="#fff8ef"/><ellipse cx="27" cy="-55" rx="19" ry="64" fill="#fff8ef"/><path d="M-27-98V-30M27-98V-30" stroke="#efb5c2" stroke-width="13" stroke-linecap="round"/>'),
+        animalDrawing('Малюнок: ведмедик', '#b9865a', '<circle cx="-46" cy="-24" r="27" fill="#895638"/><circle cx="46" cy="-24" r="27" fill="#895638"/>'),
+        animalDrawing('Малюнок: лев', '#efc477', '<circle cy="20" r="89" fill="#b77735"/><path d="M-70-12L-88-45L-35-44L0-85L35-44L88-45L70-12" fill="#b77735"/>'),
+        animalDrawing('Малюнок: слоненя', '#a2b7cc', '<ellipse cx="-65" cy="15" rx="48" ry="65" fill="#829ab5"/><ellipse cx="65" cy="15" rx="48" ry="65" fill="#829ab5"/><path d="M0 66V100Q0 125 35 112" fill="none" stroke="#a2b7cc" stroke-width="24" stroke-linecap="round"/>'),
+        animalDrawing('Малюнок: собака', '#e3c2a0', '<ellipse cx="-53" cy="12" rx="25" ry="66" transform="rotate(18)" fill="#795741"/><ellipse cx="53" cy="12" rx="25" ry="66" transform="rotate(-18)" fill="#795741"/>')
+    ];
+    const drawnFootball = (x, y, size = 1) =>
+        '<g transform="translate(' + x + ' ' + y + ') scale(' + size + ')"><circle r="30" fill="#fff" stroke="#263d4b" stroke-width="3"/><path d="M0-14L14-4L9 12H-9L-14-4Z" fill="#263d4b"/><path d="M0-30V-14M29-9L14-4M18 24L9 12M-18 24L-9 12M-29-9L-14-4" stroke="#263d4b" stroke-width="3"/></g>';
+    const footballDrawing = (name, content) => themeDrawing(name, '#b7e6f1',
+        '<path d="M0 130H520V240H0Z" fill="#60a868"/><path d="M0 218H520" stroke="#eaf8df" stroke-width="4"/>' + content);
+    const footballDrawings = [
+        footballDrawing('Малюнок: м’яч на полі', '<ellipse cx="260" cy="201" rx="92" ry="13" fill="#418e51"/>' + drawnFootball(260, 124, 2.3)),
+        footballDrawing('Малюнок: гол у ворота', '<path d="M150 189V50H415V189" fill="none" stroke="#fff" stroke-width="10"/><path d="M150 82H415M150 116H415M150 150H415M194 50V189M238 50V189M282 50V189M326 50V189M370 50V189" stroke="#d8f7fa" stroke-width="3"/>' + drawnFootball(320, 167)),
+        footballDrawing('Малюнок: кубок чемпіона', '<path d="M219 62H181Q172 135 231 126M301 62H339Q348 135 289 126" fill="none" stroke="#d39b28" stroke-width="15"/><path d="M205 42H315L304 111Q295 143 269 149V179H305V200H215V179H251V149Q225 143 216 111Z" fill="#ffd86b"/><path d="M260 59L268 78L289 79L273 92L278 113L260 102L242 113L247 92L231 79L252 78Z" fill="#fff4c5"/>'),
+        footballDrawing('Малюнок: тренування між конусами', '<path d="M80 175L108 110L136 175ZM216 187L244 122L272 187ZM367 165L395 100L423 165Z" fill="#f38b49"/><path d="M100 192Q220 215 310 163T440 189" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 9"/>' + drawnFootball(310, 185, .65)),
+        footballDrawing('Малюнок: стадіон увечері', '<path d="M30 118V70Q260-35 490 70V118Z" fill="#516887"/><path d="M40 92Q260-7 480 92M40 110Q260 11 480 110" fill="none" stroke="#ffdf6f" stroke-width="8"/><path d="M55 122V37M465 122V37" stroke="#40566d" stroke-width="7"/><path d="M28 35H82M438 35H492" stroke="#fffbe0" stroke-width="14"/><ellipse cx="260" cy="179" rx="175" ry="38" fill="none" stroke="#fff" stroke-width="3"/>' + drawnFootball(260, 180, .65)),
+        footballDrawing('Малюнок: футбольна форма', '<path d="M190 46L227 31Q260 56 293 31L330 46L363 94L321 116L307 95V204H213V95L199 116L157 94Z" fill="#397fca" stroke="#fff" stroke-width="5"/><path d="M247 92H280L254 155" fill="none" stroke="#fff" stroke-width="12"/>')
+    ];
+    // Авторські блокові аватари, стилізовані для теми Roblox (не офіційні рендери).
+    const blockAvatar = (name, shirt, hat, accessory) => themeDrawing(name, '#dce6ff',
+        '<path d="M0 197H520V240H0Z" fill="#abbde5"/><g transform="translate(260 18)">' +
+        '<rect x="-31" y="21" width="62" height="57" rx="9" fill="#ffe090"/>' +
+        '<circle cx="-11" cy="45" r="4"/><circle cx="11" cy="45" r="4"/><path d="M-11 60Q0 69 11 60" fill="none" stroke="#31394a" stroke-width="3"/>' +
+        '<rect x="-40" y="83" width="80" height="68" rx="5" fill="' + shirt + '"/>' +
+        '<path d="M-47 91L-69 131M47 91L69 131" stroke="#ffe090" stroke-width="25" stroke-linecap="round"/>' +
+        '<path d="M-21 151V197M21 151V197" stroke="#3d557b" stroke-width="29"/>' + hat + accessory + '</g>');
+    const robloxDrawings = [
+        blockAvatar('Блоковий аватар: будівельник', '#f19c41', '<path d="M-38 32Q-38-7 0-7Q38-7 38 32Z" fill="#fbc348"/><path d="M-45 32H45" stroke="#d4931d" stroke-width="9"/>', '<path d="M73 112V180M57 114H87" stroke="#697a8f" stroke-width="10"/>'),
+        blockAvatar('Блоковий аватар: космонавт', '#f5f7ff', '<rect x="-39" y="8" width="78" height="77" rx="22" fill="none" stroke="#fff" stroke-width="12"/>', '<rect x="-22" y="96" width="44" height="35" fill="#8bb8e8"/><circle cy="111" r="7" fill="#f58074"/>'),
+        blockAvatar('Блоковий аватар: пірат', '#9c5479', '<path d="M-51 24Q-40-10 0 2Q40-10 51 24Z" fill="#34445a"/>', '<path d="M-29 41H0" stroke="#34445a" stroke-width="12"/><path d="M65 147L96 80" stroke="#c7d5e7" stroke-width="9"/>'),
+        blockAvatar('Блоковий аватар: скейтер', '#4eab98', '<path d="M-33 24Q-20-1 10 2Q32 3 34 24H54" fill="#e48665" stroke="#e48665" stroke-width="8"/>', '<path d="M-65 203H67" stroke="#e6a14c" stroke-width="10" stroke-linecap="round"/><circle cx="-42" cy="214" r="7" fill="#354052"/><circle cx="43" cy="214" r="7" fill="#354052"/>'),
+        blockAvatar('Блоковий аватар: мандрівник', '#779849', '<path d="M-33 24L-23 1H23L33 24M-47 24H47" fill="#b79262" stroke="#b79262" stroke-width="10"/>', '<path d="M60 99H108V153H60Z" fill="#f8eabd"/><path d="M74 105L84 124L98 117" fill="none" stroke="#62a59a" stroke-width="4"/>')
+    ];
+
+    // Тільки фіксовані тематичні набори. Пошук в інтернеті не виконується.
+    // Нові зображення додаються до відповідного масиву після ручного перегляду.
+    const THEME_GALLERIES = Object.freeze({
+        minecraft: minecraftCharacters,
+        roblox: [...robloxImages, ...robloxDrawings],
+        space: spaceScenes,
+        london: londonScenes,
+        football: [...footballPhotos, ...footballDrawings],
+        animals: [...animalsPhotos, ...animalDrawings]
+    });
+    const THEME_GALLERY_EMOJI = Object.freeze({
+        minecraft: '⛏️', roblox: '🎮', space: '🚀',
+        london: '🇬🇧', football: '⚽', animals: '🐾'
+    });
+    const themeGalleryQueues = new Map();
     let remoteThemePhotoRequestId = 0;
     let remoteCelebrationPhotoRequestId = 0;
+
+    // Старі випадкові результати не можна повторно використати після оновлення.
+    Object.keys(THEME_GALLERIES).forEach(theme => {
+        try { sessionStorage.removeItem('themePhotosV2_' + theme); } catch (_) {}
+    });
 
     const shufflePhotoList = items => {
         const shuffled = [...items];
@@ -3187,193 +3253,142 @@ body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-rad
         return shuffled;
     };
 
-    const readThemePhotosFromCache = theme => {
-        try {
-            const cached = JSON.parse(sessionStorage.getItem(`themePhotosV2_${theme}`) || 'null');
-            if (!cached || Date.now() - Number(cached.savedAt) > REMOTE_PHOTO_CACHE_TTL) return [];
-            return Array.isArray(cached.photos) ? cached.photos : [];
-        } catch (error) {
-            return [];
-        }
-    };
-
-    const saveThemePhotosToCache = (theme, photos) => {
-        try {
-            sessionStorage.setItem(`themePhotosV2_${theme}`, JSON.stringify({ savedAt: Date.now(), photos }));
-        } catch (error) {
-            console.warn('Не вдалося кешувати фотографії теми:', error);
-        }
-    };
-
-    const fetchThemePhotos = async theme => {
-        if (!Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return [];
-        if (remoteThemePhotoStates.has(theme)) return remoteThemePhotoStates.get(theme).photos;
-        if (remoteThemePhotoPromises.has(theme)) return remoteThemePhotoPromises.get(theme);
-
-        const request = (async () => {
-            let photos = readThemePhotosFromCache(theme);
-            if (!photos.length) {
-                const params = new URLSearchParams({
-                    action: 'query',
-                    generator: 'search',
-                    gsrsearch: `${THEME_PHOTO_SEARCHES[theme]} filetype:bitmap`,
-                    gsrnamespace: '6',
-                    gsrlimit: '50',
-                    gsrsort: 'random',
-                    prop: 'imageinfo',
-                    iiprop: 'url|mime|extmetadata',
-                    iiurlwidth: '1200',
-                    format: 'json',
-                    formatversion: '2',
-                    origin: '*'
-                });
-                const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`, {
-                    mode: 'cors',
-                    cache: 'force-cache'
-                });
-                if (!response.ok) throw new Error(`Wikimedia HTTP ${response.status}`);
-                const data = await response.json();
-                const pagesValue = data?.query?.pages || [];
-                const pages = Array.isArray(pagesValue) ? pagesValue : Object.values(pagesValue);
-                const uniqueUrls = new Set();
-                photos = pages.map(page => {
-                    const info = page?.imageinfo?.[0];
-                    if (!info || !/^image\/(jpeg|png|webp)$/i.test(String(info.mime || ''))) return null;
-                    const src = info.thumburl || info.url;
-                    if (!src || uniqueUrls.has(src)) return null;
-                    uniqueUrls.add(src);
-                    const decodeMetadata = value => {
-                        const element = document.createElement('div');
-                        element.innerHTML = String(value || '');
-                        return element.textContent.replace(/\s+/g, ' ').trim();
-                    };
-                    const artist = decodeMetadata(info.extmetadata?.Artist?.value);
-                    const license = decodeMetadata(info.extmetadata?.LicenseShortName?.value);
-                    return {
-                        name: String(page.title || 'Фото').replace(/^File:/i, ''),
-                        src,
-                        pageUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/${encodeURIComponent(String(page.title || '').replace(/ /g, '_'))}`,
-                        credit: [artist, license].filter(Boolean).join(' · ')
-                    };
-                }).filter(Boolean);
-                if (photos.length) saveThemePhotosToCache(theme, photos);
+    // Фото та SVG чергуються; порядок всередині кожної групи випадковий.
+    // Якщо одна група закінчилася, спочатку показуємо решту без повторів.
+    const buildMixedThemeQueue = (photos, last) => {
+        const groups = [
+            shufflePhotoList(photos.map((photo, index) => !photo.svg ? index : -1).filter(index => index >= 0)),
+            shufflePhotoList(photos.map((photo, index) => photo.svg ? index : -1).filter(index => index >= 0))
+        ];
+        let kind = last >= 0 ? (photos[last].svg ? 0 : 1) : Math.floor(Math.random() * 2);
+        const ordered = [];
+        while (groups[0].length || groups[1].length) {
+            if (!groups[kind].length) kind = 1 - kind;
+            const group = groups[kind];
+            if (!ordered.length && group.length > 1 && group[group.length - 1] === last) {
+                [group[0], group[group.length - 1]] = [group[group.length - 1], group[0]];
             }
-
-            remoteThemePhotoStates.set(theme, { photos, queue: [], lastSrc: '' });
-            return photos;
-        })().catch(error => {
-            console.warn(`Не вдалося завантажити велику галерею для теми ${theme}:`, error);
-            remoteThemePhotoStates.set(theme, { photos: [], queue: [], lastSrc: '' });
-            return [];
-        }).finally(() => remoteThemePhotoPromises.delete(theme));
-
-        remoteThemePhotoPromises.set(theme, request);
-        return request;
+            ordered.push(group.pop());
+            kind = 1 - kind;
+        }
+        return ordered.reverse(); // takeThemePhoto бере наступний елемент через pop().
     };
 
-    const takeThemePhoto = async theme => {
-        const photos = await fetchThemePhotos(theme);
-        if (!photos.length) return null;
-        const state = remoteThemePhotoStates.get(theme);
+    // Одна черга на тему для вправ і завершення. Прогрес зберігається після перезавантаження.
+    const takeThemePhoto = theme => {
+        const photos = THEME_GALLERIES[theme];
+        if (!photos?.length) return null;
+        const key = 'curatedThemeQueueV2_' + theme;
+        let state = themeGalleryQueues.get(theme);
+        if (!state) {
+            try {
+                const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+                if (saved && saved.size === photos.length && Array.isArray(saved.queue)
+                    && saved.queue.every(index => Number.isInteger(index) && index >= 0 && index < photos.length)
+                    && new Set(saved.queue).size === saved.queue.length
+                    && Number.isInteger(saved.last) && saved.last >= -1 && saved.last < photos.length) {
+                    state = saved;
+                }
+            } catch (_) {}
+            state = state || { size: photos.length, queue: [], last: -1 };
+            themeGalleryQueues.set(theme, state);
+        }
         if (!state.queue.length) {
-            state.queue = shufflePhotoList(state.photos);
-            if (state.queue.length > 1 && state.queue[state.queue.length - 1].src === state.lastSrc) {
-                [state.queue[0], state.queue[state.queue.length - 1]] = [state.queue[state.queue.length - 1], state.queue[0]];
-            }
+            state.queue = buildMixedThemeQueue(photos, state.last);
         }
-        const photo = state.queue.pop();
-        state.lastSrc = photo.src;
-        return photo;
+        const index = state.queue.pop();
+        state.last = index;
+        try { sessionStorage.setItem(key, JSON.stringify(state)); } catch (_) {}
+        return photos[index];
     };
 
     const loadRemoteThemeImage = photo => new Promise((resolve, reject) => {
         const image = new Image();
+        const timer = setTimeout(() => {
+            image.onload = image.onerror = null;
+            image.removeAttribute('src');
+            reject(new Error('Image timeout'));
+        }, 8000);
         image.alt = photo.name;
         image.decoding = 'async';
         image.referrerPolicy = 'no-referrer';
-        image.addEventListener('load', () => resolve(image), { once: true });
-        image.addEventListener('error', reject, { once: true });
+        image.onload = () => { clearTimeout(timer); resolve(image); };
+        image.onerror = () => { clearTimeout(timer); reject(new Error('Image unavailable')); };
         image.src = photo.src;
     });
 
-    const createRemotePhotoCredit = photo => {
-        const credit = document.createElement('a');
-        credit.className = 'remote-theme-photo-credit';
-        credit.href = photo.pageUrl;
-        credit.target = '_blank';
-        credit.rel = 'noopener noreferrer';
-        credit.textContent = photo.credit ? `Wikimedia Commons · ${photo.credit}` : 'Фото: Wikimedia Commons';
-        credit.title = `Відкрити джерело: ${photo.name}`;
-        return credit;
-    };
-
     const clearLegacyThemePictures = () => {
-        [
-            '.minecraft-character-stage',
-            '.roblox-character-stage',
-            '.space-scene-stage',
-            '.london-scene-stage',
-            '.football-photo-stage',
-            '.animals-photo-stage',
-            '.remote-theme-photo-stage'
-        ].forEach(selector => document.querySelectorAll(selector).forEach(element => element.remove()));
+        document.querySelectorAll(
+            '.minecraft-character-stage, .roblox-character-stage, .space-scene-stage, ' +
+            '.london-scene-stage, .football-photo-stage, .animals-photo-stage, .remote-theme-photo-stage'
+        ).forEach(element => element.remove());
     };
 
-    const showRandomInternetThemePhoto = async container => {
+    const renderCuratedThemeArtwork = async (theme, target, stillCurrent) => {
+        const photos = THEME_GALLERIES[theme];
+        if (!photos) return;
+        for (let attempt = 0; attempt < photos.length; attempt++) {
+            if (!stillCurrent()) return;
+            const photo = takeThemePhoto(theme);
+            let artwork;
+            if (photo.svg) {
+                // SVG походить лише зі статичних масивів у цьому файлі.
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = photo.svg;
+                artwork = wrapper.firstElementChild;
+            } else {
+                try { artwork = await loadRemoteThemeImage(photo); }
+                catch (_) { continue; }
+            }
+            if (!stillCurrent()) return;
+            artwork.setAttribute('aria-label', photo.name);
+            target.replaceChildren(artwork);
+            target.setAttribute('aria-label', photo.name);
+            if (theme === 'roblox' && !photo.svg) {
+                const credit = document.createElement('a');
+                credit.className = 'remote-theme-photo-credit';
+                credit.href = 'https://about.roblox.com/press-kit';
+                credit.target = '_blank';
+                credit.rel = 'noopener noreferrer';
+                credit.textContent = 'Roblox Press Kit';
+                target.appendChild(credit);
+            }
+            return;
+        }
+        // Якщо фото недоступні, лишається тематична піктограма, а не стороннє зображення.
+    };
+
+    const showRandomInternetThemePhoto = container => {
         const theme = document.body.dataset.theme || 'standard';
         const requestId = ++remoteThemePhotoRequestId;
-        if (!container || !Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return;
-
-        for (let attempt = 0; attempt < 4; attempt++) {
-            const photo = await takeThemePhoto(theme);
-            if (!photo) return; // Старий малюнок залишається резервом.
-            let image;
-            try {
-                image = await loadRemoteThemeImage(photo);
-            } catch (error) {
-                continue;
-            }
-            if (requestId !== remoteThemePhotoRequestId || !container.isConnected || document.body.dataset.theme !== theme) return;
-
-            clearLegacyThemePictures();
-            const stage = document.createElement('div');
-            stage.className = 'remote-theme-photo-stage';
-            stage.setAttribute('role', 'group');
-            stage.setAttribute('aria-label', photo.name);
-            stage.append(image, createRemotePhotoCredit(photo));
-            container.prepend(stage);
-            return;
-        }
+        clearLegacyThemePictures();
+        if (!container || !THEME_GALLERIES[theme]) return;
+        const stage = document.createElement('div');
+        stage.className = 'remote-theme-photo-stage curated-theme-artwork';
+        stage.dataset.artTheme = theme;
+        stage.setAttribute('role', 'group');
+        stage.setAttribute('aria-label', THEME_CATALOG[theme].label);
+        stage.textContent = THEME_GALLERY_EMOJI[theme];
+        container.prepend(stage);
+        void renderCuratedThemeArtwork(theme, stage, () =>
+            requestId === remoteThemePhotoRequestId && stage.isConnected &&
+            !container.classList.contains('hidden') && document.body.dataset.theme === theme);
     };
 
-    const showRandomInternetCelebrationPhoto = async (theme, mascotElement) => {
+    const showRandomInternetCelebrationPhoto = (theme, mascotElement) => {
         const requestId = ++remoteCelebrationPhotoRequestId;
-        if (!Object.prototype.hasOwnProperty.call(THEME_PHOTO_SEARCHES, theme)) return;
-
-        for (let attempt = 0; attempt < 4; attempt++) {
-            const photo = await takeThemePhoto(theme);
-            if (!photo) return;
-            let image;
-            try {
-                image = await loadRemoteThemeImage(photo);
-            } catch (error) {
-                continue;
-            }
-            const overlay = document.getElementById('completion-celebration');
-            if (requestId !== remoteCelebrationPhotoRequestId || overlay.classList.contains('hidden') || document.body.dataset.theme !== theme) return;
-
-            const link = document.createElement('a');
-            link.className = 'remote-celebration-photo';
-            link.href = photo.pageUrl;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.append(image, createRemotePhotoCredit(photo));
-            mascotElement.innerHTML = '';
-            mascotElement.appendChild(link);
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', photo.name);
-            return;
-        }
+        if (!THEME_GALLERIES[theme]) return;
+        const stage = document.createElement('div');
+        stage.className = 'remote-celebration-photo curated-theme-artwork';
+        stage.dataset.artTheme = theme;
+        stage.textContent = THEME_GALLERY_EMOJI[theme];
+        mascotElement.replaceChildren(stage);
+        mascotElement.removeAttribute('aria-hidden');
+        mascotElement.setAttribute('aria-label', THEME_CATALOG[theme].label);
+        void renderCuratedThemeArtwork(theme, stage, () =>
+            requestId === remoteCelebrationPhotoRequestId && stage.isConnected &&
+            !document.getElementById('completion-celebration').classList.contains('hidden') &&
+            document.body.dataset.theme === theme);
     };
 
     const animateExerciseContainer = element => {
@@ -3435,47 +3450,9 @@ body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-rad
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         const mascotElement = document.getElementById('celebration-mascot');
-        if (animalsTheme) {
-            const photo = pickAnimalsPhoto();
-            mascotElement.innerHTML = '';
-            mascotElement.appendChild(createAnimalsImage(photo));
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', photo.name);
-        } else if (footballTheme) {
-            const photo = pickFootballPhoto();
-            mascotElement.innerHTML = '';
-            mascotElement.appendChild(createFootballImage(photo));
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', photo.name);
-        } else if (londonTheme) {
-            const scene = pickLondonScene();
-            mascotElement.innerHTML = scene.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', scene.name);
-        } else if (spaceTheme) {
-            const scene = pickSpaceScene();
-            mascotElement.innerHTML = scene.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', scene.name);
-        } else if (robloxTheme) {
-            const artwork = pickRobloxImage();
-            mascotElement.innerHTML = '';
-            const image = document.createElement('img');
-            image.src = artwork.src;
-            image.alt = artwork.name;
-            mascotElement.appendChild(image);
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', artwork.name);
-        } else if (minecraftTheme) {
-            const character = pickMinecraftCharacter();
-            mascotElement.innerHTML = character.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', character.name);
-        } else {
-            mascotElement.textContent = message.mascot;
-            mascotElement.setAttribute('aria-hidden', 'true');
-            mascotElement.removeAttribute('aria-label');
-        }
+        mascotElement.textContent = message.mascot;
+        mascotElement.setAttribute('aria-hidden', 'true');
+        mascotElement.removeAttribute('aria-label');
         document.getElementById('celebration-title').textContent = message.title;
         document.getElementById('celebration-phrase').textContent = message.phrase;
         document.getElementById('celebration-status').textContent = 'Зберігаємо твій результат…';
@@ -3676,12 +3653,6 @@ body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-rad
             'listen-select-module',
             'translate-task-module'
         ].map(id => document.getElementById(id)).find(element => element && !element.classList.contains('hidden'));
-        showRandomMinecraftCharacter(activeExercise);
-        showRandomRobloxImage(activeExercise);
-        showRandomSpaceScene(activeExercise);
-        showRandomLondonScene(activeExercise);
-        showRandomFootballPhoto(activeExercise);
-        showRandomAnimalsPhoto(activeExercise);
         showRandomInternetThemePhoto(activeExercise);
 
         if (save) {
@@ -4124,7 +4095,7 @@ const handleMenuClick = async (event) => {
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
                     <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
-                    <small class="theme-source">Велика галерея для всіх тем: <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>. Резервні зображення: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a> та <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
+                    <small class="theme-source">Фіксовані тематичні набори без пошуку в інтернеті. Ілюстрації вбудовані; зображення Roblox — <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a>; фото тварин і футболу — <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
                 </div>
             `;
             break;
@@ -5268,12 +5239,6 @@ class TaskModule {
         }
     }
     animateExerciseContainer(activeExerciseContainer);
-    showRandomMinecraftCharacter(activeExerciseContainer);
-    showRandomRobloxImage(activeExerciseContainer);
-    showRandomSpaceScene(activeExerciseContainer);
-    showRandomLondonScene(activeExerciseContainer);
-    showRandomFootballPhoto(activeExerciseContainer);
-    showRandomAnimalsPhoto(activeExerciseContainer);
     showRandomInternetThemePhoto(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
