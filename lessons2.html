@@ -1124,6 +1124,26 @@ input:checked + .slider:before {
         linear-gradient(#17366f, #102752);
 }
 
+.theme-option-football {
+    color: #fff;
+    text-shadow: 1px 2px rgba(0,0,0,.72);
+    background:
+        radial-gradient(circle at 78% 24%, #fff 0 8px, #1f2937 9px 12px, #fff 13px 18px, transparent 19px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0 24px, transparent 24px 48px),
+        linear-gradient(145deg, #43a047, #176b35 72%, #0f4927);
+}
+
+.theme-option-animals {
+    color: #fff;
+    text-shadow: 1px 2px rgba(0,0,0,.72);
+    background:
+        radial-gradient(circle at 23% 25%, rgba(255,255,255,.88) 0 5px, transparent 6px),
+        radial-gradient(circle at 17% 36%, rgba(255,255,255,.88) 0 7px, transparent 8px),
+        radial-gradient(circle at 29% 36%, rgba(255,255,255,.88) 0 7px, transparent 8px),
+        radial-gradient(ellipse at 23% 48%, rgba(255,255,255,.88) 0 11px, transparent 12px),
+        linear-gradient(145deg, #7eb34e, #397746 58%, #224c3a);
+}
+
 .theme-option-icon { display: block; margin-bottom: 6px; font-size: 32px; }
 .theme-option-label { display: block; font-size: 14px; }
 .theme-source { display: block; margin-top: 9px; color: #687188; font-size: 11px; line-height: 1.3; }
@@ -1179,6 +1199,24 @@ body.theme-london #weekly-progress-container .mt-8 {
 body.theme-london #weekly-progress-container .mt-8 h3 { color: #193668; }
 body.theme-london .rating-table th { color: #fff; background: #17376d; border-color: #102750; }
 body.theme-london .rating-table td { color: #252d3b; }
+
+body.theme-football #weekly-progress-container .mt-8 {
+    border-color: #1f8d49;
+    background: #fbfff8;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.52), 0 14px 32px rgba(7,57,31,.34);
+}
+body.theme-football #weekly-progress-container .mt-8 h3 { color: #124b2b; }
+body.theme-football .rating-table th { color: #fff; background: #16713a; border-color: #0c5429; }
+body.theme-football .rating-table td { color: #173b27; }
+
+body.theme-animals #weekly-progress-container .mt-8 {
+    border-color: #5c863d;
+    background: #fffdf4;
+    box-shadow: 0 0 0 4px rgba(255,246,206,.58), 0 14px 32px rgba(49,70,31,.31);
+}
+body.theme-animals #weekly-progress-container .mt-8 h3 { color: #365527; }
+body.theme-animals .rating-table th { color: #fff; background: #527d39; border-color: #365a29; }
+body.theme-animals .rating-table td { color: #35452d; }
 
 /* Яскрава блокова Minecraft-тема */
 body.theme-minecraft {
@@ -1940,6 +1978,619 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     body.theme-london .london-scene-stage { border-radius: 11px; }
 }
 
+/* Футбольна тема: поле, табло, контрастні картки та випадкові фото */
+body.theme-football {
+    min-height: 100vh;
+    color: #143422;
+    font-family: Inter, Arial, sans-serif;
+    background-color: #146b35;
+    background-image:
+        linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.22) 49.7% 50.3%, transparent 50.3%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 84px, rgba(0,0,0,.035) 84px 168px),
+        linear-gradient(155deg, #238f4b, #126432 58%, #0a4824);
+    background-attachment: fixed;
+}
+
+body.theme-football::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 79px, rgba(255,255,255,.14) 80px 83px, transparent 84px),
+        linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) center / 3px 100% no-repeat;
+}
+
+body.theme-football h1,
+body.theme-football #ukr-sentence,
+body.theme-football .task-text { color: #113c23; font-weight: 900; }
+
+body.theme-football .header {
+    box-sizing: border-box;
+    padding: 9px;
+    border: 3px solid #fff;
+    border-radius: 15px;
+    background: rgba(248,255,246,.96);
+    box-shadow: 0 0 0 4px rgba(7,65,31,.34), 0 12px 28px rgba(2,43,20,.35);
+}
+
+body.theme-football #task-module-container,
+body.theme-football #listen-task-module,
+body.theme-football #listen-select-module,
+body.theme-football #translate-task-module,
+body.theme-football #stats-container,
+body.theme-football #feedback,
+body.theme-football #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 3px solid #0c5d2d;
+    border-radius: 18px;
+    background: rgba(250,255,248,.97);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.62), 0 15px 34px rgba(2,48,22,.38);
+}
+
+body.theme-football .word {
+    border: 2px solid #fff;
+    border-radius: 12px;
+    color: #fff;
+    background: linear-gradient(145deg, #249d50, #10652f);
+    box-shadow: 0 5px 0 #08451f, 0 8px 16px rgba(5,61,26,.3);
+    font-weight: 900;
+}
+
+body.theme-football .word.clicked {
+    border-color: #fff1a8;
+    color: #172016;
+    background: linear-gradient(145deg, #ffe55a, #f7b928);
+    box-shadow: 0 5px 0 #b97a0a;
+}
+
+body.theme-football .styled-button,
+body.theme-football #start-btn,
+body.theme-football #check-btn,
+body.theme-football #reset-btn,
+body.theme-football #hint-btn {
+    border: 2px solid #fff;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(145deg, #202b38, #0d151e);
+    box-shadow: 0 5px 0 #05090d, 0 9px 18px rgba(0,0,0,.25);
+    font-weight: 900;
+}
+
+body.theme-football input,
+body.theme-football textarea,
+body.theme-football select {
+    border: 2px solid #16723a !important;
+    border-radius: 10px !important;
+    color: #173522;
+    background: #fff;
+}
+
+body.theme-football .separator { border-bottom: 7px solid rgba(255,255,255,.72); }
+body.theme-football .progress-bar {
+    bottom: -7px;
+    height: 7px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #f7d23c, #fff 48%, #f7d23c);
+    box-shadow: 0 0 12px rgba(255,231,89,.7);
+}
+
+body.theme-football .burger-icon span { background: #0e592b; }
+body.theme-football .side-panel {
+    border-right: 4px solid #fff;
+    color: #fff;
+    background: linear-gradient(#0b351d, #116233 58%, #0a4323);
+}
+body.theme-football .side-panel ul li { border-bottom: 1px solid rgba(255,255,255,.24); color: #fff; }
+body.theme-football .side-panel ul li:hover { color: #17321f; background: #f5d94a; }
+body.theme-football .side-panel .close-btn { color: #fff; }
+body.theme-football .modal-content {
+    border: 3px solid #16723a;
+    color: #173522;
+    background: #fbfff9;
+    box-shadow: 0 16px 45px rgba(2,44,20,.45);
+}
+
+body.theme-football #completion-celebration {
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 88px, rgba(255,255,255,.16) 89px 93px, transparent 94px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 90px, transparent 90px 180px),
+        linear-gradient(145deg, #0b4c25, #16823e 58%, #073718);
+}
+body.theme-football .celebration-card {
+    border: 4px solid #fff;
+    color: #153723;
+    background: rgba(250,255,247,.98);
+    box-shadow: 0 0 0 5px rgba(10,80,36,.55), 0 24px 65px rgba(0,30,12,.58);
+}
+body.theme-football .celebration-loader span { background: #16823e; }
+body.theme-football .celebration-loader span:nth-child(2) { background: #f4d53f; }
+body.theme-football .celebration-loader span:nth-child(3) { background: #202a36; }
+
+.football-photo-stage { display: none; }
+body.theme-football .football-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(500px, 100%);
+    margin: -3px auto 12px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 17px;
+    background: #0d592b;
+    box-shadow: 0 0 0 3px #0b5629, 0 12px 27px rgba(1,39,17,.44);
+    pointer-events: none;
+}
+.football-photo-stage img,
+body.theme-football .celebration-mascot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: footballPhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+.football-photo-stage::after {
+    content: "⚽ FOOTBALL";
+    position: absolute;
+    right: 9px;
+    bottom: 8px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(4,33,16,.78);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+body.theme-football .celebration-mascot { display: grid; place-items: center; min-height: 0; }
+body.theme-football .celebration-mascot img {
+    width: min(380px, 100%);
+    border: 4px solid #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(1,43,18,.34);
+}
+
+@keyframes footballPhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    body.theme-football #task-module-container,
+    body.theme-football #listen-task-module,
+    body.theme-football #listen-select-module,
+    body.theme-football #translate-task-module { padding: 11px; }
+    body.theme-football .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+    body.theme-football .football-photo-stage { border-radius: 12px; }
+}
+
+/* Animals: тепла природна тема з випадковими фотографіями тварин */
+body.theme-animals {
+    min-height: 100vh;
+    color: #33422b;
+    font-family: Inter, Arial, sans-serif;
+    background-color: #d8d09b;
+    background-image:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.28) 0 2px, transparent 3px),
+        radial-gradient(circle at 83% 13%, rgba(255,246,190,.34) 0 4px, transparent 5px),
+        linear-gradient(155deg, #d8c984, #85a75d 48%, #477355 76%, #294f42);
+    background-attachment: fixed;
+}
+
+body.theme-animals::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: .25;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 8% 92%, #163c31 0 7%, transparent 7.5%),
+        radial-gradient(ellipse at 92% 88%, #214a38 0 9%, transparent 9.5%),
+        radial-gradient(ellipse at 76% 7%, #f8edb0 0 5%, transparent 5.5%);
+}
+
+body.theme-animals h1,
+body.theme-animals #ukr-sentence,
+body.theme-animals .task-text { color: #355126; font-weight: 900; }
+
+body.theme-animals .header {
+    box-sizing: border-box;
+    padding: 9px;
+    border: 3px solid #e9d98d;
+    border-radius: 18px;
+    background: rgba(255,253,239,.96);
+    box-shadow: 0 0 0 4px rgba(54,91,45,.34), 0 12px 28px rgba(29,58,38,.32);
+}
+
+body.theme-animals #task-module-container,
+body.theme-animals #listen-task-module,
+body.theme-animals #listen-select-module,
+body.theme-animals #translate-task-module,
+body.theme-animals #stats-container,
+body.theme-animals #feedback,
+body.theme-animals #correct-answer {
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 16px;
+    border: 3px solid #557d3e;
+    border-radius: 22px;
+    background: rgba(255,253,239,.97);
+    box-shadow: 0 0 0 3px rgba(237,216,139,.64), 0 15px 34px rgba(28,62,39,.34);
+}
+
+body.theme-animals .word {
+    border: 2px solid #fff5c9;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(145deg, #6e9c48, #386b42);
+    box-shadow: 0 5px 0 #285035, 0 8px 16px rgba(35,76,46,.27);
+    font-weight: 900;
+}
+
+body.theme-animals .word.clicked {
+    border-color: #fff7c8;
+    color: #4b3718;
+    background: linear-gradient(145deg, #ffd971, #e8a83d);
+    box-shadow: 0 5px 0 #a66b26;
+}
+
+body.theme-animals .styled-button,
+body.theme-animals #start-btn,
+body.theme-animals #check-btn,
+body.theme-animals #reset-btn,
+body.theme-animals #hint-btn {
+    border: 2px solid #fff1b1;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(145deg, #5b8742, #315e3b);
+    box-shadow: 0 5px 0 #23472e, 0 9px 18px rgba(33,70,43,.25);
+    font-weight: 900;
+}
+
+body.theme-animals input,
+body.theme-animals textarea,
+body.theme-animals select {
+    border: 2px solid #5b8443 !important;
+    border-radius: 12px !important;
+    color: #35452d;
+    background: #fffef7;
+}
+
+body.theme-animals .separator { border-bottom: 7px solid rgba(255,245,194,.76); }
+body.theme-animals .progress-bar {
+    bottom: -7px;
+    height: 7px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #f2c85b, #8fc65a 48%, #386f45);
+    box-shadow: 0 0 12px rgba(236,211,104,.65);
+}
+
+body.theme-animals .burger-icon span { background: #426b38; }
+body.theme-animals .side-panel {
+    border-right: 4px solid #e8d27b;
+    color: #fff;
+    background: linear-gradient(#234836, #3c7047 58%, #254f3a);
+}
+body.theme-animals .side-panel ul li { border-bottom: 1px solid rgba(255,247,205,.24); color: #fff; }
+body.theme-animals .side-panel ul li:hover { color: #3d3a1d; background: #f4d66c; }
+body.theme-animals .side-panel .close-btn { color: #fff; }
+body.theme-animals .modal-content {
+    border: 3px solid #628947;
+    color: #35452d;
+    background: #fffdf2;
+    box-shadow: 0 16px 45px rgba(25,58,36,.42);
+}
+
+body.theme-animals #completion-celebration {
+    background:
+        radial-gradient(circle at 16% 18%, rgba(255,238,148,.36), transparent 24%),
+        radial-gradient(circle at 87% 84%, rgba(35,90,57,.55), transparent 30%),
+        linear-gradient(145deg, #d4bd64, #6f9c52 50%, #2d6145);
+}
+body.theme-animals .celebration-card {
+    border: 4px solid #f0dc87;
+    color: #35452d;
+    background: rgba(255,253,239,.98);
+    box-shadow: 0 0 0 5px rgba(61,105,57,.5), 0 24px 65px rgba(25,54,35,.52);
+}
+body.theme-animals .celebration-loader span { background: #5a8844; }
+body.theme-animals .celebration-loader span:nth-child(2) { background: #efc75a; }
+body.theme-animals .celebration-loader span:nth-child(3) { background: #376c47; }
+
+.animals-photo-stage { display: none; }
+body.theme-animals .animals-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(500px, 100%);
+    margin: -3px auto 12px;
+    overflow: hidden;
+    border: 4px solid #fff2b5;
+    border-radius: 22px;
+    background: #3d6d46;
+    box-shadow: 0 0 0 3px #527d41, 0 12px 27px rgba(27,61,38,.4);
+    pointer-events: none;
+}
+.animals-photo-stage img,
+body.theme-animals .celebration-mascot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: animalsPhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+.animals-photo-stage::after {
+    content: "🐾 ANIMALS";
+    position: absolute;
+    right: 9px;
+    bottom: 8px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(33,69,43,.8);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+body.theme-animals .celebration-mascot { display: grid; place-items: center; min-height: 0; }
+body.theme-animals .celebration-mascot img {
+    width: min(380px, 100%);
+    border: 4px solid #fff0ad;
+    border-radius: 19px;
+    box-shadow: 0 10px 25px rgba(31,67,41,.32);
+}
+
+@keyframes animalsPhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    body.theme-animals #task-module-container,
+    body.theme-animals #listen-task-module,
+    body.theme-animals #listen-select-module,
+    body.theme-animals #translate-task-module { padding: 11px; }
+    body.theme-animals .word {
+        box-sizing: border-box;
+        max-width: calc(100vw - 38px);
+        padding: 8px;
+        font-size: clamp(19px, 7vw, 27px);
+        overflow-wrap: anywhere;
+    }
+    body.theme-animals .animals-photo-stage { border-radius: 14px; }
+}
+
+/* Stitch: блакитний океан, рожеві акценти та світлі картки. */
+.theme-option-stich { color: #123b64; background: linear-gradient(135deg, #8cdfff, #e7bcf6); }
+body.theme-stich {
+    min-height: 100vh; color: #163853;
+    background: radial-gradient(circle at 85% 10%, #f5c7ef, transparent 35%),
+        linear-gradient(145deg, #a9e9fa, #61bce9 60%, #829ae0);
+    background-attachment: fixed;
+}
+body.theme-stich :is(h1, #ukr-sentence, .task-text) { color: #153e65; font-weight: 800; }
+body.theme-stich :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #84bce6; border-radius: 20px;
+    background: #f7fcff; box-shadow: 0 8px 24px #24548c30;
+}
+body.theme-stich .word {
+    color: #fff; background: #2866a1; border: 2px solid #bdeaff;
+    border-radius: 14px; box-shadow: 0 4px 0 #16446f;
+}
+body.theme-stich .word.clicked { color: #372243; background: #eab5de; border-color: #fff; }
+body.theme-stich :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #285e99; border: 2px solid #bbdef6;
+    border-radius: 14px; font-weight: 800;
+}
+body.theme-stich :is(input, textarea, select) {
+    color: #173d61; background: #fff; border: 2px solid #78b5df; border-radius: 10px;
+}
+body.theme-stich .burger-icon span { background: #285e99; }
+body.theme-stich .side-panel { color: #fff; background: #1b416c; }
+body.theme-stich .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-stich .side-panel li:hover { color: #153653; background: #c7eafa; }
+body.theme-stich .modal-content { color: #173d61; background: #f7fcff; border: 3px solid #7fb4df; }
+body.theme-stich .progress-bar { background: linear-gradient(90deg, #226bac, #e1a1d1); height: 5px; }
+body.theme-stich .rating-table th { color: #fff; background: #285e99; }
+body.theme-stich #weekly-progress-container .mt-8 { background: #f7fcff; border-color: #78b5df; }
+body.theme-stich #completion-celebration { background: linear-gradient(145deg, #74cdeb, #7c94d9, #dba8d1); }
+body.theme-stich .celebration-card { color: #173d61; background: #f7fcff; border: 4px solid #a6ddf6; }
+body.theme-stich .celebration-loader span { background: #2866a1; }
+body.theme-stich .celebration-loader span:nth-child(2) { background: #d990c3; }
+@media (max-width: 480px) {
+    body.theme-stich .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
+/* Kuromi: бузковий фон, темні акценти та контрастні світлі картки. */
+.theme-option-kuromi { color: #fff; background: linear-gradient(135deg, #282238, #8860ac 65%, #e2a1cf); }
+body.theme-kuromi {
+    min-height: 100vh; color: #352444;
+    background: radial-gradient(circle at 85% 12%, #efbfdc, transparent 34%),
+        linear-gradient(145deg, #d3bee8, #a589c5 60%, #5c4775);
+    background-attachment: fixed;
+}
+body.theme-kuromi :is(h1, #ukr-sentence, .task-text) { color: #47305d; font-weight: 800; }
+body.theme-kuromi :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #a888c1; border-radius: 20px;
+    background: #fffbff; box-shadow: 0 8px 24px #39234e35;
+}
+body.theme-kuromi .word {
+    color: #fff; background: #49335f; border: 2px solid #d9b5e7;
+    border-radius: 14px; box-shadow: 0 4px 0 #291c38;
+}
+body.theme-kuromi .word.clicked { color: #3e2347; background: #edb7d9; border-color: #fff; }
+body.theme-kuromi :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #583c72; border: 2px solid #d9b5e7; border-radius: 14px; font-weight: 800;
+}
+body.theme-kuromi :is(input, textarea, select) {
+    color: #352444; background: #fff; border: 2px solid #a888c1; border-radius: 10px;
+}
+body.theme-kuromi .burger-icon span { background: #49335f; }
+body.theme-kuromi .side-panel { color: #fff; background: #292134; }
+body.theme-kuromi .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-kuromi .side-panel li:hover { color: #352444; background: #e5c7ec; }
+body.theme-kuromi .modal-content { color: #352444; background: #fffbff; border: 3px solid #a888c1; }
+body.theme-kuromi .progress-bar { background: linear-gradient(90deg, #755099, #edabd4); height: 5px; }
+body.theme-kuromi .rating-table th { color: #fff; background: #583c72; }
+body.theme-kuromi #weekly-progress-container .mt-8 { background: #fffbff; border-color: #a888c1; }
+body.theme-kuromi #completion-celebration { background: linear-gradient(145deg, #392747, #9470b6, #e5acd1); }
+body.theme-kuromi .celebration-card { color: #352444; background: #fffbff; border: 4px solid #dab7e9; }
+body.theme-kuromi .celebration-loader span { background: #583c72; }
+body.theme-kuromi .celebration-loader span:nth-child(2) { background: #e19bc8; }
+@media (max-width: 480px) {
+    body.theme-kuromi .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
+/* Battlegrounds: неонова арена, світлі читабельні картки. */
+.theme-option-battlegrounds {
+    color: #fff; background: linear-gradient(135deg, #142333, #255f80 65%, #dd8633);
+}
+.theme-option-label { overflow-wrap: anywhere; }
+body.theme-battlegrounds {
+    min-height: 100vh; color: #173247;
+    background: radial-gradient(circle at 15% 10%, #23778b, transparent 35%),
+        linear-gradient(145deg, #172b3f, #283753 65%, #54322b);
+    background-attachment: fixed;
+}
+body.theme-battlegrounds :is(h1, #ukr-sentence, .task-text) { color: #15384e; font-weight: 800; }
+body.theme-battlegrounds :is(.header, #task-module-container, #listen-task-module,
+    #listen-select-module, #translate-task-module, #stats-container, #feedback, #correct-answer) {
+    box-sizing: border-box; padding: 14px; margin-top: 16px;
+    border: 3px solid #65c3d3; border-radius: 14px;
+    background: #f4fbff; box-shadow: 0 8px 24px #081c3750;
+}
+body.theme-battlegrounds .word {
+    color: #fff; background: #24506c; border: 2px solid #85dce3;
+    border-radius: 9px; box-shadow: 0 4px 0 #123348;
+}
+body.theme-battlegrounds .word.clicked { color: #392709; background: #ffce83; border-color: #fff; }
+body.theme-battlegrounds :is(.styled-button, #start-btn, #check-btn, #reset-btn, #hint-btn) {
+    color: #fff; background: #225771; border: 2px solid #90dbe3; border-radius: 9px; font-weight: 800;
+}
+body.theme-battlegrounds :is(input, textarea, select) {
+    color: #173247; background: #fff; border: 2px solid #63b2c5; border-radius: 9px;
+}
+body.theme-battlegrounds .burger-icon span { background: #24506c; }
+body.theme-battlegrounds .side-panel { color: #fff; background: #152636; }
+body.theme-battlegrounds .side-panel :is(li, .close-btn) { color: #fff; }
+body.theme-battlegrounds .side-panel li:hover { color: #183146; background: #a9e6ed; }
+body.theme-battlegrounds .modal-content { color: #173247; background: #f4fbff; border: 3px solid #63b2c5; }
+body.theme-battlegrounds .progress-bar { background: linear-gradient(90deg, #64e3e8, #ffb56c); height: 5px; }
+body.theme-battlegrounds .rating-table th { color: #fff; background: #24506c; }
+body.theme-battlegrounds #weekly-progress-container .mt-8 { background: #f4fbff; border-color: #63b2c5; }
+body.theme-battlegrounds #completion-celebration { background: linear-gradient(145deg, #152636, #245f75, #69432f); }
+body.theme-battlegrounds .celebration-card { color: #173247; background: #f4fbff; border: 4px solid #87dce5; }
+body.theme-battlegrounds .celebration-loader span { background: #24506c; }
+body.theme-battlegrounds .celebration-loader span:nth-child(2) { background: #e89847; }
+@media (max-width: 480px) {
+    body.theme-battlegrounds .word { box-sizing: border-box; max-width: calc(100vw - 48px); overflow-wrap: anywhere; font-size: clamp(19px, 7vw, 27px); }
+}
+
+/* Фіксовані тематичні добірки: без автоматичного пошуку. */
+.remote-theme-photo-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(520px, 100%);
+    margin: -3px auto 13px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 18px;
+    background: #25344a;
+    box-shadow: 0 12px 28px rgba(12,26,47,.32);
+}
+
+.remote-theme-photo-stage img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    animation: remoteThemePhotoIn 560ms cubic-bezier(.2,1.12,.3,1) both;
+}
+
+.remote-theme-photo-credit {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100% - 16px);
+    padding: 5px 9px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(10,18,29,.76);
+    font: 800 10px/1.2 Arial, sans-serif;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remote-theme-photo-credit:hover,
+.remote-theme-photo-credit:focus { background: rgba(10,18,29,.95); text-decoration: underline; }
+
+body.theme-minecraft .remote-theme-photo-stage { border-radius: 0; border-color: #29231c; box-shadow: 7px 7px 0 #59402a; }
+body.theme-roblox .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #7357ef, 0 12px 27px rgba(31,17,91,.42); }
+body.theme-space .remote-theme-photo-stage { border-color: #8de7ff; box-shadow: 0 0 20px rgba(82,218,255,.55), 0 12px 27px rgba(0,0,31,.42); }
+body.theme-london .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #c82840, 0 12px 27px rgba(7,19,43,.42); }
+body.theme-football .remote-theme-photo-stage { border-color: #fff; box-shadow: 0 0 0 3px #0b5629, 0 12px 27px rgba(1,39,17,.44); }
+body.theme-animals .remote-theme-photo-stage { border-color: #fff2b5; border-radius: 22px; box-shadow: 0 0 0 3px #527d41, 0 12px 27px rgba(27,61,38,.4); }
+
+.remote-celebration-photo {
+    position: relative;
+    display: block;
+    width: min(390px, 100%);
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(9,24,42,.32);
+}
+
+.remote-celebration-photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.remote-celebration-photo .remote-theme-photo-credit { font-size: 9px; }
+
+.curated-theme-artwork { min-height: 120px; font-size: 64px; text-align: center; }
+.curated-theme-artwork svg { display: block; width: 100%; height: auto; max-height: 240px; }
+body[class] .celebration-mascot .curated-theme-artwork img {
+    width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain;
+    border: 0; border-radius: 0; box-shadow: none;
+}
+.curated-theme-artwork[data-art-theme="minecraft"] svg { height: 150px; width: auto; margin: auto; }
+.curated-theme-artwork img { object-fit: contain; }
+
+@keyframes remoteThemePhotoIn {
+    from { opacity: 0; transform: translateY(-18px) scale(.91); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    .remote-theme-photo-stage { border-width: 3px; border-radius: 13px; }
+    body.theme-minecraft .remote-theme-photo-stage { border-radius: 0; }
+    body.theme-animals .remote-theme-photo-stage { border-radius: 14px; }
+}
+
 /* Плавна поява кожного нового речення */
 .exercise-enter {
     animation: exerciseEnter 520ms cubic-bezier(.2, .8, .2, 1) both;
@@ -2152,7 +2803,10 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     .minecraft-character-stage svg, body.theme-minecraft .celebration-mascot svg,
     .roblox-character-stage img, body.theme-roblox .celebration-mascot img,
     .space-scene-stage svg, body.theme-space .celebration-mascot svg,
-    .london-scene-stage svg, body.theme-london .celebration-mascot svg {
+    .london-scene-stage svg, body.theme-london .celebration-mascot svg,
+    .football-photo-stage img, body.theme-football .celebration-mascot img,
+    .animals-photo-stage img, body.theme-animals .celebration-mascot img,
+    .remote-theme-photo-stage img {
         animation: none !important;
     }
     .word, .progress-bar { transition: none !important; }
@@ -2326,7 +2980,12 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         minecraft: { label: 'Minecraft', price: 50 },
         roblox: { label: 'Roblox', price: 50 },
         space: { label: 'Космос', price: 25 },
-        london: { label: 'Лондон', price: 25 }
+        london: { label: 'Лондон', price: 25 },
+        football: { label: 'Футбол', price: 25 },
+        animals: { label: 'Animals', price: 25 },
+        stich: { label: 'Stitch', price: 25 },
+        kuromi: { label: 'Kuromi', price: 25 },
+        battlegrounds: { label: 'Battlegrounds', price: 25 }
     });
 
     // Переменные для отслеживания состояния приложения
@@ -2556,6 +3215,473 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         container.prepend(stage);
     };
 
+    // Оптимізовані фото завантажуються з Unsplash лише коли активна футбольна тема.
+    const footballPhotos = [
+        { name: 'Футбольний матч на зеленому полі', src: 'https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольний м’яч на газоні', src: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Гравці під час футбольного матчу', src: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольний стадіон', src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбольне тренування', src: 'https://images.unsplash.com/photo-1553778263-73a83bab9b0c?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Футбол на відкритому полі', src: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=960&q=78' }
+    ];
+
+    let lastFootballPhotoIndex = -1;
+
+    const pickFootballPhoto = () => {
+        let index = Math.floor(Math.random() * footballPhotos.length);
+        if (footballPhotos.length > 1 && index === lastFootballPhotoIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (footballPhotos.length - 1))) % footballPhotos.length;
+        }
+        lastFootballPhotoIndex = index;
+        return footballPhotos[index];
+    };
+
+    const createFootballImage = photo => {
+        const image = document.createElement('img');
+        image.src = photo.src;
+        image.alt = photo.name;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('error', () => image.closest('.football-photo-stage')?.remove(), { once: true });
+        return image;
+    };
+
+    const showRandomFootballPhoto = container => {
+        document.querySelectorAll('.football-photo-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-football')) return;
+
+        const photo = pickFootballPhoto();
+        const stage = document.createElement('div');
+        stage.className = 'football-photo-stage';
+        stage.setAttribute('role', 'img');
+        stage.setAttribute('aria-label', photo.name);
+        stage.appendChild(createFootballImage(photo));
+        container.prepend(stage);
+    };
+
+    const animalsPhotos = [
+        { name: 'Лисиця в природі', src: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Слон у дикій природі', src: 'https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Мавпа серед зелені', src: 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Леопард у природі', src: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Собака на прогулянці', src: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=960&q=78' },
+        { name: 'Олень у лісі', src: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=960&q=78' }
+    ];
+
+    let lastAnimalsPhotoIndex = -1;
+
+    const pickAnimalsPhoto = () => {
+        let index = Math.floor(Math.random() * animalsPhotos.length);
+        if (animalsPhotos.length > 1 && index === lastAnimalsPhotoIndex) {
+            index = (index + 1 + Math.floor(Math.random() * (animalsPhotos.length - 1))) % animalsPhotos.length;
+        }
+        lastAnimalsPhotoIndex = index;
+        return animalsPhotos[index];
+    };
+
+    const createAnimalsImage = photo => {
+        const image = document.createElement('img');
+        image.src = photo.src;
+        image.alt = photo.name;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('error', () => image.closest('.animals-photo-stage')?.remove(), { once: true });
+        return image;
+    };
+
+    const showRandomAnimalsPhoto = container => {
+        document.querySelectorAll('.animals-photo-stage').forEach(stage => stage.remove());
+        if (!container || !document.body.classList.contains('theme-animals')) return;
+
+        const photo = pickAnimalsPhoto();
+        const stage = document.createElement('div');
+        stage.className = 'animals-photo-stage';
+        stage.setAttribute('role', 'img');
+        stage.setAttribute('aria-label', photo.name);
+        stage.appendChild(createAnimalsImage(photo));
+        container.prepend(stage);
+    };
+
+    // Власні легкі SVG-ілюстрації. Усі фрагменти статичні, без зовнішніх даних.
+    const themeDrawing = (name, background, content) => ({
+        name,
+        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 240" aria-hidden="true">' +
+            '<rect width="520" height="240" rx="16" fill="' + background + '"/>' + content + '</svg>'
+    });
+    const animalDrawing = (name, color, face) => themeDrawing(name, '#def0d8',
+        '<path d="M0 192Q110 135 230 190T520 176V240H0Z" fill="#91c581"/>' +
+        '<circle cx="440" cy="48" r="25" fill="#ffe893"/>' +
+        '<g transform="translate(260 115)">' + face +
+        '<ellipse cy="26" rx="55" ry="62" fill="' + color + '"/>' +
+        '<circle cx="-20" cy="12" r="6" fill="#24383c"/><circle cx="20" cy="12" r="6" fill="#24383c"/>' +
+        '<ellipse cy="35" rx="10" ry="7" fill="#24383c"/><path d="M-15 49Q0 65 15 49" fill="none" stroke="#24383c" stroke-width="4"/>' +
+        '</g>');
+    const animalDrawings = [
+        animalDrawing('Малюнок: кіт', '#e9aa68', '<path d="M-54 0L-57-63L-13-29M54 0L57-63L13-29" fill="#e9aa68" stroke="#875a40" stroke-width="5"/>'),
+        animalDrawing('Малюнок: зайчик', '#fff8ef', '<ellipse cx="-27" cy="-55" rx="19" ry="64" fill="#fff8ef"/><ellipse cx="27" cy="-55" rx="19" ry="64" fill="#fff8ef"/><path d="M-27-98V-30M27-98V-30" stroke="#efb5c2" stroke-width="13" stroke-linecap="round"/>'),
+        animalDrawing('Малюнок: ведмедик', '#b9865a', '<circle cx="-46" cy="-24" r="27" fill="#895638"/><circle cx="46" cy="-24" r="27" fill="#895638"/>'),
+        animalDrawing('Малюнок: лев', '#efc477', '<circle cy="20" r="89" fill="#b77735"/><path d="M-70-12L-88-45L-35-44L0-85L35-44L88-45L70-12" fill="#b77735"/>'),
+        animalDrawing('Малюнок: слоненя', '#a2b7cc', '<ellipse cx="-65" cy="15" rx="48" ry="65" fill="#829ab5"/><ellipse cx="65" cy="15" rx="48" ry="65" fill="#829ab5"/><path d="M0 66V100Q0 125 35 112" fill="none" stroke="#a2b7cc" stroke-width="24" stroke-linecap="round"/>'),
+        animalDrawing('Малюнок: собака', '#e3c2a0', '<ellipse cx="-53" cy="12" rx="25" ry="66" transform="rotate(18)" fill="#795741"/><ellipse cx="53" cy="12" rx="25" ry="66" transform="rotate(-18)" fill="#795741"/>')
+    ];
+    const drawnFootball = (x, y, size = 1) =>
+        '<g transform="translate(' + x + ' ' + y + ') scale(' + size + ')"><circle r="30" fill="#fff" stroke="#263d4b" stroke-width="3"/><path d="M0-14L14-4L9 12H-9L-14-4Z" fill="#263d4b"/><path d="M0-30V-14M29-9L14-4M18 24L9 12M-18 24L-9 12M-29-9L-14-4" stroke="#263d4b" stroke-width="3"/></g>';
+    const footballDrawing = (name, content) => themeDrawing(name, '#b7e6f1',
+        '<path d="M0 130H520V240H0Z" fill="#60a868"/><path d="M0 218H520" stroke="#eaf8df" stroke-width="4"/>' + content);
+    const footballDrawings = [
+        footballDrawing('Малюнок: м’яч на полі', '<ellipse cx="260" cy="201" rx="92" ry="13" fill="#418e51"/>' + drawnFootball(260, 124, 2.3)),
+        footballDrawing('Малюнок: гол у ворота', '<path d="M150 189V50H415V189" fill="none" stroke="#fff" stroke-width="10"/><path d="M150 82H415M150 116H415M150 150H415M194 50V189M238 50V189M282 50V189M326 50V189M370 50V189" stroke="#d8f7fa" stroke-width="3"/>' + drawnFootball(320, 167)),
+        footballDrawing('Малюнок: кубок чемпіона', '<path d="M219 62H181Q172 135 231 126M301 62H339Q348 135 289 126" fill="none" stroke="#d39b28" stroke-width="15"/><path d="M205 42H315L304 111Q295 143 269 149V179H305V200H215V179H251V149Q225 143 216 111Z" fill="#ffd86b"/><path d="M260 59L268 78L289 79L273 92L278 113L260 102L242 113L247 92L231 79L252 78Z" fill="#fff4c5"/>'),
+        footballDrawing('Малюнок: тренування між конусами', '<path d="M80 175L108 110L136 175ZM216 187L244 122L272 187ZM367 165L395 100L423 165Z" fill="#f38b49"/><path d="M100 192Q220 215 310 163T440 189" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 9"/>' + drawnFootball(310, 185, .65)),
+        footballDrawing('Малюнок: стадіон увечері', '<path d="M30 118V70Q260-35 490 70V118Z" fill="#516887"/><path d="M40 92Q260-7 480 92M40 110Q260 11 480 110" fill="none" stroke="#ffdf6f" stroke-width="8"/><path d="M55 122V37M465 122V37" stroke="#40566d" stroke-width="7"/><path d="M28 35H82M438 35H492" stroke="#fffbe0" stroke-width="14"/><ellipse cx="260" cy="179" rx="175" ry="38" fill="none" stroke="#fff" stroke-width="3"/>' + drawnFootball(260, 180, .65)),
+        footballDrawing('Малюнок: футбольна форма', '<path d="M190 46L227 31Q260 56 293 31L330 46L363 94L321 116L307 95V204H213V95L199 116L157 94Z" fill="#397fca" stroke="#fff" stroke-width="5"/><path d="M247 92H280L254 155" fill="none" stroke="#fff" stroke-width="12"/>')
+    ];
+    // Авторські блокові аватари, стилізовані для теми Roblox (не офіційні рендери).
+    const blockAvatar = (name, shirt, hat, accessory) => themeDrawing(name, '#dce6ff',
+        '<path d="M0 197H520V240H0Z" fill="#abbde5"/><g transform="translate(260 18)">' +
+        '<rect x="-31" y="21" width="62" height="57" rx="9" fill="#ffe090"/>' +
+        '<circle cx="-11" cy="45" r="4"/><circle cx="11" cy="45" r="4"/><path d="M-11 60Q0 69 11 60" fill="none" stroke="#31394a" stroke-width="3"/>' +
+        '<rect x="-40" y="83" width="80" height="68" rx="5" fill="' + shirt + '"/>' +
+        '<path d="M-47 91L-69 131M47 91L69 131" stroke="#ffe090" stroke-width="25" stroke-linecap="round"/>' +
+        '<path d="M-21 151V197M21 151V197" stroke="#3d557b" stroke-width="29"/>' + hat + accessory + '</g>');
+    const robloxDrawings = [
+        blockAvatar('Блоковий аватар: будівельник', '#f19c41', '<path d="M-38 32Q-38-7 0-7Q38-7 38 32Z" fill="#fbc348"/><path d="M-45 32H45" stroke="#d4931d" stroke-width="9"/>', '<path d="M73 112V180M57 114H87" stroke="#697a8f" stroke-width="10"/>'),
+        blockAvatar('Блоковий аватар: космонавт', '#f5f7ff', '<rect x="-39" y="8" width="78" height="77" rx="22" fill="none" stroke="#fff" stroke-width="12"/>', '<rect x="-22" y="96" width="44" height="35" fill="#8bb8e8"/><circle cy="111" r="7" fill="#f58074"/>'),
+        blockAvatar('Блоковий аватар: пірат', '#9c5479', '<path d="M-51 24Q-40-10 0 2Q40-10 51 24Z" fill="#34445a"/>', '<path d="M-29 41H0" stroke="#34445a" stroke-width="12"/><path d="M65 147L96 80" stroke="#c7d5e7" stroke-width="9"/>'),
+        blockAvatar('Блоковий аватар: скейтер', '#4eab98', '<path d="M-33 24Q-20-1 10 2Q32 3 34 24H54" fill="#e48665" stroke="#e48665" stroke-width="8"/>', '<path d="M-65 203H67" stroke="#e6a14c" stroke-width="10" stroke-linecap="round"/><circle cx="-42" cy="214" r="7" fill="#354052"/><circle cx="43" cy="214" r="7" fill="#354052"/>'),
+        blockAvatar('Блоковий аватар: мандрівник', '#779849', '<path d="M-33 24L-23 1H23L33 24M-47 24H47" fill="#b79262" stroke="#b79262" stroke-width="10"/>', '<path d="M60 99H108V153H60Z" fill="#f8eabd"/><path d="M74 105L84 124L98 117" fill="none" stroke="#62a59a" stroke-width="4"/>')
+    ];
+
+    // Власні SVG-ілюстрації Stitch, без зовнішнього пошуку зображень.
+    const stitchDrawing = (name, background, scenery, accessory, tilt = 0) =>
+        themeDrawing(name, background, scenery +
+        '<g transform="translate(260 125) rotate(' + tilt + ')">' +
+        '<ellipse cy="70" rx="48" ry="40" fill="#368dc5"/><ellipse cy="76" rx="27" ry="29" fill="#a8ddec"/>' +
+        '<ellipse cx="-41" cy="100" rx="25" ry="13" fill="#236fa9"/><ellipse cx="41" cy="100" rx="25" ry="13" fill="#236fa9"/>' +
+        '<path d="M-44-28Q-91-103-132-94Q-121-12-53 18Z" fill="#3388c3"/>' +
+        '<path d="M44-28Q91-103 132-94Q121-12 53 18Z" fill="#3388c3"/>' +
+        '<path d="M-59-27Q-93-81-119-81Q-105-23-61 5Z" fill="#ce9cc8"/>' +
+        '<path d="M59-27Q93-81 119-81Q105-23 61 5Z" fill="#ce9cc8"/>' +
+        '<ellipse cy="0" rx="69" ry="57" fill="#4099ce"/>' +
+        '<path d="M-14-50L-7-68L3-51L15-62L16-48" fill="#4099ce"/>' +
+        '<ellipse cx="-32" cy="-3" rx="23" ry="30" fill="#b0e0ee"/><ellipse cx="32" cy="-3" rx="23" ry="30" fill="#b0e0ee"/>' +
+        '<ellipse cx="-30" cy="-5" rx="13" ry="20" fill="#102c50"/><ellipse cx="30" cy="-5" rx="13" ry="20" fill="#102c50"/>' +
+        '<circle cx="-26" cy="-12" r="5" fill="white"/><circle cx="34" cy="-12" r="5" fill="white"/>' +
+        '<ellipse cy="18" rx="21" ry="14" fill="#173e70"/>' +
+        '<path d="M-35 32Q0 64 35 32Q0 76-35 32Z" fill="#194571"/>' +
+        '<path d="M-25 39L-20 48L-15 42M15 42L20 48L25 39" fill="white"/>' +
+        '<ellipse cx="-49" cy="66" rx="14" ry="28" fill="#368dc5" transform="rotate(15 -49 66)"/>' +
+        '<ellipse cx="49" cy="66" rx="14" ry="28" fill="#368dc5" transform="rotate(-15 49 66)"/>' +
+        accessory + '</g>');
+    const stitchDrawings = [
+        stitchDrawing('Stitch на пляжі', '#bceaf5', '<path d="M0 150H520V240H0Z" fill="#ffe3a5"/><path d="M0 120Q120 95 260 120T520 120V158H0Z" fill="#6ac9df"/><circle cx="448" cy="43" r="26" fill="#ffe08b"/>', ''),
+        stitchDrawing('Stitch із сердечком', '#f4dcef', '<circle cx="91" cy="64" r="26" fill="#eab1d6"/><circle cx="436" cy="95" r="40" fill="#eab1d6"/>', '<path d="M0 107L-32 75C-56 47-15 30 0 56C15 30 56 47 32 75Z" fill="#e66ba6"/>'),
+        stitchDrawing('Stitch із серфінгом', '#c3ecf4', '<path d="M0 180Q80 140 150 180T300 180T520 180V240H0Z" fill="#59bed8"/><ellipse cx="405" cy="135" rx="29" ry="96" transform="rotate(15 405 135)" fill="#ffcc77"/><path d="M421 55L403 130L392 205" stroke="#f08289" stroke-width="12"/>', '', -6),
+        stitchDrawing('Stitch серед зірок', '#263c72', '<path d="M65 40L70 54L85 55L73 65L77 79L65 70L53 79L57 65L45 55L60 54ZM446 66L451 80L466 81L454 91L458 105L446 96L434 105L438 91L426 81L441 80Z" fill="#ffe58c"/><circle cx="385" cy="35" r="4" fill="white"/><circle cx="121" cy="180" r="4" fill="white"/>', ''),
+        stitchDrawing('Stitch з укулеле', '#e2f1da', '<path d="M0 200Q100 160 210 200T520 194V240H0Z" fill="#a5d7b4"/>', '<g transform="rotate(30 12 73)"><ellipse cx="8" cy="87" rx="27" ry="23" fill="#bf854e"/><ellipse cx="8" cy="64" rx="20" ry="18" fill="#bf854e"/><path d="M8 57V15" stroke="#95613d" stroke-width="12"/><circle cx="8" cy="75" r="9" fill="#5d4235"/><path d="M5 20V97M10 20V97" stroke="#ffe7b6" stroke-width="1.5"/></g>'),
+        stitchDrawing('Stitch святкує', '#d8e8fc', '<path d="M74 38L90 62M435 30L416 52M108 152L87 169M418 171L444 182" stroke="#e8a4d5" stroke-width="9"/><circle cx="161" cy="31" r="7" fill="#ffd580"/><circle cx="450" cy="115" r="8" fill="#ffd580"/>', '<path d="M-32-49L0-112L32-49Z" fill="#f9c55f"/><path d="M-19-77H19M-27-59H27" stroke="#e48bbd" stroke-width="8"/><circle cy="-111" r="8" fill="#f6a4d4"/>', 5)
+    ];
+
+    // Власні SVG-ілюстрації Kuromi; фото користувача додаються через images.
+    const kuromiDrawing = (name, background, scenery, accessory, tilt = 0) =>
+        themeDrawing(name, background, scenery +
+        '<g transform="translate(260 126) rotate(' + tilt + ')">' +
+        '<path d="M32 85Q88 107 89 67L77 74L92 50L105 73L94 71" fill="none" stroke="#302637" stroke-width="6" stroke-linejoin="round"/>' +
+        '<ellipse cy="70" rx="35" ry="37" fill="#fffcff"/>' +
+        '<ellipse cx="-23" cy="99" rx="20" ry="11" fill="#fffcff"/><ellipse cx="23" cy="99" rx="20" ry="11" fill="#fffcff"/>' +
+        '<path d="M-48-22L-84-98L-14-50M48-22L84-98L14-50" fill="#302637"/>' +
+        '<circle cx="-84" cy="-98" r="10" fill="#302637"/><circle cx="84" cy="-98" r="10" fill="#302637"/>' +
+        '<ellipse cy="-4" rx="70" ry="64" fill="#302637"/>' +
+        '<path d="M-54-7Q-34-26-16-12Q0 0 16-12Q34-26 54-7Q67 50 0 52Q-67 50-54-7Z" fill="#fffcff"/>' +
+        '<ellipse cx="-25" cy="10" rx="6" ry="10" fill="#302637"/><ellipse cx="25" cy="10" rx="6" ry="10" fill="#302637"/>' +
+        '<path d="M-31 2L-37-2M31 2L37-2" stroke="#302637" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cy="24" rx="5" ry="3" fill="#e09aba"/><path d="M-10 33Q0 44 10 33" fill="none" stroke="#302637" stroke-width="3"/>' +
+        '<ellipse cx="-40" cy="27" rx="10" ry="5" fill="#f4c2da"/><ellipse cx="40" cy="27" rx="10" ry="5" fill="#f4c2da"/>' +
+        '<g transform="translate(0 -38)"><path d="M-17 0A17 15 0 1 1 17 0L9 9V16H-9V9Z" fill="#f0a8d0"/><ellipse cx="-7" cy="-3" rx="4" ry="5" fill="#302637"/><ellipse cx="7" cy="-3" rx="4" ry="5" fill="#302637"/><path d="M-3 11V16M3 11V16" stroke="#302637" stroke-width="2"/></g>' +
+        '<path d="M-35 51L-20 69L0 59L20 69L35 51" fill="#9b73b6"/>' +
+        '<ellipse cx="-39" cy="72" rx="12" ry="19" fill="#fffcff"/><ellipse cx="39" cy="72" rx="12" ry="19" fill="#fffcff"/>' +
+        accessory + '</g>');
+    const kuromiDrawings = [
+        kuromiDrawing('Kuromi із сердечком', '#f5e1f0', '<circle cx="104" cy="59" r="28" fill="#e3c2ed"/><circle cx="422" cy="171" r="42" fill="#e3c2ed"/>', '<path d="M0 103L-26 78C-44 54-10 43 0 62C10 43 44 54 26 78Z" fill="#d980b5"/>'),
+        kuromiDrawing('Kuromi під місяцем', '#443253', '<path d="M106 29A35 35 0 1 0 140 78A31 31 0 0 1 106 29Z" fill="#ffe5a1"/><path d="M409 47L413 59L426 60L416 68L420 81L409 73L398 81L402 68L392 60L405 59Z" fill="#ecd1fa"/>', ''),
+        kuromiDrawing('Kuromi читає книжку', '#e8e0f6', '<rect x="77" y="146" width="65" height="12" rx="3" fill="#b995d3"/><rect x="83" y="160" width="65" height="12" rx="3" fill="#e6a1c9"/>', '<path d="M0 67Q-20 53-48 58V98Q-20 94 0 108Q20 94 48 98V58Q20 53 0 67Z" fill="#b38bc9" stroke="#694c80" stroke-width="3"/><path d="M0 69V106" stroke="#ffefff" stroke-width="3"/>'),
+        kuromiDrawing('Kuromi з подарунком', '#fae3ef', '<path d="M83 60L100 80M425 36L409 60M431 156L450 169" stroke="#c89edf" stroke-width="8"/>', '<rect x="-35" y="63" width="70" height="43" rx="3" fill="#b291d2"/><path d="M0 63V106M-35 77H35" stroke="#f7b8da" stroke-width="9"/><path d="M0 62Q-40 25-26 58Q-9 64 0 62Q40 25 26 58Q9 64 0 62" fill="none" stroke="#ee9dcb" stroke-width="6"/>'),
+        kuromiDrawing('Kuromi з музикою', '#e6dcf5', '<path d="M106 47V108M106 47L144 38V99" fill="none" stroke="#9970b6" stroke-width="7"/><ellipse cx="95" cy="108" rx="14" ry="10" fill="#9970b6"/><ellipse cx="133" cy="99" rx="14" ry="10" fill="#9970b6"/><path d="M425 91V153M425 91L450 101" stroke="#d284b2" stroke-width="7"/><ellipse cx="414" cy="153" rx="14" ry="10" fill="#d284b2"/>', '', -5),
+        kuromiDrawing('Kuromi з морозивом', '#f6e7f3', '<circle cx="107" cy="66" r="29" fill="#e1c4ec"/><circle cx="423" cy="174" r="33" fill="#e1c4ec"/>', '<path d="M-21 79L0 113L21 79Z" fill="#e3bb86"/><circle cy="68" r="23" fill="#dda9d3"/><circle cy="45" r="8" fill="#d17da8"/>', 4)
+    ];
+
+    // Авторські ілюстрації ігрових арен; не скриншоти конкретної гри.
+    const arenaHero = (x, y, color, pose = 0) =>
+        '<g transform="translate(' + x + ' ' + y + ')">' +
+        '<rect x="-19" y="-47" width="38" height="35" rx="5" fill="#f5d6ae"/>' +
+        '<path d="M-20-39V-50L-9-59L-5-52L7-61L12-52L21-49V-39Z" fill="#233442"/>' +
+        '<path d="M-9-30H-4M5-30H10" stroke="#20313f" stroke-width="3"/>' +
+        '<rect x="-25" y="-8" width="50" height="48" rx="4" fill="' + color + '"/>' +
+        '<path d="M-12 40L-18 78M12 40L24 78" stroke="#263c54" stroke-width="17"/>' +
+        '<path d="' + (pose ? 'M-26 1L-52-26M26 1L51-26' : 'M-26 1L-44 32M26 1L47 18') +
+        '" fill="none" stroke="' + color + '" stroke-width="16" stroke-linecap="round"/>' +
+        '<path d="M-29 81H-8M14 81H35" stroke="#b6d9e7" stroke-width="9"/>' +
+        '</g>';
+    const arenaDrawing = (name, scene) => themeDrawing(name, '#192e46',
+        '<path d="M0 176L260 115L520 176V240H0Z" fill="#35516a"/>' +
+        '<path d="M0 207H520M80 240L214 127M440 240L306 127M260 123V240" stroke="#527894" stroke-width="2"/>' + scene);
+    const battlegroundsDrawings = [
+        arenaDrawing('Battlegrounds: вихід на арену', '<ellipse cx="260" cy="193" rx="127" ry="27" fill="none" stroke="#74e7eb" stroke-width="6"/><path d="M50 146V46H140V124M380 124V46H470V146" fill="none" stroke="#4e8da9" stroke-width="9"/>' + arenaHero(260, 107, '#ec9c4c')),
+        arenaDrawing('Battlegrounds: енергетичний ривок', '<path d="M50 82H190M27 112H164M65 144H180" stroke="#73e7e7" stroke-width="7" stroke-linecap="round"/><path d="M315 78L369 54L346 105L403 99L334 164" fill="none" stroke="#ffe087" stroke-width="9"/>' + arenaHero(248, 117, '#55b7ce')),
+        arenaDrawing('Battlegrounds: команда героїв', '<path d="M90 45H430" stroke="#93cadb" stroke-width="4"/><circle cx="260" cy="37" r="17" fill="#f4cb76"/>' + arenaHero(152, 124, '#68b8cc') + arenaHero(260, 103, '#e3a053', 1) + arenaHero(371, 124, '#ae88d4')),
+        arenaDrawing('Battlegrounds: тренувальний майданчик', '<rect x="55" y="89" width="53" height="93" rx="8" fill="#d89159"/><path d="M81 80V191" stroke="#f8db94" stroke-width="7"/><circle cx="408" cy="102" r="40" fill="#2d4d65" stroke="#8bdcde" stroke-width="6"/><circle cx="408" cy="102" r="22" fill="none" stroke="#ffcb80" stroke-width="6"/>' + arenaHero(254, 122, '#8395d4')),
+        arenaDrawing('Battlegrounds: захисний щит', '<path d="M260 29L356 64V123Q348 192 260 218Q172 192 164 123V64Z" fill="#285777" stroke="#72e7e9" stroke-width="5"/><path d="M63 67L112 98M413 63L456 89" stroke="#ffce86" stroke-width="7"/>' + arenaHero(260, 113, '#70b9c7')),
+        arenaDrawing('Battlegrounds: перемога на арені', '<path d="M50 65L77 89M437 46L413 77M105 36L116 59M443 147L466 164" stroke="#7fe1e5" stroke-width="7"/><path d="M248 30H272V52Q260 68 248 52ZM252 62H268V75H252Z" fill="#ffdc85"/><path d="M248 33H236Q232 52 250 52M272 33H284Q288 52 270 52" fill="none" stroke="#ffdc85" stroke-width="5"/>' + arenaHero(260, 133, '#dd9849', 1))
+    ];
+
+    // Тільки фіксовані тематичні набори. Пошук в інтернеті не виконується.
+    // Нові зображення додаються до відповідного масиву після ручного перегляду.
+    const THEME_GALLERIES = Object.freeze({
+        minecraft: minecraftCharacters,
+        roblox: [...robloxImages, ...robloxDrawings],
+        space: spaceScenes,
+        london: londonScenes,
+        football: [...footballPhotos, ...footballDrawings],
+        animals: [...animalsPhotos, ...animalDrawings],
+        stich: stitchDrawings,
+        kuromi: kuromiDrawings,
+        battlegrounds: battlegroundsDrawings
+    });
+    const THEME_GALLERY_EMOJI = Object.freeze({
+        minecraft: '⛏️', roblox: '🎮', space: '🚀',
+        london: '🇬🇧', football: '⚽', animals: '🐾', stich: '💙', kuromi: '💜', battlegrounds: '⚡'
+    });
+    const themeGalleryQueues = new Map();
+    const mixedThemeGalleries = { ...THEME_GALLERIES };
+    let imagesSheetPromise = null;
+    let imagesSheetNextCheck = 0;
+    const IMAGES_SHEET_REFRESH_MS = 5 * 60 * 1000;
+
+    const gallerySignature = photos => JSON.stringify(photos.map(photo =>
+        photo.fromSheet ? photo.src : photo.name));
+
+    const mergeImagesSheetRows = rows => {
+        const next = Object.fromEntries(Object.entries(THEME_GALLERIES)
+            .map(([theme, photos]) => [theme, [...photos]]));
+        const seen = Object.fromEntries(Object.entries(next)
+            .map(([theme, photos]) => [theme, new Set(photos.filter(p => p.src).map(p => p.src))]));
+        for (const row of rows) {
+            if (!Array.isArray(row)) continue;
+            const rawTheme = String(row[0] || '').trim().toLowerCase();
+            const theme = rawTheme === 'stitch' ? 'stich' : rawTheme;
+            if (!Object.prototype.hasOwnProperty.call(next, theme)) continue;
+            let url;
+            try { url = new URL(String(row[1] || '').trim()); } catch (_) { continue; }
+            if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) continue;
+            if (location.protocol === 'https:' && url.protocol !== 'https:') continue;
+            url.hash = '';
+            if (seen[theme].has(url.href)) continue;
+            seen[theme].add(url.href);
+            next[theme].push({
+                name: THEME_CATALOG[theme].label + ' — зображення з таблиці',
+                src: url.href,
+                fromSheet: true
+            });
+        }
+        for (const theme of Object.keys(next)) {
+            if (gallerySignature(next[theme]) !== gallerySignature(mixedThemeGalleries[theme])) {
+                mixedThemeGalleries[theme] = next[theme];
+                themeGalleryQueues.delete(theme);
+            }
+        }
+    };
+
+    // Аркуш images: A1=theme, B1=url; посилання починаються з другого рядка.
+    // Завантажуємо тільки адреси. Самі картинки — лише коли настає їхня черга.
+    const refreshImagesSheet = () => {
+        if (imagesSheetPromise) return imagesSheetPromise;
+        if (Date.now() < imagesSheetNextCheck) return Promise.resolve();
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 4000);
+        imagesSheetPromise = (async () => {
+            try {
+                const range = encodeURIComponent('images!A2:B');
+                const url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
+                    SPREADSHEET_ID + '/values/' + range + '?key=' + encodeURIComponent(API_KEY);
+                const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+                if (!response.ok) throw new Error('images sheet unavailable');
+                const result = await response.json();
+                if (result.error || (result.values !== undefined && !Array.isArray(result.values))) {
+                    throw new Error('Invalid images sheet response');
+                }
+                mergeImagesSheetRows(result.values || []);
+                imagesSheetNextCheck = Date.now() + IMAGES_SHEET_REFRESH_MS;
+            } catch (_) {
+                // Відсутній аркуш або збій мережі не блокують вправи й наявні набори.
+                imagesSheetNextCheck = Date.now() + 60000;
+            } finally {
+                clearTimeout(timeout);
+                imagesSheetPromise = null;
+            }
+        })();
+        return imagesSheetPromise;
+    };
+
+    let remoteThemePhotoRequestId = 0;
+    let remoteCelebrationPhotoRequestId = 0;
+
+    // Старі випадкові результати не можна повторно використати після оновлення.
+    Object.keys(THEME_GALLERIES).forEach(theme => {
+        try { sessionStorage.removeItem('themePhotosV2_' + theme); } catch (_) {}
+    });
+
+    const shufflePhotoList = items => {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+        }
+        return shuffled;
+    };
+
+    // Фото та SVG чергуються; порядок всередині кожної групи випадковий.
+    // Якщо одна група закінчилася, спочатку показуємо решту без повторів.
+    const buildMixedThemeQueue = (photos, last) => {
+        const groups = [
+            shufflePhotoList(photos.map((photo, index) => !photo.svg ? index : -1).filter(index => index >= 0)),
+            shufflePhotoList(photos.map((photo, index) => photo.svg ? index : -1).filter(index => index >= 0))
+        ];
+        let kind = last >= 0 ? (photos[last].svg ? 0 : 1) : Math.floor(Math.random() * 2);
+        const ordered = [];
+        while (groups[0].length || groups[1].length) {
+            if (!groups[kind].length) kind = 1 - kind;
+            const group = groups[kind];
+            if (!ordered.length && group.length > 1 && group[group.length - 1] === last) {
+                [group[0], group[group.length - 1]] = [group[group.length - 1], group[0]];
+            }
+            ordered.push(group.pop());
+            kind = 1 - kind;
+        }
+        return ordered.reverse(); // takeThemePhoto бере наступний елемент через pop().
+    };
+
+    // Одна черга на тему для вправ і завершення. Прогрес зберігається після перезавантаження.
+    const takeThemePhoto = theme => {
+        const photos = mixedThemeGalleries[theme];
+        if (!photos?.length) return null;
+        const key = 'curatedThemeQueueV3_' + theme;
+        const signature = gallerySignature(photos);
+        let state = themeGalleryQueues.get(theme);
+        if (!state) {
+            try {
+                const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+                if (saved && saved.signature === signature && saved.size === photos.length && Array.isArray(saved.queue)
+                    && saved.queue.every(index => Number.isInteger(index) && index >= 0 && index < photos.length)
+                    && new Set(saved.queue).size === saved.queue.length
+                    && Number.isInteger(saved.last) && saved.last >= -1 && saved.last < photos.length) {
+                    state = saved;
+                }
+            } catch (_) {}
+            state = state || { size: photos.length, signature, queue: [], last: -1 };
+            themeGalleryQueues.set(theme, state);
+        }
+        if (!state.queue.length) {
+            state.queue = buildMixedThemeQueue(photos, state.last);
+        }
+        const index = state.queue.pop();
+        state.last = index;
+        try { sessionStorage.setItem(key, JSON.stringify(state)); } catch (_) {}
+        return photos[index];
+    };
+
+    const loadRemoteThemeImage = photo => new Promise((resolve, reject) => {
+        const image = new Image();
+        const timer = setTimeout(() => {
+            image.onload = image.onerror = null;
+            image.removeAttribute('src');
+            reject(new Error('Image timeout'));
+        }, 8000);
+        image.alt = photo.name;
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.onload = () => { clearTimeout(timer); resolve(image); };
+        image.onerror = () => { clearTimeout(timer); reject(new Error('Image unavailable')); };
+        image.src = photo.src;
+    });
+
+    const clearLegacyThemePictures = () => {
+        document.querySelectorAll(
+            '.minecraft-character-stage, .roblox-character-stage, .space-scene-stage, ' +
+            '.london-scene-stage, .football-photo-stage, .animals-photo-stage, .remote-theme-photo-stage'
+        ).forEach(element => element.remove());
+    };
+
+    const renderCuratedThemeArtwork = async (theme, target, stillCurrent) => {
+        await refreshImagesSheet();
+        if (!stillCurrent()) return;
+        const photos = mixedThemeGalleries[theme];
+        if (!photos) return;
+        for (let attempt = 0; attempt < photos.length; attempt++) {
+            if (!stillCurrent()) return;
+            const photo = takeThemePhoto(theme);
+            let artwork;
+            if (photo.svg) {
+                // SVG походить лише зі статичних масивів у цьому файлі.
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = photo.svg;
+                artwork = wrapper.firstElementChild;
+            } else {
+                try { artwork = await loadRemoteThemeImage(photo); }
+                catch (_) { continue; }
+            }
+            if (!stillCurrent()) return;
+            artwork.setAttribute('aria-label', photo.name);
+            target.replaceChildren(artwork);
+            target.setAttribute('aria-label', photo.name);
+            if (theme === 'roblox' && !photo.svg && !photo.fromSheet) {
+                const credit = document.createElement('a');
+                credit.className = 'remote-theme-photo-credit';
+                credit.href = 'https://about.roblox.com/press-kit';
+                credit.target = '_blank';
+                credit.rel = 'noopener noreferrer';
+                credit.textContent = 'Roblox Press Kit';
+                target.appendChild(credit);
+            }
+            return;
+        }
+        // Якщо фото недоступні, лишається тематична піктограма, а не стороннє зображення.
+    };
+
+    const showRandomInternetThemePhoto = container => {
+        const theme = document.body.dataset.theme || 'standard';
+        const requestId = ++remoteThemePhotoRequestId;
+        clearLegacyThemePictures();
+        if (!container || !THEME_GALLERIES[theme]) return;
+        const stage = document.createElement('div');
+        stage.className = 'remote-theme-photo-stage curated-theme-artwork';
+        stage.dataset.artTheme = theme;
+        stage.setAttribute('role', 'group');
+        stage.setAttribute('aria-label', THEME_CATALOG[theme].label);
+        stage.textContent = THEME_GALLERY_EMOJI[theme];
+        container.prepend(stage);
+        void renderCuratedThemeArtwork(theme, stage, () =>
+            requestId === remoteThemePhotoRequestId && stage.isConnected &&
+            !container.classList.contains('hidden') && document.body.dataset.theme === theme);
+    };
+
+    const showRandomInternetCelebrationPhoto = (theme, mascotElement) => {
+        const requestId = ++remoteCelebrationPhotoRequestId;
+        if (!THEME_GALLERIES[theme]) return;
+        const stage = document.createElement('div');
+        stage.className = 'remote-celebration-photo curated-theme-artwork';
+        stage.dataset.artTheme = theme;
+        stage.textContent = THEME_GALLERY_EMOJI[theme];
+        mascotElement.replaceChildren(stage);
+        mascotElement.removeAttribute('aria-hidden');
+        mascotElement.setAttribute('aria-label', THEME_CATALOG[theme].label);
+        void renderCuratedThemeArtwork(theme, stage, () =>
+            requestId === remoteCelebrationPhotoRequestId && stage.isConnected &&
+            !document.getElementById('completion-celebration').classList.contains('hidden') &&
+            document.body.dataset.theme === theme);
+    };
+
     const animateExerciseContainer = element => {
         if (!element) return;
         element.classList.remove('exercise-enter');
@@ -2584,7 +3710,32 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         const robloxTheme = document.body.classList.contains('theme-roblox');
         const spaceTheme = document.body.classList.contains('theme-space');
         const londonTheme = document.body.classList.contains('theme-london');
-        const message = londonTheme
+        const footballTheme = document.body.classList.contains('theme-football');
+        const animalsTheme = document.body.classList.contains('theme-animals');
+        const stitchTheme = document.body.classList.contains('theme-stich');
+        const kuromiTheme = document.body.classList.contains('theme-kuromi');
+        const battlegroundsTheme = document.body.classList.contains('theme-battlegrounds');
+        const message = battlegroundsTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🏆', title: 'Чемпіон арени знань!', phrase: 'Flawless victory! — Жодної помилки!' }
+                : { mascot: '⚡', title: 'Новий рівень сили!', phrase: 'Level up! — Твоя англійська стає сильнішою!' })
+            : kuromiTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '💜', title: 'Блискучий результат із Kuromi!', phrase: 'Perfect work! — Усі відповіді правильні!' }
+                : { mascot: '💜', title: 'Kuromi вітає тебе!', phrase: 'Well done! — Твоя англійська стає кращою!' })
+            : stitchTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '💙', title: 'Зіркова пригода зі Stitch!', phrase: 'Perfect work! — Жодної помилки! Чудова робота!' }
+                : { mascot: '💙', title: 'Stitch радіє разом із тобою!', phrase: 'Great job! — Ще одна пригода англійською позаду!' })
+            : animalsTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🦁', title: 'Дикий успіх!', phrase: 'Perfect adventure! — Ти пройшов пригоду без жодної помилки!' }
+                : { mascot: '🐾', title: 'Чудова пригода!', phrase: 'Great job! — Твоя англійська стає сильнішою з кожним кроком!' })
+            : footballTheme
+            ? (incorrectAnswers === 0
+                ? { mascot: '🏆', title: 'Хет-трик знань!', phrase: 'Perfect match! — Ти завершив матч без жодної помилки!' }
+                : { mascot: '⚽', title: 'Переможний матч!', phrase: 'Great game! — Ще один крок до чемпіонської англійської!' })
+            : londonTheme
             ? (incorrectAnswers === 0
                 ? { mascot: '👑', title: 'Brilliant!', phrase: 'A perfect London adventure! — Ідеальна лондонська пригода без помилок!' }
                 : { mascot: '🚌', title: 'Чудова подорож!', phrase: 'Well done! — Твоя англійська впевнено рухається вперед!' })
@@ -2605,41 +3756,16 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
                 : celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)]);
 
         const mascotElement = document.getElementById('celebration-mascot');
-        if (londonTheme) {
-            const scene = pickLondonScene();
-            mascotElement.innerHTML = scene.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', scene.name);
-        } else if (spaceTheme) {
-            const scene = pickSpaceScene();
-            mascotElement.innerHTML = scene.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', scene.name);
-        } else if (robloxTheme) {
-            const artwork = pickRobloxImage();
-            mascotElement.innerHTML = '';
-            const image = document.createElement('img');
-            image.src = artwork.src;
-            image.alt = artwork.name;
-            mascotElement.appendChild(image);
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', artwork.name);
-        } else if (minecraftTheme) {
-            const character = pickMinecraftCharacter();
-            mascotElement.innerHTML = character.svg;
-            mascotElement.removeAttribute('aria-hidden');
-            mascotElement.setAttribute('aria-label', character.name);
-        } else {
-            mascotElement.textContent = message.mascot;
-            mascotElement.setAttribute('aria-hidden', 'true');
-            mascotElement.removeAttribute('aria-label');
-        }
+        mascotElement.textContent = message.mascot;
+        mascotElement.setAttribute('aria-hidden', 'true');
+        mascotElement.removeAttribute('aria-label');
         document.getElementById('celebration-title').textContent = message.title;
         document.getElementById('celebration-phrase').textContent = message.phrase;
         document.getElementById('celebration-status').textContent = 'Зберігаємо твій результат…';
         createConfetti();
         overlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        showRandomInternetCelebrationPhoto(document.body.dataset.theme || 'standard', mascotElement);
     };
 
     const updateCelebrationStatus = text => {
@@ -2647,11 +3773,13 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
     };
 
     const hideCompletionCelebration = () => {
+        remoteCelebrationPhotoRequestId++;
         document.getElementById('completion-celebration').classList.add('hidden');
         document.body.style.overflow = '';
     };
 
-    const normalizeTheme = theme => ['minecraft', 'roblox', 'space', 'london'].includes(theme) ? theme : 'standard';
+    const normalizeTheme = theme => theme === 'stitch' ? 'stich'
+        : ['minecraft', 'roblox', 'space', 'london', 'football', 'animals', 'stich', 'kuromi', 'battlegrounds'].includes(theme) ? theme : 'standard';
 
     const getSavedTheme = name => {
         try {
@@ -2666,7 +3794,11 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
             'стандарт': 'standard',
             'стандартна': 'standard',
             'космос': 'space',
-            'лондон': 'london'
+            'лондон': 'london',
+            'футбол': 'football',
+            'тварини': 'animals',
+            'stitch': 'stich',
+            'стіч': 'stich'
         };
         const nextThemes = new Set(['standard']);
         String(value || '').split(';').forEach(item => {
@@ -2818,6 +3950,11 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
         document.body.classList.toggle('theme-roblox', selectedTheme === 'roblox');
         document.body.classList.toggle('theme-space', selectedTheme === 'space');
         document.body.classList.toggle('theme-london', selectedTheme === 'london');
+        document.body.classList.toggle('theme-football', selectedTheme === 'football');
+        document.body.classList.toggle('theme-animals', selectedTheme === 'animals');
+        document.body.classList.toggle('theme-stich', selectedTheme === 'stich');
+        document.body.classList.toggle('theme-kuromi', selectedTheme === 'kuromi');
+        document.body.classList.toggle('theme-battlegrounds', selectedTheme === 'battlegrounds');
         document.body.dataset.theme = selectedTheme;
         updateThemePicker(selectedTheme);
         updateThemeAccessUI();
@@ -2828,10 +3965,7 @@ body.theme-london .celebration-mascot svg { width: min(360px, 100%); border-radi
             'listen-select-module',
             'translate-task-module'
         ].map(id => document.getElementById(id)).find(element => element && !element.classList.contains('hidden'));
-        showRandomMinecraftCharacter(activeExercise);
-        showRandomRobloxImage(activeExercise);
-        showRandomSpaceScene(activeExercise);
-        showRandomLondonScene(activeExercise);
+        showRandomInternetThemePhoto(activeExercise);
 
         if (save) {
             try {
@@ -3262,10 +4396,30 @@ const handleMenuClick = async (event) => {
                             <span class="theme-option-icon" aria-hidden="true">🇬🇧</span>
                             <span class="theme-option-label">Лондон</span>
                         </button>
+                        <button type="button" class="theme-option theme-option-football" data-theme="football" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">⚽</span>
+                            <span class="theme-option-label">Футбол</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-animals" data-theme="animals" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">🦁</span>
+                            <span class="theme-option-label">Animals</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-stich" data-theme="stich" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">💙</span>
+                            <span class="theme-option-label">Stitch</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-kuromi" data-theme="kuromi" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">💜</span>
+                            <span class="theme-option-label">Kuromi</span>
+                        </button>
+                        <button type="button" class="theme-option theme-option-battlegrounds" data-theme="battlegrounds" role="radio">
+                            <span class="theme-option-icon" aria-hidden="true">⚡</span>
+                            <span class="theme-option-label">Battlegrounds</span>
+                        </button>
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
                     <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
-                    <small class="theme-source">Зображення для Roblox-теми: <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">офіційний Roblox Press Kit</a>.</small>
+                    <small class="theme-source">Фото й малюнки тем доповнюються посиланнями з аркуша images. Офіційні рендери Roblox — <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a>; вбудовані посилання на фото — <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
                 </div>
             `;
             break;
@@ -3381,6 +4535,12 @@ const handleMenuClick = async (event) => {
     const hidePreviousExercise = () => {
         document.querySelectorAll('.minecraft-character-stage').forEach(stage => stage.remove());
         document.querySelectorAll('.roblox-character-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.space-scene-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.london-scene-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.football-photo-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.animals-photo-stage').forEach(stage => stage.remove());
+        document.querySelectorAll('.remote-theme-photo-stage').forEach(stage => stage.remove());
+        remoteThemePhotoRequestId++;
         [
             'ukr-sentence',
             'hint-text',
@@ -4403,10 +5563,7 @@ class TaskModule {
         }
     }
     animateExerciseContainer(activeExerciseContainer);
-    showRandomMinecraftCharacter(activeExerciseContainer);
-    showRandomRobloxImage(activeExerciseContainer);
-    showRandomSpaceScene(activeExerciseContainer);
-    showRandomLondonScene(activeExerciseContainer);
+    showRandomInternetThemePhoto(activeExerciseContainer);
     updateProgressBar();
     if (taskModule) {
         taskModule.updateUserAnswerDisplay();
