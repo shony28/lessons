@@ -3236,6 +3236,75 @@ body[class] .celebration-mascot .curated-theme-artwork img {
         london: '🇬🇧', football: '⚽', animals: '🐾'
     });
     const themeGalleryQueues = new Map();
+    const mixedThemeGalleries = { ...THEME_GALLERIES };
+    let imagesSheetPromise = null;
+    let imagesSheetNextCheck = 0;
+    const IMAGES_SHEET_REFRESH_MS = 5 * 60 * 1000;
+
+    const gallerySignature = photos => JSON.stringify(photos.map(photo =>
+        photo.fromSheet ? photo.src : photo.name));
+
+    const mergeImagesSheetRows = rows => {
+        const next = Object.fromEntries(Object.entries(THEME_GALLERIES)
+            .map(([theme, photos]) => [theme, [...photos]]));
+        const seen = Object.fromEntries(Object.entries(next)
+            .map(([theme, photos]) => [theme, new Set(photos.filter(p => p.src).map(p => p.src))]));
+        for (const row of rows) {
+            if (!Array.isArray(row)) continue;
+            const theme = String(row[0] || '').trim().toLowerCase();
+            if (!Object.prototype.hasOwnProperty.call(next, theme)) continue;
+            let url;
+            try { url = new URL(String(row[1] || '').trim()); } catch (_) { continue; }
+            if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) continue;
+            if (location.protocol === 'https:' && url.protocol !== 'https:') continue;
+            url.hash = '';
+            if (seen[theme].has(url.href)) continue;
+            seen[theme].add(url.href);
+            next[theme].push({
+                name: THEME_CATALOG[theme].label + ' — зображення з таблиці',
+                src: url.href,
+                fromSheet: true
+            });
+        }
+        for (const theme of Object.keys(next)) {
+            if (gallerySignature(next[theme]) !== gallerySignature(mixedThemeGalleries[theme])) {
+                mixedThemeGalleries[theme] = next[theme];
+                themeGalleryQueues.delete(theme);
+            }
+        }
+    };
+
+    // Аркуш images: A1=theme, B1=url; посилання починаються з другого рядка.
+    // Завантажуємо тільки адреси. Самі картинки — лише коли настає їхня черга.
+    const refreshImagesSheet = () => {
+        if (imagesSheetPromise) return imagesSheetPromise;
+        if (Date.now() < imagesSheetNextCheck) return Promise.resolve();
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 4000);
+        imagesSheetPromise = (async () => {
+            try {
+                const range = encodeURIComponent('images!A2:B');
+                const url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
+                    SPREADSHEET_ID + '/values/' + range + '?key=' + encodeURIComponent(API_KEY);
+                const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+                if (!response.ok) throw new Error('images sheet unavailable');
+                const result = await response.json();
+                if (result.error || (result.values !== undefined && !Array.isArray(result.values))) {
+                    throw new Error('Invalid images sheet response');
+                }
+                mergeImagesSheetRows(result.values || []);
+                imagesSheetNextCheck = Date.now() + IMAGES_SHEET_REFRESH_MS;
+            } catch (_) {
+                // Відсутній аркуш або збій мережі не блокують вправи й наявні набори.
+                imagesSheetNextCheck = Date.now() + 60000;
+            } finally {
+                clearTimeout(timeout);
+                imagesSheetPromise = null;
+            }
+        })();
+        return imagesSheetPromise;
+    };
+
     let remoteThemePhotoRequestId = 0;
     let remoteCelebrationPhotoRequestId = 0;
 
@@ -3276,21 +3345,22 @@ body[class] .celebration-mascot .curated-theme-artwork img {
 
     // Одна черга на тему для вправ і завершення. Прогрес зберігається після перезавантаження.
     const takeThemePhoto = theme => {
-        const photos = THEME_GALLERIES[theme];
+        const photos = mixedThemeGalleries[theme];
         if (!photos?.length) return null;
-        const key = 'curatedThemeQueueV2_' + theme;
+        const key = 'curatedThemeQueueV3_' + theme;
+        const signature = gallerySignature(photos);
         let state = themeGalleryQueues.get(theme);
         if (!state) {
             try {
                 const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
-                if (saved && saved.size === photos.length && Array.isArray(saved.queue)
+                if (saved && saved.signature === signature && saved.size === photos.length && Array.isArray(saved.queue)
                     && saved.queue.every(index => Number.isInteger(index) && index >= 0 && index < photos.length)
                     && new Set(saved.queue).size === saved.queue.length
                     && Number.isInteger(saved.last) && saved.last >= -1 && saved.last < photos.length) {
                     state = saved;
                 }
             } catch (_) {}
-            state = state || { size: photos.length, queue: [], last: -1 };
+            state = state || { size: photos.length, signature, queue: [], last: -1 };
             themeGalleryQueues.set(theme, state);
         }
         if (!state.queue.length) {
@@ -3325,7 +3395,9 @@ body[class] .celebration-mascot .curated-theme-artwork img {
     };
 
     const renderCuratedThemeArtwork = async (theme, target, stillCurrent) => {
-        const photos = THEME_GALLERIES[theme];
+        await refreshImagesSheet();
+        if (!stillCurrent()) return;
+        const photos = mixedThemeGalleries[theme];
         if (!photos) return;
         for (let attempt = 0; attempt < photos.length; attempt++) {
             if (!stillCurrent()) return;
@@ -3344,7 +3416,7 @@ body[class] .celebration-mascot .curated-theme-artwork img {
             artwork.setAttribute('aria-label', photo.name);
             target.replaceChildren(artwork);
             target.setAttribute('aria-label', photo.name);
-            if (theme === 'roblox' && !photo.svg) {
+            if (theme === 'roblox' && !photo.svg && !photo.fromSheet) {
                 const credit = document.createElement('a');
                 credit.className = 'remote-theme-photo-credit';
                 credit.href = 'https://about.roblox.com/press-kit';
@@ -4095,7 +4167,7 @@ const handleMenuClick = async (event) => {
                     </div>
                     <div id="theme-shop-balance" class="theme-shop-balance">Твій баланс: ${Number(points) || 0} Coins</div>
                     <div id="theme-shop-message" class="theme-shop-message" role="status" aria-live="polite"></div>
-                    <small class="theme-source">Фіксовані тематичні набори без пошуку в інтернеті. Ілюстрації вбудовані; зображення Roblox — <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a>; фото тварин і футболу — <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
+                    <small class="theme-source">Фото й малюнки тем доповнюються посиланнями з аркуша images. Офіційні рендери Roblox — <a href="https://about.roblox.com/press-kit" target="_blank" rel="noopener noreferrer">Roblox Press Kit</a>; вбудовані посилання на фото — <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>.</small>
                 </div>
             `;
             break;
